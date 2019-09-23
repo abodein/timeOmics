@@ -23,6 +23,12 @@ get_demo_silhouette <- function() {
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarise
+#' 
+#' @examples
+#' data <- get_demo_silhouette()
+#' data$dist <- dmatrix.proportionality.distance(data$data)
+#' sil <- silhouette(data$dist, data$cluster$cluster)
+#' 
 #' @export
 silhouette <- function(dmatrix,  # distance matrix
                        cluster)  # cluster vector of size ncol(dmatrix)

@@ -1,7 +1,7 @@
 Package: timeOmics
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(given = "First",
            family = "Last",
            role = c("aut", "cre"),
@@ -10,12 +10,13 @@ Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Suggests: 
-    testthat
-Imports: 
+Imports:
     dplyr,
     tidyr,
     tibble,
     purrr,
     magrittr
+Depends: mixOmics
 RoxygenNote: 6.1.1
+VignetteBuilder: knitr
+Suggests: BiocStyle, knitr, rmarkdown, testthtat

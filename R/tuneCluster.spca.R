@@ -7,6 +7,12 @@
 #' plot(tune.spca.res)
 #' plot(tune.spca.res, comp = 2)
 
+#' @import mixOmics
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#'
+#' @export
 tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...){
     #-- checking input parameters ---------------------------------------------#
     #--------------------------------------------------------------------------#
@@ -60,21 +66,31 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
             tmp.cluster <- getCluster(spca.res)
             tmp.cluster <- suppressWarnings(dplyr::left_join(cluster, tmp.cluster[c(1,4)],
                                                              by = c("feature"="molecule"))) %>%
-                mutate(cluster = as.numeric(as.character(cluster))) %>%
-                mutate(cluster = ifelse(is.na(cluster), 0, cluster))
+                dplyr::mutate(cluster = as.numeric(as.character(cluster))) %>%
+                dplyr::mutate(cluster = ifelse(is.na(cluster), 0, cluster))
 
             #-- 4. compute silhouette
             sil <- silhouette(dmatrix, tmp.cluster$cluster)
             result[[comp]][[as.character(keepX)]]$average.cluster <- sil$average.cluster
             result[[comp]][[as.character(keepX)]]$average <- sil$average
             result[[comp]][[as.character(keepX)]]$average.n0 <- sil$feature %>%
-                filter(cluster != 0) %>% pull(silhouette.coef) %>% mean
+                dplyr::filter(cluster != 0) %>% pull(silhouette.coef) %>% mean
         }
     }
     class(result) <- "spca.tune.silhouette"
     return(result)
 }
 
+#' plot.spca.tune.silhouette
+#'
+#' Plot 
+#'
+#' @import mixOmics
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#' @import ggplot2
+#' @export
 plot.spca.tune.silhouette <- function(X, comp = 1, plot = TRUE){
     #-- checking input parameters ---------------------------------------------#
     #--------------------------------------------------------------------------#

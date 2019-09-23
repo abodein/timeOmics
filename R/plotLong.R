@@ -25,6 +25,7 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
 }
 
 #' @importFrom magrittr %>%
+#' @export
 plotLong.pca <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
 
     if(!is.null(time)){
@@ -49,6 +50,7 @@ plotLong.pca <- function(object, time = NULL, plot = TRUE, center = TRUE, scale 
 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
+#' @export
 plotLong.spca <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
     print("plotLong.spca")
 
@@ -77,6 +79,7 @@ plotLong.spca <- function(object, time = NULL, plot = TRUE, center = TRUE, scale
     return(invisible(gg))
 }
 
+#' @export
 #' @importFrom magrittr %>%
 plotLong.mixo_pls <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
     print("plotLong.mixo_pls")
@@ -109,6 +112,7 @@ plotLong.mixo_pls <- function(object, time = NULL, plot = TRUE, center = TRUE, s
     return(invisible(gg))
 }
 
+#' @export
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
 plotLong.mixo_spls <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
@@ -146,6 +150,7 @@ plotLong.mixo_spls <- function(object, time = NULL, plot = TRUE, center = TRUE, 
     return(invisible(gg))
 }
 
+#' @export
 #' @importFrom magrittr %>%
 plotLong.block.pls <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
     print("plotLong.block.pls")
@@ -180,6 +185,7 @@ plotLong.block.pls <- function(object, time = NULL, plot = TRUE, center = TRUE, 
     return(invisible(gg))
 }
 
+#' @export
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
 plotLong.block.spls <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
@@ -216,6 +222,7 @@ plotLong.block.spls <- function(object, time = NULL, plot = TRUE, center = TRUE,
     return(invisible(gg))
 }
 
+#' @export
 #' @importFrom mixOmics color.mixo
 #' @import ggplot2
 #' @importFrom tidyr gather
@@ -233,7 +240,8 @@ plotLongGGplot <- function(data, time, cluster, plot = TRUE){
     gg <- ggplot(data.gather, aes(x = time, y = value, group = molecule)) +
         geom_line(aes(color = block)) +
         facet_grid(contribution ~ comp, scales = "free") +
-        scale_color_manual(values = mixOmics::color.mixo(1:length(levels(data.gather$cluster))))
+        scale_color_manual(values = mixOmics::color.mixo(1:length(levels(data.gather$cluster)))) +
+        theme_bw()
 
     if(plot){
         print(gg)

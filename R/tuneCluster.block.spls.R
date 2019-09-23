@@ -8,6 +8,11 @@
 #' test.keepY <- c(2:5)
 #' tune.block.spls <- tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = test.list.keepX, test.keepY = test.keepY, mode = "canonical")
 
+#' @import mixOmics
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#' @export
 tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep(ncol(X), ncomp),
                                    test.keepY = NULL, ...){
     #-- checking input parameters ---------------------------------------------#
@@ -98,9 +103,9 @@ tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep
             #--6. store
             result[result.index, "comp"] <- comp
             result[result.index, "pos"] <- sil$average.cluster  %>%
-                filter(cluster == comp) %>% pull(silhouette.coef)
+                dplyr::filter(cluster == comp) %>% dplyr::pull(silhouette.coef)
             result[result.index, "neg"] <- sil$average.cluster  %>%
-                filter(cluster == -comp) %>% pull(silhouette.coef)
+                dplyr::filter(cluster == -comp) %>% dplyr::pull(silhouette.coef)
             result.index <- result.index + 1
         }
     }

@@ -6,8 +6,11 @@
 #' Y <- demo$Y
 #' tune.spls <- tuneCluster.spls(X, Y, ncomp = 2, test.keepX = c(5,10,15,20), test.keepY <- c(2,4,6))
 #'
-#'
-#'
+#' @export
+#' @import mixOmics
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
 
 tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
                              test.keepY = rep(ncol(Y), ncomp), ...){
@@ -62,8 +65,8 @@ tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
             tmp.cluster <- getCluster(spls.res)
             tmp.cluster <- suppressWarnings(dplyr::left_join(cluster, tmp.cluster[c(1,4)],
                                                              by = c("feature"="molecule"))) %>%
-                mutate(cluster = as.numeric(as.character(cluster))) %>%
-                mutate(cluster = ifelse(is.na(cluster), 0, cluster))
+                dplyr::mutate(cluster = as.numeric(as.character(cluster))) %>%
+                dplyr::mutate(cluster = ifelse(is.na(cluster), 0, cluster))
 
             #--5. compute silhouette
             sil <- silhouette(dmatrix, tmp.cluster$cluster)
@@ -74,9 +77,9 @@ tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
             result[result.index, "X"] <- kX[comp]
             result[result.index, "Y"] <- kY[comp]
             result[result.index, "pos"] <- sil$average.cluster  %>%
-                filter(cluster == comp) %>% pull(silhouette.coef)
+                dplyr::filter(cluster == comp) %>% pull(silhouette.coef)
             result[result.index, "neg"] <- sil$average.cluster  %>%
-                filter(cluster == -comp) %>% pull(silhouette.coef)
+                dplyr::filter(cluster == -comp) %>% pull(silhouette.coef)
         }
     }
     result <- list("silhouette" = result)

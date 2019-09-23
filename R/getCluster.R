@@ -61,6 +61,7 @@ get_demo_cluster<- function(){
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
 #' @importFrom magrittr %>%
+#' @export
 getCluster.pca <- function(X){
     #print("getCluster.pca")
     # colnames = PC1, PC2...
@@ -74,6 +75,7 @@ getCluster.pca <- function(X){
     return(loadings.max)
 }
 
+#' @export
 #' @importFrom dplyr mutate
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
@@ -91,6 +93,7 @@ getCluster.spca <- function(X){
     return(loadings.max)
 }
 
+#' @export
 #' @importFrom dplyr mutate
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
@@ -119,6 +122,7 @@ getCluster.mixo_pls <- function(X){
     return(loadings.max)
 }
 
+#' @export
 #' @importFrom dplyr mutate
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
@@ -151,6 +155,7 @@ getCluster.mixo_spls <- function(X){
     return(loadings.max)
 }
 
+#' @export
 #' @importFrom purrr imap set_names
 #' @importFrom dplyr mutate left_join
 #' @importFrom tibble rownames_to_column
@@ -179,7 +184,7 @@ getCluster.block.pls <- function(X){
     return(loadings.max)
 }
 
-
+#' @export
 #' @importFrom purrr imap set_names
 #' @importFrom dplyr mutate left_join
 #' @importFrom tibble rownames_to_column
