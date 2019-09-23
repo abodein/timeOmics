@@ -1,0 +1,101 @@
+---
+title: "timeOmics"
+author: 
+- name:  "Antoine Bodein"
+  affiliation: "CHU de Québec Research Center, Université Laval, Molecular Medicine department, Québec, QC, Canada"
+  email: "antoine.bodein.1@ulaval.ca"
+  
+output: 
+    BiocStyle::html_document
+
+  
+header-includes:
+  - \usepackage{color}
+---
+
+# Introduction
+
+We propose a generic data-driven framework to integrate different types of longitudinal data measured on the same biological specimens with microbial communities data, and select key temporal features with strong associations within the same sample group. The framework ranges from filtering and modelling, to integration using smoothing splines and multivariate dimension reduction methods to address some of the analytical challenges of microbiome-derived data, as illustrated in the figure below. We present our framework on different types of multi-omics case studies in bioreactor experiments as well as human studies
+
+# Start
+
+## Installation
+
+```{r, echo =  F}
+knitr::opts_chunk$set(eval = FALSE, echo = TRUE)
+```
+
+
+```r
+install.packages("devtools")
+# then load
+library(devtools)
+install_github("abodein/timeOmics")
+```
+
+## Load the package
+
+```{r}
+library(timeOmics)
+```
+
+# Time Modelling
+
+We rely on `LMMS` package to model features expression as a function of time.
+
+## Type of data
+
+# (s)PCA longitudinal clustering
+
+PCA is un unsupervised reduction dimension technique that will use uncorrelated 
+intrumental variable (a.k.a principal components) to summarize as much information 
+(variance) as possible from the data.
+
+```{r}
+data("timeOmics.simdata")
+data <- timeOmics.simdata$modelled
+```
+
+## bla bla clustering
+
+figure 
+
+```{r}
+# run pca
+pca.res <- pca(X = data, ncomp = 5)
+
+pca.ncomp <- getNcomp(pca.res, max.ncomp = 5)
+plot(pca.ncomp)
+```
+
+Thanks to the previous plot, highest silhouette coefficient is achieved when `ncomp = 2`.
+
+```{r}
+pca.res <- pca(X = data, ncomp = 2)
+```
+
+All information about the cluster is displayed here.
+
+```{r}
+# extract cluster
+pca.cluster <- getCluster(pca.res)
+head(pca.cluster)
+```
+
+## sparse PCA
+
+blabla sparse
+
+```{r}
+tuneCluster.spca(X = data, ncomp = 2, test.keepX = c(2,5,7))
+```
+
+
+## Required data
+
+# (s)PLS longitudinal clustering
+
+# Multi-block (s)PLS longitudinal clustering
+
+
+
