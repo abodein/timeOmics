@@ -14,10 +14,14 @@
 #' perform the clustering step, and compute the silhouette coefficient.
 #'
 #' @return
-#'
+#' 
 #' @examples
-#' data <- get_demo_silhouette()
-#' res <- silhouette(X = data$data, cluster = data$cluster)
+#' demo <- suppressMessages(get_demo_cluster())
+#' # pca
+#' getSilhouette(object = demo$pca)
+#' # spca
+#' getSilhouette(object = demo$spca)
+#' 
 #'
 #' @export
 getSilhouette <- function(object){
@@ -25,12 +29,13 @@ getSilhouette <- function(object){
 }
 
 #' @importFrom magrittr %>%
+#' @importFrom dplyr select
 getSilhouette.pca <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
 
-    silhouette.res <- silhouette(X = as.data.frame(object$X), cluster = cluster)
-    return(silhouette.res)
+    silhouette.res <- wrapper.silhouette(X = as.data.frame(object$X), cluster = cluster$cluster)
+    return(silhouette.res$average)
 }
 
 #' @importFrom magrittr %>%
@@ -41,7 +46,7 @@ getSilhouette.spca <- function(object){
 
     X <- object$X %>% as.data.frame() %>%
         dplyr::select(cluster$molecule)
-    silhouette.res <- silhouette(X = X, cluster = cluster)
+    silhouette.res <- wrapper.silhouette(X = X, cluster = cluster)
     ComputeSilhouetteAverage(silhouette.res)
 }
 

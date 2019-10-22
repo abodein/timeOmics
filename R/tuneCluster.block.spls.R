@@ -14,7 +14,7 @@
 #' @importFrom dplyr filter
 #' @export
 tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep(ncol(X), ncomp),
-                                   test.keepY = NULL, ...){
+                                   test.keepY = NULL, indY = NULL, ...){
     #-- checking input parameters ---------------------------------------------#
     #--------------------------------------------------------------------------#
 
@@ -25,7 +25,7 @@ tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep
     if(!is.null(Y)){
         Y <- validate.matrix.X(Y)
     } else {
-        indY <- validate.indY(indY)
+        indY <- validate.indY(indY, X)
     }
 
     #-- ncomp
@@ -110,20 +110,151 @@ tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep
         }
     }
     result <- list("silhouette" = result)
-    result[["ncomp"]] <- ncomp
+    result[["ncomp"]] <- ncomp 
     result[["test.keepX"]] <- test.list.keepX
     result[["test.keepY"]] <- test.keepY
     result[["block"]] <- names(list.keepX.keepY)
     class(result) <- "block.spls.tune.silhouette"
+    result[["slopes"]] <- tune.silhouette.get_slopes(result)
     return(result)
 }
 
-tune.silhouette.get_slopes <- function(tune.silhouette){
+tune.silhouette.get_slopes <- function(object){
+    stopifnot(class(object) %in% c("block.spls.tune.silhouette"))
     # tune.silhouette is a data.frame (comp, X, Y, bock ..., pos, neg)
     # tune.silhouette <- tune.block.spls$silhouette
-    block <- names(tune.silhouette)[!names(tune.silhouette) %in% c("comp", "pos", "neg")]
-    tune.silhouette[block]
+    
+    block <- object$block
+    coord <- object$test.keepX
+    if(!is.null(object[["test.keepY"]])){
+        coord[["Y"]] <- object$test.keepY
+    }
+    coord <- lapply(coord, sort)
+    ncomp <- object$ncomp
+    
+    # get all points 
+    all.points <- unique(object$silhouette[block])
+    
+    # define neighbours
+    neighbourhood <- map_dfr(1:nrow(all.points), ~tune.silhouette.get_neighbours(coord = coord, all.points[.x,]))
+    
+    # extract pos and neg and set it as named list for better performance
+    split_by_comp <- split(object$silhouette, f= as.factor(object$silhouette$comp))
+    names_split_by_comp <- lapply(split_by_comp, 
+                                  function(x) as.vector(apply(x[block], 1, function(y) paste(y, collapse = "_"))))
+    
+    POS <- imap(split_by_comp, ~ purrr::set_names(.x[["pos"]], names_split_by_comp[[.y]]))
+    NEG <- imap(split_by_comp, ~ purrr::set_names(.x[["neg"]], names_split_by_comp[[.y]]))
+    
+    # compute slope (pos / neg by comp)
+    slopes <- purrr::map_dfr(as.character(1:ncomp), ~{
+        cbind(neighbourhood,
+              "origin.pos" = POS[[.x]][neighbourhood$origin],
+              "destination.pos" = POS[[.x]][neighbourhood$destination],
+              "origin.neg" = NEG[[.x]][neighbourhood$origin],
+              "destination.neg" = NEG[[.x]][neighbourhood$destination],
+              "comp" = as.numeric(.x))})
+    
+    slopes <- slopes %>% filter(origin!=destination) %>%
+        mutate("slope.pos" = tune.silhouette.get_slopes_coef(x1 = lapply(str_split(.$origin, "_"), as.numeric),
+                                                             x2 = lapply(str_split(.$destination, "_"), as.numeric),
+                                                             y1 = .$origin.pos,
+                                                             y2 = .$destination.pos)) %>%
+        mutate("slope.neg" = tune.silhouette.get_slopes_coef(x1 = lapply(str_split(.$origin, "_"), as.numeric),
+                                                             x2 = lapply(str_split(.$destination, "_"), as.numeric),
+                                                             y1 = .$origin.neg,
+                                                             y2 = .$destination.neg))
+    # cumpute SD by comp and direction
+    SD <- slopes %>% 
+        group_by(comp, direction) %>% 
+        summarise(sd.pos = sd(slope.pos),
+                  sd.neg = sd(slope.neg),
+                  mean.pos = mean(slope.pos),
+                  mean.neg = mean(slope.neg))
+    
+    # add Pval for signif slopes
+    slopes <- slopes %>% left_join(SD, by = c("direction", "comp")) %>%
+        # pos
+        mutate(Z_score.pos = (.$slope.pos - .$mean.pos)/.$sd.pos) %>%
+        mutate(Pval.pos = ifelse(Z_score.pos >= 0,1-pnorm(Z_score.pos), pnorm(Z_score.pos))) %>%
+        # neg
+        mutate(Z_score.neg = (.$slope.neg - .$mean.neg)/.$sd.neg) %>%
+        mutate(Pval.neg = ifelse(Z_score.neg >= 0,1-pnorm(Z_score.neg), pnorm(Z_score.neg)))
+    return(slopes)
+}
+
+tune.silhouette.get_neighbours <- function(coord, point){
+    # return forward neighbourhood of a point
+    
+    # valid point in coord
+    stopifnot(all(names(coord) == names(point)))
+    
+    neighbour.max <- point
+    index <- purrr::map2(coord, point, ~which(.x == .y))
+
+    # get max neighbours
+    for(i in names(index)){
+        if(!(length(coord[[i]]) == index[[i]])){ 
+            neighbour.max[[i]] <- coord[[i]][index[[i]]+1]
+        }
+    } # can be simplified
+    
+    # get all close possible neighbours
+    neighbourhood <- as.list(rbind(as.data.frame(point), as.data.frame(neighbour.max))) %>%
+        lapply(unique) %>%
+    expand.grid(stringsAsFactors = F, KEEP.OUT.ATTRS = F)
+    
+    # get direction for standard deviation computation
+    direction <- vector(mode = "numeric", length = nrow(neighbourhood))
+    for(i in 1:nrow(neighbourhood)){
+        direction[i] <- purrr::map2(coord, neighbourhood[i,], ~which(.x == .y)) %>%
+            purrr::map2(index, ~{.x-.y}) %>%
+            paste(collapse = "_")
+    }
+    
+    neighbourhood["direction"] <- direction
+    neighbourhood["origin"] <- paste(point, collapse = "_")
+    neighbourhood["destination"] <- apply(neighbourhood[names(coord)], 1, 
+                                          function(x) paste(x, collapse = "_"))
+    return(neighbourhood)
 }
 
 
+tune.silhouette.get_slopes_coef <- function(x1,x2,y1,y2){
+    stopifnot(length(x1) == length(x2))
+    stopifnot(length(x2) == length(y1))
+    stopifnot(length(y1) == length(y2))
+    
+    res <- purrr::map_dbl(seq_along(x1), ~{
+        euc.dist <- sqrt(sum((x1[[.x]] - x2[[.x]])^2));
+        ifelse(euc.dist == 0, 0, (y2[.x] - y1[.x])/euc.dist)})
+    return(res)
+}
 
+
+plot.block.spls.tune.silhouette <- function(object, pvalue = 0.05){
+    data.gather <- object$silhouette %>%  
+        mutate(dim1 = pull(object$silhouette[block[1]])) %>% 
+        dplyr::select(-c(object$block[1])) %>%
+        gather(dim2, value, -c(comp, pos, neg, dim1)) %>%
+        filter(comp == 1) %>% group_by(dim2,value)
+    
+    data.gather <- object$silhouette %>% mutate(dim2 = paste(Z,Y, sep = "_"))
+    ggplot(data.gather, aes(x = X, y = pos, group = dim2)) + geom_line() + facet_wrap(~comp)
+    
+    data.gather <-  object$silhouette %>% gather(dim, value, -c(comp, pos, neg))
+    
+    ggplot(data.gather, aes(x = dim1, y = pos)) + geom_line(aes(col = dim2))
+    
+    plot.df <- map_dfr(object$block, ~{object$silhouette %>%
+            unite("dim1", .x, remove = FALSE) %>%
+            mutate(dim1 = as.numeric(dim1)) %>%
+            tidyr::unite("dim2", one_of(object$block[which(object$block != .x)]), remove = FALSE) %>%
+            mutate(dim2 = paste(.x, dim2, sep = "_")) %>%
+            mutate(block = .x) %>%
+            gather(silhouette, value, c(pos,neg))})
+           
+    ggplot(plot.df %>% filter( dim2 == "X_2_2") #Z == 2, Y == 2, comp==1, silhouette =="neg")
+           ,aes(x = dim1, y = value, group = dim2, color = silhouette)) + geom_line() + facet_grid(comp~block, scales = "free_x")
+    ggplot(plot.df, aes(x = dim1, y = value, group = dim2, color = silhouette)) + geom_line() + facet_grid(comp~block, scales = "free_x")
+}

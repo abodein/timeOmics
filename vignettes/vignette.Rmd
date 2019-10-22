@@ -82,7 +82,8 @@ For more information about LMMS modelling parameters, please check (link lmms)
 time <- rownames(sim.data) %>% str_remove("._") %>% as.numeric()
 LMMS.output <- lmms::lmmSpline(data = sim.data, time = time,
                         sampleID = rownames(sim.data), deri = FALSE,
-                        basis = "p-spline", numCores = 4, timePredict = 1:9)
+                        basis = "p-spline", numCores = 4, timePredict = 1:9, 
+                        keepModels = T)
 data <- t(LMMS.output@predSpline)
 ```
 

@@ -24,8 +24,3 @@ for an object of the type \code{pca}, \code{spca}, \code{pls}, \code{spls},
 This method extract the componant contribution depending on the object,
 perform the clustering step, and compute the silhouette coefficient.
 }
-\examples{
-data <- get_demo_silhouette()
-res <- silhouette(X = data$data, cluster = data$cluster)
-
-}

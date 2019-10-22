@@ -26,6 +26,7 @@
 #' @export
 getCluster <- function(x) UseMethod("getCluster")
 
+#' @export
 get_demo_cluster<- function(){
     X <- matrix(sample(1:1000), nrow = 10)
     rownames(X) <- 1:nrow(X)

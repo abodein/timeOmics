@@ -79,6 +79,9 @@ validate.test.list.keepX <- function(test.keepX, ncomp, X){
     return(test.keepX)
 }
 
-
+validate.indY <- function(indY, X){
+    stopifnot(is.almostInteger(indY))
+    stopifnot(indY %in% c(1:length(X))) # data is valid  and is a list of df 
+}
 
 
