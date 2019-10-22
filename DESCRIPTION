@@ -2,10 +2,10 @@ Package: timeOmics
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
 Authors@R:
-    person(given = "First",
-           family = "Last",
+    person(given = "Antoine",
+           family = "Bodein",
            role = c("aut", "cre"),
-           email = "first.last@example.com")
+           email = "antoine.bodein.1@ulaval.ca")
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -15,8 +15,10 @@ Imports:
     tidyr,
     tibble,
     purrr,
-    magrittr
+    magrittr,
+    ggplot2,
+    stringr
 Depends: mixOmics
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
-Suggests: BiocStyle, knitr, rmarkdown, testthtat
+Suggests: BiocStyle, knitr, rmarkdown, testthat, lmms, tidyverse
