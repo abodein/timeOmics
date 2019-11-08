@@ -86,9 +86,7 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
 #' Plot 
 #'
 #' @import mixOmics
-#' @importFrom dplyr left_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr filter
+#' @importFrom dplyr left_join mutate filter
 #' @import ggplot2
 #' @export
 plot.spca.tune.silhouette <- function(X, comp = 1, plot = TRUE){

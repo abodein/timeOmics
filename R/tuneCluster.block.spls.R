@@ -102,10 +102,12 @@ tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep
 
             #--6. store
             result[result.index, "comp"] <- comp
-            result[result.index, "pos"] <- sil$average.cluster  %>%
+            pos.res <-  sil$average.cluster  %>% 
                 dplyr::filter(cluster == comp) %>% dplyr::pull(silhouette.coef)
-            result[result.index, "neg"] <- sil$average.cluster  %>%
+            result[result.index, "pos"] <- ifelse(length(pos.res) == 0, NA, pos.res)
+            neg.res <-  sil$average.cluster  %>%
                 dplyr::filter(cluster == -comp) %>% dplyr::pull(silhouette.coef)
+            result[result.index, "neg"] <- ifelse(length(neg.res) == 0, NA, neg.res)
             result.index <- result.index + 1
         }
     }
@@ -119,6 +121,9 @@ tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep
     return(result)
 }
 
+#' @importFrom purrr imap set_names map_dfr
+#' @importFrom dplyr filter mutate group_by summarise left_join
+#' @importFrom stringr str_split
 tune.silhouette.get_slopes <- function(object){
     stopifnot(class(object) %in% c("block.spls.tune.silhouette"))
     # tune.silhouette is a data.frame (comp, X, Y, bock ..., pos, neg)
@@ -143,8 +148,8 @@ tune.silhouette.get_slopes <- function(object){
     names_split_by_comp <- lapply(split_by_comp, 
                                   function(x) as.vector(apply(x[block], 1, function(y) paste(y, collapse = "_"))))
     
-    POS <- imap(split_by_comp, ~ purrr::set_names(.x[["pos"]], names_split_by_comp[[.y]]))
-    NEG <- imap(split_by_comp, ~ purrr::set_names(.x[["neg"]], names_split_by_comp[[.y]]))
+    POS <- purrr::imap(split_by_comp, ~ purrr::set_names(.x[["pos"]], names_split_by_comp[[.y]]))
+    NEG <- purrr::imap(split_by_comp, ~ purrr::set_names(.x[["neg"]], names_split_by_comp[[.y]]))
     
     # compute slope (pos / neg by comp)
     slopes <- purrr::map_dfr(as.character(1:ncomp), ~{
@@ -155,34 +160,37 @@ tune.silhouette.get_slopes <- function(object){
               "destination.neg" = NEG[[.x]][neighbourhood$destination],
               "comp" = as.numeric(.x))})
     
-    slopes <- slopes %>% filter(origin!=destination) %>%
-        mutate("slope.pos" = tune.silhouette.get_slopes_coef(x1 = lapply(str_split(.$origin, "_"), as.numeric),
-                                                             x2 = lapply(str_split(.$destination, "_"), as.numeric),
+    slopes <- slopes %>% dplyr::filter(origin!=destination) %>%
+        dplyr::mutate("slope.pos" = tune.silhouette.get_slopes_coef(x1 = lapply(stringr::str_split(.$origin, "_"), as.numeric),
+                                                             x2 = lapply(stringr::str_split(.$destination, "_"), as.numeric),
                                                              y1 = .$origin.pos,
                                                              y2 = .$destination.pos)) %>%
-        mutate("slope.neg" = tune.silhouette.get_slopes_coef(x1 = lapply(str_split(.$origin, "_"), as.numeric),
-                                                             x2 = lapply(str_split(.$destination, "_"), as.numeric),
+        dplyr::mutate("slope.neg" = tune.silhouette.get_slopes_coef(x1 = lapply(stringr::str_split(.$origin, "_"), as.numeric),
+                                                             x2 = lapply(stringr::str_split(.$destination, "_"), as.numeric),
                                                              y1 = .$origin.neg,
-                                                             y2 = .$destination.neg))
+                                                             y2 = .$destination.neg)) %>%
+        dplyr::mutate("distance_from_origin" = tune.silhouette.distance_from_origin(x = lapply(stringr::str_split(.$origin, "_"), as.numeric)))
+    
     # cumpute SD by comp and direction
     SD <- slopes %>% 
-        group_by(comp, direction) %>% 
-        summarise(sd.pos = sd(slope.pos),
-                  sd.neg = sd(slope.neg),
-                  mean.pos = mean(slope.pos),
-                  mean.neg = mean(slope.neg))
+        dplyr::group_by(comp, direction) %>% 
+        dplyr::summarise(sd.pos = sd(slope.pos),
+                         sd.neg = sd(slope.neg),
+                         mean.pos = mean(slope.pos),
+                         mean.neg = mean(slope.neg))
     
     # add Pval for signif slopes
-    slopes <- slopes %>% left_join(SD, by = c("direction", "comp")) %>%
+    slopes <- slopes %>% dplyr::left_join(SD, by = c("direction", "comp")) %>%
         # pos
-        mutate(Z_score.pos = (.$slope.pos - .$mean.pos)/.$sd.pos) %>%
-        mutate(Pval.pos = ifelse(Z_score.pos >= 0,1-pnorm(Z_score.pos), pnorm(Z_score.pos))) %>%
+        dplyr::mutate(Z_score.pos = (.$slope.pos - .$mean.pos)/.$sd.pos) %>%
+        dplyr::mutate(Pval.pos = ifelse(Z_score.pos >= 0,1-pnorm(Z_score.pos), pnorm(Z_score.pos))) %>%
         # neg
-        mutate(Z_score.neg = (.$slope.neg - .$mean.neg)/.$sd.neg) %>%
-        mutate(Pval.neg = ifelse(Z_score.neg >= 0,1-pnorm(Z_score.neg), pnorm(Z_score.neg)))
+        dplyr::mutate(Z_score.neg = (.$slope.neg - .$mean.neg)/.$sd.neg) %>%
+        dplyr::mutate(Pval.neg = ifelse(Z_score.neg >= 0,1-pnorm(Z_score.neg), pnorm(Z_score.neg)))
     return(slopes)
 }
 
+#' @importFrom purrr map2
 tune.silhouette.get_neighbours <- function(coord, point){
     # return forward neighbourhood of a point
     
@@ -219,7 +227,7 @@ tune.silhouette.get_neighbours <- function(coord, point){
     return(neighbourhood)
 }
 
-
+#' @importFrom purrr map_dbl
 tune.silhouette.get_slopes_coef <- function(x1,x2,y1,y2){
     stopifnot(length(x1) == length(x2))
     stopifnot(length(x2) == length(y1))
@@ -231,13 +239,26 @@ tune.silhouette.get_slopes_coef <- function(x1,x2,y1,y2){
     return(res)
 }
 
+#' @importFrom purrr map_dbl
+tune.silhouette.distance_from_origin <- function(x1){
+    euc.dist <- purrr::map_dbl(seq_along(x1), ~{ sqrt(sum((x1[[.x]])^2))})
+    return(euc.dist)
+}
 
+tune.silhouette.choice_keepX <- function(slopes, alpha){
+    # filter with pvalue on slope coef.
+    slope.signif <- slopes %>% dplyr::filter(Pval.pos < alpha | Pval.neg <alpha) 
+}
+
+#' @importFrom dplyr mutate select filter
+#' @importFrom tidyr gather
+#' @import ggplot2
 plot.block.spls.tune.silhouette <- function(object, pvalue = 0.05){
     data.gather <- object$silhouette %>%  
-        mutate(dim1 = pull(object$silhouette[block[1]])) %>% 
+        dplyr::mutate(dim1 = pull(object$silhouette[block[1]])) %>% 
         dplyr::select(-c(object$block[1])) %>%
-        gather(dim2, value, -c(comp, pos, neg, dim1)) %>%
-        filter(comp == 1) %>% group_by(dim2,value)
+        tidyr::gather(dim2, value, -c(comp, pos, neg, dim1)) %>%
+        dplyr::filter(comp == 1) %>% group_by(dim2,value)
     
     data.gather <- object$silhouette %>% mutate(dim2 = paste(Z,Y, sep = "_"))
     ggplot(data.gather, aes(x = X, y = pos, group = dim2)) + geom_line() + facet_wrap(~comp)
@@ -258,3 +279,4 @@ plot.block.spls.tune.silhouette <- function(object, pvalue = 0.05){
            ,aes(x = dim1, y = value, group = dim2, color = silhouette)) + geom_line() + facet_grid(comp~block, scales = "free_x")
     ggplot(plot.df, aes(x = dim1, y = value, group = dim2, color = silhouette)) + geom_line() + facet_grid(comp~block, scales = "free_x")
 }
+

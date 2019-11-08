@@ -5,7 +5,8 @@
 \title{tuneCluster.block.spls}
 \usage{
 tuneCluster.block.spls(X, Y = NULL, ncomp = 2,
-  test.list.keepX = rep(ncol(X), ncomp), test.keepY = NULL, ...)
+  test.list.keepX = rep(ncol(X), ncomp), test.keepY = NULL,
+  indY = NULL, ...)
 }
 \description{
 tuneCluster.block.spls
