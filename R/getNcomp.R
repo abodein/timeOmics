@@ -51,7 +51,7 @@ getNcomp <- function(object, max.ncomp = NULL){
         if (max.ncomp > min(ncol(object$X), nrow(object$X)))
             stop("use smaller 'max.ncomp'")
     } else {
-        max.ncomp <- object$ncomp
+        max.ncomp <- unique(object$ncomp)
     }
 
     #-- Iterating ncomp
@@ -60,7 +60,11 @@ getNcomp <- function(object, max.ncomp = NULL){
     silhouette.res <- vector(length = max.ncomp)
 
     #-- compute dmatrix using spearman dissimilarity
-    dmatrix <- dmatrix.spearman.dissimilarity(object$X)
+    X <- object$X
+    if(is.null(dim(X))){
+        X <- do.call("cbind", X)
+    }
+    dmatrix <- dmatrix.spearman.dissimilarity(X)
 
     #-- iterative
     i <- 1

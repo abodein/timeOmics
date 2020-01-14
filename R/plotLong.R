@@ -240,11 +240,13 @@ plotLongGGplot <- function(data, time, cluster, plot = TRUE){
     gg <- ggplot(data.gather, aes(x = time, y = value, group = molecule)) +
         geom_line(aes(color = block)) +
         facet_grid(contribution ~ comp, scales = "free") +
-        scale_color_manual(values = mixOmics::color.mixo(1:length(levels(data.gather$cluster)))) +
+        scale_color_manual(values = mixOmics::color.mixo(1:length(levels(data.gather$block)))) +
         theme_bw()
 
     if(plot){
         print(gg)
     }
+    
     return(data.gather)
 }
+

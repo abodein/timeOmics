@@ -15,7 +15,11 @@ vignette: >
 
 # Introduction
 
-We propose a generic data-driven framework to integrate different types of longitudinal data measured on the same biological specimens with microbial communities data, and select key temporal features with strong associations within the same sample group. The framework ranges from filtering and modelling, to integration using smoothing splines and multivariate dimension reduction methods to address some of the analytical challenges of microbiome-derived data, as illustrated in the figure below. We present our framework on different types of multi-omics case studies in bioreactor experiments as well as human studies
+We propose a generic data-driven framework to integrate different types of longitudinal data measured on the same biological specimens with microbial communities data, and select key temporal features with strong associations within the same sample group. The framework ranges from filtering and modelling, to integration using smoothing splines and multivariate dimension reduction methods to address some of the analytical challenges of microbiome-derived data, as illustrated in the figure below. We present our framework on different types of multi-omics case studies in bioreactor experiments as well as human studies.
+
+For more details please check: 
+
+*Bodein A, Chapleur O, Droit A and Lê Cao K-A (2019) A Generic Multivariate Framework for the Integration of Microbiome Longitudinal Studies With Other Data Types. Front. Genet. 10:963. doi: 10.3389/fgene.2019.00963*
 
 # Start
 
@@ -45,6 +49,11 @@ library(timeOmics)
 
 # Data preprocessing
 
+The user should use his favorite method of standardization. 
+However, we focussed on microbiome data analysis and we propose a suitable pre-processing steps for microbial data (16S or WGS).
+
+1. Low Count Removal
+2. Centered Log Ratio
 
 # Time Modelling
 
@@ -230,9 +239,28 @@ colnames(Z) <- paste0("Z", 1:ncol(Z))
 
 block.pls.res <- block.pls(X = list("X"=X,"Z"=Z), Y, ncomp = 2, scale = T)
 
-getCluster(block.pls.res) %>% head
+block.pls.cluster <- getCluster(block.pls.res)
+head(block.pls.cluster)
 
 plotLong(block.pls.res)
 ```
 
-need a graph for block.spls
+<!--need a graph for block.spls -->
+
+# Post-hoc evaluation
+
+We compute the proportionality distance between features of the same cluster.
+By keeping the features close to each other, it guarantees the authenticity of the interactions.
+We also use a Wilcoxon U-test to compare the within cluster median compared to the entire background set.
+
+```{r}
+# example fro multiblock analysis
+res <- proprortionality(block.pls.res)
+# distance between pairs of features
+res$propr.distance
+# u-test pvalue by clusters
+res$pvalue
+plot(res)
+```
+
+Explication
