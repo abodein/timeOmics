@@ -1,4 +1,5 @@
-# timeOmics: A Generic Multivariate Framework for the Integration of Microbiome Longitudinal Studies With Other Data Types
+# timeOmics
+A Generic Multivariate Framework for the Integration of Microbiome Longitudinal Studies With Other Data Types
 
 ![Framework Overview](./man/figures/method_overview.png)
 
