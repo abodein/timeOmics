@@ -1,17 +1,16 @@
 #' Proportionality Distance
 #' 
-#' \code{proprortionality} is a wrapper that compute proportionality distance for 
+#' \code{proportionality} is a wrapper that compute proportionality distance for 
 #' a clustering result (\code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls}, \code{block.spls}).
 #' and it performs a u-test to compare the median within a cluster to the median of the entire background set.
 #' 
-#' @param X an object of the class: \code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls}, \code{block.spls}
+#' @param X an object of the class: \code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls} or \code{block.spls}
 #' 
 #' @return 
 #' Return a list containing the following components:
-#'   \item{propr.distance}{Square matrix with proprortionality distance between pairs of features}
-#'   \item{propr.distance.w.cluster} distance between pairs with cluster label
-#'   \item{pvale}{Wilcoxon U-test p-value comparing the medians within clusters and with the entire background set}
-#' }
+#'   \item{propr.distance}{Square matrix with proportionality distance between pairs of features}
+#'   \item{propr.distance.w.cluster}{distance between pairs with cluster label}
+#'   \item{pvalue}{Wilcoxon U-test p-value comparing the medians within clusters and with the entire background set}
 #' 
 #' @seealso 
 #' \code{\link[propr]{propr}}
@@ -24,11 +23,11 @@
 #' @examples 
 #' demo <- suppressMessages(get_demo_cluster())
 #' X <- demo$pca
-#' proprortionality(X)
+#' proportionality(X)
 #' X <- demo$spls
-#' proprortionality(X)
+#' proportionality(X)
 #' X <- demo$block.spls
-#' proprortionality(X)
+#' proportionality(X)
 #' 
 #' @importFrom dplyr mutate filter rename left_join
 #' @importFrom magrittr %>%
@@ -36,7 +35,7 @@
 #' @importFrom tidyr pivot_longer
 #' 
 #' @export
-proprortionality <- function(X){
+proportionality <- function(X){
     stopifnot(is(X, c("pca", "spca", "mixo_pls", "mixo_spls", "block.pls", "block.spls")))
     
     # 1. get cluster
@@ -85,7 +84,7 @@ proprortionality <- function(X){
     res[["propr.distance"]] <- data.propr
     res[["propr.distance.w.cluster"]] <- data.propr.gather
     res[["pvalue"]] <- res.stat
-    class(res) <- "proprortionality"
+    class(res) <- "proportionality"
     return(res)
 }
 
@@ -116,7 +115,7 @@ stat_median <- function(res.phs.X){
     return(res.pval)
 }
 
-plot.proprortionality <- function(X){
+plot.proportionality <- function(X){
     ggplot2::ggplot(data = X$propr.distance.w.cluster, 
                     aes(x=as.factor(cluster1), y=value, col=insideout)) + 
         geom_boxplot() + theme_bw() + 

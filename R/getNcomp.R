@@ -35,12 +35,12 @@
 #' @export
 #'
 #' @import mixOmics
-getNcomp <- function(object, max.ncomp = NULL){
+getNcomp <- function(object, max.ncomp = NULL, X, Y = NULL, ...){
     #-- checking input parameters ---------------------------------------------#
     #--------------------------------------------------------------------------#
 
     #-- object
-    stopifnot( is(object, c("pca", "spca", "mixo_pls", "mixo_spls", "block.pls", "block.spls")))
+    stopifnot( is(object, c("pca", "mixo_pls", "block.pls")))
 
     #-- max.ncomp
     if(!is.null(max.ncomp)){
@@ -54,17 +54,28 @@ getNcomp <- function(object, max.ncomp = NULL){
         max.ncomp <- unique(object$ncomp)
     }
 
-    #-- Iterating ncomp
+    #-- check for correct parameters in object$call
+    Args = as.list(match.call())
     mixo.call <- object$call
     #mixo.call[[1]] <- as.name(paste0("mixOmics::", mixo.call[[1]]))
+    if(!(all(names(mixo.call)[-1] %in% names(Args)[-1]))){
+        stop("Missing parameters, please provide the same parameters as the ones contained in the mixOmics object.")
+    }
+    
+    #-- Iterating ncomp
     silhouette.res <- vector(length = max.ncomp)
 
     #-- compute dmatrix using spearman dissimilarity
-    X <- object$X
-    if(is.null(dim(X))){
-        X <- do.call("cbind", X)
+    XX <- object$X
+    if(is.null(dim(XX))){
+        XX <- do.call("cbind", XX)
     }
-    dmatrix <- dmatrix.spearman.dissimilarity(X)
+    # if Y
+    if(!is.null(object$Y)){
+        XX <- cbind(XX,object$Y)
+    }
+    
+    dmatrix <- dmatrix.spearman.dissimilarity(XX)
 
     #-- iterative
     i <- 1
@@ -73,7 +84,8 @@ getNcomp <- function(object, max.ncomp = NULL){
         mixo.res <- eval(mixo.call)
         cluster <- getCluster(mixo.res)
         # order of feature is the same as colnames(X)
-        stopifnot(cluster$molecule == colnames(object$X))
+        cluster %>% mutate(molecule = factor(molecule, levels = colnames(dmatrix))) 
+        stopifnot(cluster$molecule == colnames(dmatrix))
         silhouette.res[i] <- silhouette(dmatrix, cluster$cluster)$average
         i <- i + 1
     }

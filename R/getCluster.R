@@ -1,19 +1,18 @@
 #' getCluster
 #'
-#' A more detailed description.
+#' This function returns the cluster associated to each feature from a mixOmics object.
 #'
-#' @param X A numeric matrix.
-#'
-#' @param (s)pca, (s)pls, block.(s)pls results
-#' that contains clustering information with molecule and cluster
-#'
+#' @param X an object of the class: \code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls} or \code{block.spls}
 #'
 #' @return
-#' \describe{
-#'   \item{One}{First item}
-#'   \item{Two}{Second item}
-#' }
+#' A data.frame containing the name of feature, its assigned cluster and other information such as selected component, contribution, sign, ...
 #'
+#' @details
+#' For each feature, the cluster is assigned according to the maximum contribution on a component and the sign of that contribution.
+#' 
+#' @seealso 
+#' \code{\link[mixOmics]{selectVar}}
+#' 
 #' @examples
 #' demo <- suppressMessages(get_demo_cluster())
 #' pca.cluster <- getCluster(demo$pca)
@@ -24,7 +23,7 @@
 #' block.spls.cluster <- getCluster(demo$block.spls)
 #'
 #' @export
-getCluster <- function(x) UseMethod("getCluster")
+getCluster <- function(X) UseMethod("getCluster")
 
 #' @export
 get_demo_cluster<- function(){
@@ -44,18 +43,18 @@ get_demo_cluster<- function(){
     list.res$X <- X
     list.res$Y <- Y
     list.res$Z <- Z
-    list.res$pca = mixOmics::pca(X = X, ncomp = 5)
-    list.res$spca = mixOmics::spca(X = X, ncomp = 5, keepX = c(5, 15, 4,5,6))
+    list.res$pca = suppressMessages(suppressWarnings(mixOmics::pca(X = X, ncomp = 5)))
+    list.res$spca = suppressMessages(suppressWarnings(mixOmics::spca(X = X, ncomp = 5, keepX = c(5, 15, 4,5,6))))
 
-    list.res$pls = mixOmics::pls(X = X, Y = Y, ncomp = 5, mode = "canonical")
-    list.res$spls = mixOmics::spls(X = X, Y = Y, ncomp = 5, mode = "canonical",
-                                keepX = c(5,6,4,5,6), keepY = c(5,1,4,5,6))
+    list.res$pls = suppressMessages(suppressWarnings(mixOmics::pls(X = X, Y = Y, ncomp = 5, mode = "canonical")))
+    list.res$spls = suppressMessages(suppressWarnings(mixOmics::spls(X = X, Y = Y, ncomp = 5, mode = "canonical",
+                                keepX = c(5,6,4,5,6), keepY = c(5,1,4,5,6))))
 
-    list.res$block.pls = mixOmics::block.pls(X = list("X" = X, "Y" = Y, "Z" = Z), indY = 1,
-                                             ncomp = 5, mode = "canonical")
-    list.res$block.spls = mixOmics::block.spls(X = list("X" = X, "Y" = Y, "Z" = Z), indY = 1, ncomp = 3,
-                                             mode = "canonical", keepX = list("X" = c(5,6,4), "Y" = c(5,5,5), "Z" = c(4,2,4)))
-    return(list.res)
+    list.res$block.pls = suppressMessages(suppressWarnings(mixOmics::block.pls(X = list("X" = X, "Y" = Y, "Z" = Z), indY = 1,
+                                             ncomp = 5, mode = "canonical")))
+    list.res$block.spls = suppressMessages(suppressWarnings(mixOmics::block.spls(X = list("X" = X, "Y" = Y, "Z" = Z), indY = 1, ncomp = 3,
+                                             mode = "canonical", keepX = list("X" = c(5,6,4), "Y" = c(5,5,5), "Z" = c(4,2,4)))))
+    return(invisible(list.res))
 }
 
 #' @importFrom dplyr mutate
@@ -255,4 +254,7 @@ Valid.getCluster <- function(X){
     col_names <- c("molecule","comp","contrib.max","cluster","block","contribution")
     stopifnot(all(col_names %in% colnames(X)))
     # other check ?
+    # all comp present? sometimes not true
+    # idem for number of cluster
+    # also a molecule can be found in different cluster
 }

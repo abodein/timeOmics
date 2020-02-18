@@ -255,7 +255,7 @@ We also use a Wilcoxon U-test to compare the within cluster median compared to t
 
 ```{r}
 # example fro multiblock analysis
-res <- proprortionality(block.pls.res)
+res <- proportionality(block.pls.res)
 # distance between pairs of features
 res$propr.distance
 # u-test pvalue by clusters

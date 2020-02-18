@@ -33,7 +33,7 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
         stop("use smaller 'ncomp'")
 
     #-- keepX
-    if (is.null(test.keepX) | length(test.keepX) == 1 | !is.numeric(test.keepX))
+    if (is.null(test.keepX) | length(test.keepX) == 1 | !is.numeric(test.keepX) | !is.vector(test.keepX))
         stop("'test.keepX' must be a numeric vector with more than two entries")
     test.keepX <- sort(unique(test.keepX))
 
@@ -96,9 +96,13 @@ plot.spca.tune.silhouette <- function(X, comp = 1, plot = TRUE){
     #-- should be a spca.tune.silhouette" object.
 
     #-- comp
+    if(length(comp) != 1){
+        stop(paste0("Invalid 'comp', shoud be an integer between 1 and ", length(X)))
+    }
     if(!(comp %in% seq_along(X))){
         stop(paste0("Invalid 'comp', shoud be an integer between 1 and ", length(X)))
     }
+    
 
     #-- plot : if plot is not correct, plot = FALSE
     if(is.null(plot)) plot = FALSE

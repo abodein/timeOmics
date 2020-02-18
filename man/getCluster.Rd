@@ -7,19 +7,16 @@
 getCluster(x)
 }
 \arguments{
-\item{X}{A numeric matrix.}
-
-\item{(s)pca, }{(s)pls, block.(s)pls results
-that contains clustering information with molecule and cluster}
+\item{X}{an object of the class: \code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls} or \code{block.spls}}
 }
 \value{
-\describe{
-  \item{One}{First item}
-  \item{Two}{Second item}
-}
+A data.frame containing the name of feature, its assigned cluster and other information such as selected component, contribution, sign, ...
 }
 \description{
-A more detailed description.
+This function returns the cluster associated to each feature from a mixOmics object.
+}
+\details{
+For each feature, the cluster is assigned according to the maximum contribution on a component and the sign of that contribution.
 }
 \examples{
 demo <- suppressMessages(get_demo_cluster())
@@ -30,4 +27,7 @@ spls.cluster <- getCluster(demo$spls)
 block.pls.cluster <- getCluster(demo$block.pls)
 block.spls.cluster <- getCluster(demo$block.spls)
 
+}
+\seealso{
+\code{\link[mixOmics]{selectVar}}
 }
