@@ -4,7 +4,7 @@
 \alias{getCluster}
 \title{getCluster}
 \usage{
-getCluster(x)
+getCluster(X)
 }
 \arguments{
 \item{X}{an object of the class: \code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls} or \code{block.spls}}

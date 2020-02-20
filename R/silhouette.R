@@ -14,7 +14,7 @@ get_demo_silhouette <- function() {
 
 #' silhouette
 #'
-#' A more detailed description.
+#' Compute silhouette coefficient from a matrix and clusters
 #'
 #' @param X A numeric matrix of size NxP with feature in colnames.
 #'
@@ -29,7 +29,6 @@ get_demo_silhouette <- function() {
 #' data$dist <- dmatrix.proportionality.distance(data$data)
 #' sil <- silhouette(data$dist, data$cluster$cluster)
 #' 
-#' @export
 silhouette <- function(dmatrix,  # distance matrix
                        cluster)  # cluster vector of size ncol(dmatrix)
     {
@@ -96,7 +95,6 @@ silhouette <- function(dmatrix,  # distance matrix
 #' @return
 #' Return a dissimilarity matrix of size PxP.
 #'
-#' @export
 dmatrix.spearman.dissimilarity <- function(X){
     # between 0 and 2
     dmatrix <- cor(x = X, use = 'pairwise.complete.obs',
@@ -128,7 +126,7 @@ silhoutte.formula <- function(A,B){
     }
 }
 
-#' @export
+
 wrapper.silhouette <- function(X, cluster)
 {
     #-- checking input parameters ---------------------------------------------#

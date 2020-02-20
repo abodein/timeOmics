@@ -17,10 +17,12 @@
 #' 
 #' @examples
 #' demo <- suppressMessages(get_demo_cluster())
-#' # pca
 #' getSilhouette(object = demo$pca)
-#' # spca
 #' getSilhouette(object = demo$spca)
+#' getSilhouette(object = demo$pls)
+#' getSilhouette(object = demo$spls)
+#' getSilhouette(object = demo$block.pls)
+#' getSilhouette(object = demo$block.spls)
 #' 
 #'
 #' @export
@@ -46,8 +48,8 @@ getSilhouette.spca <- function(object){
 
     X <- object$X %>% as.data.frame() %>%
         dplyr::select(cluster$molecule)
-    silhouette.res <- wrapper.silhouette(X = X, cluster = cluster)
-    ComputeSilhouetteAverage(silhouette.res)
+    silhouette.res <- wrapper.silhouette(X = X, cluster = cluster$cluster)
+    return(silhouette.res$average)
 }
 
 #' @importFrom magrittr %>%
@@ -58,8 +60,8 @@ getSilhouette.mixo_pls <- function(object){
     X <- object$X %>% as.data.frame()
     Y <- object$Y %>% as.data.frame()
     data <- cbind(X,Y)
-    silhouette.res <- silhouette(X = data, cluster = cluster)
-    ComputeSilhouetteAverage(silhouette.res)
+    silhouette.res <- wrapper.silhouette(X = data, cluster = cluster$cluster)
+    return(silhouette.res$average)
 }
 
 #' @importFrom magrittr %>%
@@ -73,8 +75,8 @@ getSilhouette.mixo_spls <- function(object){
     data <- cbind(X,Y) %>%
         dplyr::select(cluster$molecule)
 
-    silhouette.res <- silhouette(X = data, cluster = cluster)
-    ComputeSilhouetteAverage(silhouette.res)
+    silhouette.res <- wrapper.silhouette(X = data, cluster = cluster$cluster)
+    return(silhouette.res$average)
 }
 
 #' @importFrom magrittr %>%
@@ -84,20 +86,20 @@ getSilhouette.block.pls <- function(object){
 
     X <- do.call("cbind", object$X) %>% as.data.frame
 
-    silhouette.res <- silhouette(X = X, cluster = cluster)
-    ComputeSilhouetteAverage(silhouette.res)
+    silhouette.res <- wrapper.silhouette(X = X, cluster = cluster$cluster)
+    return(silhouette.res$average)
 }
 
 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
-getSilhouette.block.pls <- function(object){
+getSilhouette.block.spls <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
 
     X <- do.call("cbind", object$X) %>% as.data.frame %>%
         dplyr::select(cluster$molecule)
 
-    silhouette.res <- silhouette(X = X, cluster = cluster)
-    ComputeSilhouetteAverage(silhouette.res)
+    silhouette.res <- wrapper.silhouette(X = X, cluster = cluster$cluster)
+    return(silhouette.res$average)
 }

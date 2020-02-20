@@ -4,7 +4,7 @@
 \alias{getNcomp}
 \title{Get optimal number of components}
 \usage{
-getNcomp(object, max.ncomp = NULL)
+getNcomp(object, max.ncomp = NULL, X, Y = NULL, ...)
 }
 \arguments{
 \item{object}{A mixOmics object of the class `pca`, `spca`, `mixo_pls`, `mixo_spls`, `block.pls`, `block.spls`}

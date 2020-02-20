@@ -26,10 +26,12 @@ perform the clustering step, and compute the silhouette coefficient.
 }
 \examples{
 demo <- suppressMessages(get_demo_cluster())
-# pca
 getSilhouette(object = demo$pca)
-# spca
 getSilhouette(object = demo$spca)
+getSilhouette(object = demo$pls)
+getSilhouette(object = demo$spls)
+getSilhouette(object = demo$block.pls)
+getSilhouette(object = demo$block.spls)
 
 
 }

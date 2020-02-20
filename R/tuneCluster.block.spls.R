@@ -13,7 +13,7 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr filter
 #' @export
-tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep(ncol(X), ncomp),
+tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = NULL,
                                    test.keepY = NULL, indY = NULL, ...){
     #-- checking input parameters ---------------------------------------------#
     #--------------------------------------------------------------------------#
@@ -23,22 +23,24 @@ tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep
 
     #-- Y
     if(!is.null(Y)){
-        Y <- validate.matrix.X(Y)
+        Y <- validate.matrix.Y(Y)
     } else {
         indY <- validate.indY(indY, X)
     }
 
     #-- ncomp
-    ncomp <- validate.ncomp(ncomp, X)
+    ncomp <- validate.ncomp(ncomp = ncomp, X =X)
 
     #-- keepX
-    test.list.keepX <- validate.test.list.keepX(test.list.keepX, X, ncomp)
+    test.list.keepX <- validate.test.list.keepX(test.keepX = test.list.keepX, X = X, ncomp = ncomp)
 
     #-- keepY
-    test.keepY <- validate.test.keepX(test.keepY, Y, ncomp)
+    test.keepY <- validate.test.keepY(test.keepY = test.keepY, Y = Y)
 
     list.keepX.keepY <- test.list.keepX
-    list.keepX.keepY$Y <- test.keepY
+    if(!is.null(Y)) {
+        list.keepX.keepY$Y <- test.keepY
+    }
     list.keepX.keepY <- expand.grid(list.keepX.keepY, stringsAsFactors = F,
                                     KEEP.OUT.ATTRS = F)
 
@@ -118,6 +120,7 @@ tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = rep
     result[["block"]] <- names(list.keepX.keepY)
     class(result) <- "block.spls.tune.silhouette"
     result[["slopes"]] <- tune.silhouette.get_slopes(result)
+    result[["choice.keepX"]] <- tune.silhouette.get_choice_keepX(result)
     return(result)
 }
 
@@ -280,3 +283,18 @@ plot.block.spls.tune.silhouette <- function(object, pvalue = 0.05){
     ggplot(plot.df, aes(x = dim1, y = value, group = dim2, color = silhouette)) + geom_line() + facet_grid(comp~block, scales = "free_x")
 }
 
+#' @importFrom dplyr select summarise left_join
+#' @importFrom tidyr gather
+tune.silhouette.get_choice_keepX <- function(tune.block.spls){
+    tmp <- tune.block.spls$slopes %>% 
+        dplyr::select(c(tune.block.spls$block, comp, direction, Pval.pos, Pval.neg, distance_from_origin)) %>%
+        tidyr::gather(Pval.dir, Pval.value, -c(tune.block.spls$block, comp, direction, distance_from_origin))
+    
+    val <- tmp %>% group_by(comp) %>%
+        dplyr::summarise(Pval.value = min(Pval.value)) %>% 
+        dplyr::left_join(tmp, by = c("comp" = "Pval.value")) %>%
+        dplyr::select(comp, tune.block.spls$block) %>%
+        split(.$comp) %>%
+        lapply(function(x) dplyr::select(x,-comp) %>% unlist())
+    return(val)
+}
