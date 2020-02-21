@@ -51,15 +51,21 @@ check.matrix <- function(X){
 validate.matrix.X <- function(X){
     # X should be a numeric matrix
     X <- check.matrix(X)
+    if(!is.numeric(X)){
+        stop("X must be a numeric matrix/data.frame")
+    }
     suppressWarnings(if(!X) stop("X must be a numeric matrix/data.frame"))
     return(X)
 }
 
-validate.matrix.Y <- function(X){
+validate.matrix.Y <- function(Y){
     # X should be a numeric matrix
-    X <- check.matrix(X)
-    suppressWarnings(if(!X) stop("Y must be a numeric matrix/data.frame"))
-    return(X)
+    Y <- check.matrix(Y)
+    if(!is.numeric(Y)){
+        stop("Y must be a numeric matrix/data.frame")
+    }
+    suppressWarnings(if(!Y) stop("Y must be a numeric matrix/data.frame"))
+    return(Y)
 }
 
 validate.list.matrix.X <- function(X){
@@ -72,26 +78,31 @@ validate.list.matrix.X <- function(X){
 
 validate.ncomp <- function(ncomp, X){
     # ncomp should be a positive non-null integer
-    # lower than ncol(X) - 1
-    ncomp.max <- min(unlist(lapply(X,function(x)ncol(x)-1)))
+    # lower than ncol(X)
+    ncomp.max <- min(unlist(lapply(X,function(x)ncol(x))))
     if(!is.almostInteger(ncomp)){
-        stop(paste0("'ncomp' should be an integer between 1 and ", ncomp.max, ", min(unlist(lapply(X,function(x)ncol(x)-1)))"))
+        stop(paste0("'ncomp' should be an integer between 1 and ", ncomp.max, ", min(unlist(lapply(X,function(x)ncol(x))))"))
     }
     if(ncomp > ncomp.max){
-        stop(paste0("'ncomp' should be an integer between 1 and ", ncomp.max, ", min(unlist(lapply(X,function(x)ncol(x)-1)))"))
+        stop(paste0("'ncomp' should be an integer between 1 and ", ncomp.max, ", min(unlist(lapply(X,function(x)ncol(x))))"))
     }
     ncomp <- round(ncomp)
     return(ncomp)
 }
 
-validate.test.keepX <- function(test.keepX, ncomp, X){
+validate.test.keepX <- function(test.keepX, X){
     # test.keepX should be a vecter of positive integer of size > 1
     # every value of test.keepX should be lower than ncol(X)
     # ncomp and X have already been validate
     if(is.null(test.keepX)){
+        test.keepX <- ncol(X)
+    }
+    if(!is.almostInteger.vector(test.keepX)){
         stop("'test.keepX' should be numeric")
     }
-    if(!is.almostInteger.vector(X))
+    if(any(test.keepX>ncol(X))){
+        stop(paste0("'test.keepX' must be lower than ", ncol(X), ", ncol(X)"))
+    }
     return(test.keepX)
 }
 
@@ -105,8 +116,12 @@ validate.test.keepY <- function(test.keepY, Y){
         if(is.null(test.keepY)){
             test.keepY <- ncol(Y)
         }
-        if(!is.almostInteger.vector(test.keepY))
+        if(!is.almostInteger.vector(test.keepY)){
             stop("'test.keepY' should be numeric")
+        }
+        if(any(test.keepY>ncol(Y))){
+            stop(paste0("'test.keepY' must be lower than ", ncol(Y), ", ncol(Y)"))
+        }
     }
     return(test.keepY)
 }
