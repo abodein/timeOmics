@@ -57,6 +57,5 @@ test_that("tuneCluster.block.spls failed on invalid input - test.keepY", {
 test_that("tuneCluster.block.spls works", {
     expect_is(suppressWarnings(tuneCluster.block.spls(X=X, Y=Y, test.list.keepX = list("X" = 1:3, "Z"= c(4,5)), test.keepY = c(5))),"block.spls.tune.silhouette")
     expect_is(suppressWarnings(tuneCluster.block.spls(X=X, Y=Y, ncomp = 3, test.list.keepX = list("X" = 3, "Z"= c(4,5)), test.keepY = c(5))),"block.spls.tune.silhouette")
-    expect_is(suppressWarnings(tuneCluster.block.spls(X=X, Y=Y, ncomp = 3, test.list.keepX = list("X" = 3, "Z"= c(4,5)), test.keepY = c(5))),"block.spls.tune.silhouette")
     expect_is(suppressWarnings(tuneCluster.block.spls(X=list(X=demo$X, Y=demo$Y, Z=demo$Z), indY=2, ncomp = 2, test.list.keepX = list("X" = 1:3, "Z"= c(4,5), "Y"= 2))),"block.spls.tune.silhouette")
 })

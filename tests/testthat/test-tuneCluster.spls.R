@@ -49,7 +49,6 @@ test_that("tuneCluster.spls failed on invalid input - test.keepY", {
     expect_error(tuneCluster.spls(X = X, Y = Y, test.keepY = matrix()), "'test.keepY' should be numeric")
     expect_error(tuneCluster.spls(X = X, Y = Y, test.keepY = list()), "'test.keepY' should be numeric")
     expect_error(tuneCluster.spls(X = X, Y = Y, test.keepY = c(1,2,101)), "'test.keepY' must be lower than 10, ncol(Y)", fixed=TRUE)
-    
 })
 
 test_that("tuneCluster.spls works", {  

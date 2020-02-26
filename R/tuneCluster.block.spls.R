@@ -120,7 +120,15 @@ tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = NUL
     result[["block"]] <- names(list.keepX.keepY)
     class(result) <- "block.spls.tune.silhouette"
     result[["slopes"]] <- tune.silhouette.get_slopes(result)
-    result[["choice.keepX"]] <- tune.silhouette.get_choice_keepX(result)
+    
+    # choice keepX/keepY
+    tmp <- tune.silhouette.get_choice_keepX(result) %>% 
+        do.call(what = "rbind")
+    if(!is.null(Y)){ # choice keepY
+        result[["choice.keepY"]] <- tmp$Y
+        tmp <- dplyr::select(tmp, -Y)
+    }
+    result[["choice.keepX"]] <- as.list(tmp)
     return(result)
 }
 
@@ -128,18 +136,24 @@ tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = NUL
 #' @importFrom dplyr filter mutate group_by summarise left_join
 #' @importFrom stringr str_split
 tune.silhouette.get_slopes <- function(object){
-    stopifnot(class(object) %in% c("block.spls.tune.silhouette"))
+    stopifnot(class(object) %in% c("block.spls.tune.silhouette", "spls.tune.silhouette"))
     # tune.silhouette is a data.frame (comp, X, Y, bock ..., pos, neg)
     # tune.silhouette <- tune.block.spls$silhouette
     
     block <- object$block
-    coord <- object$test.keepX
-    if(!is.null(object[["test.keepY"]])){
-        coord[["Y"]] <- object$test.keepY
-    }
-    coord <- lapply(coord, sort)
     ncomp <- object$ncomp
     
+    if(is(object, "block.spls.tune.silhouette")){
+        coord <- object$test.keepX
+        if(!is.null(object[["test.keepY"]])){
+            coord[["Y"]] <- object$test.keepY
+            coord <- lapply(coord, sort)
+        }
+    }else if(is(object, "spls.tune.silhouette")){
+        coord <- list(X= sort(object$test.keepX), 
+                      Y= sort(object$test.keepY))
+    }
+
     # get all points 
     all.points <- unique(object$silhouette[block])
     
@@ -177,10 +191,10 @@ tune.silhouette.get_slopes <- function(object){
     # cumpute SD by comp and direction
     SD <- slopes %>% 
         dplyr::group_by(comp, direction) %>% 
-        dplyr::summarise(sd.pos = sd(slope.pos),
-                         sd.neg = sd(slope.neg),
-                         mean.pos = mean(slope.pos),
-                         mean.neg = mean(slope.neg))
+        dplyr::summarise(sd.pos = sd.new(slope.pos, na.rm = TRUE),
+                         sd.neg = sd.new(slope.neg, na.rm = TRUE),
+                         mean.pos = mean(slope.pos, na.rm = TRUE),
+                         mean.neg = mean(slope.neg, na.rm = TRUE), N=n())
     
     # add Pval for signif slopes
     slopes <- slopes %>% dplyr::left_join(SD, by = c("direction", "comp")) %>%
@@ -285,16 +299,18 @@ plot.block.spls.tune.silhouette <- function(object, pvalue = 0.05){
 
 #' @importFrom dplyr select summarise left_join
 #' @importFrom tidyr gather
+#' @importFrom magrittr %>%
 tune.silhouette.get_choice_keepX <- function(tune.block.spls){
-    tmp <- tune.block.spls$slopes %>% 
+    # from slopes, keep useful columns and remove NAs.
+    slopes <- tune.block.spls$slopes %>% na.omit()
+    tmp <- slopes %>%
         dplyr::select(c(tune.block.spls$block, comp, direction, Pval.pos, Pval.neg, distance_from_origin)) %>%
-        tidyr::gather(Pval.dir, Pval.value, -c(tune.block.spls$block, comp, direction, distance_from_origin))
+        tidyr::gather(Pval.dir, Pval.value, -c(tune.block.spls$block, comp, direction, distance_from_origin)) 
     
-    val <- tmp %>% group_by(comp) %>%
-        dplyr::summarise(Pval.value = min(Pval.value)) %>% 
-        dplyr::left_join(tmp, by = c("comp" = "Pval.value")) %>%
-        dplyr::select(comp, tune.block.spls$block) %>%
-        split(.$comp) %>%
-        lapply(function(x) dplyr::select(x,-comp) %>% unlist())
-    return(val)
+    # for each comp, arrange by Pvalue and distance from origin and get first result    
+    MIN <- split(tmp, f=tmp$comp) %>% 
+        lapply(function(x) x %>% dplyr::arrange(Pval.value, distance_from_origin) %>% .[1,] %>%
+                   dplyr::select(tune.block.spls$block))
+    
+    return(MIN)
 }

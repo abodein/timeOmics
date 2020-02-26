@@ -14,7 +14,7 @@
 
 tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
                              test.keepY = rep(ncol(Y), ncomp), ...){
-    #-- checking input parameters ---------------------------------------------#
+    #-- checking input parameters ------------  ---------------------------------#
     #--------------------------------------------------------------------------#
 
     #-- X
@@ -76,10 +76,16 @@ tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
             result[result.index, "comp"] <- comp
             result[result.index, "X"] <- kX[comp]
             result[result.index, "Y"] <- kY[comp]
-            result[result.index, "pos"] <- sil$average.cluster  %>%
-                dplyr::filter(cluster == comp) %>% pull(silhouette.coef)
-            result[result.index, "neg"] <- sil$average.cluster  %>%
-                dplyr::filter(cluster == -comp) %>% pull(silhouette.coef)
+            # result[result.index, "pos"] <- sil$average.cluster  %>%
+            #     dplyr::filter(cluster == comp) %>% pull(silhouette.coef)
+            # result[result.index, "neg"] <- sil$average.cluster  %>%
+            #     dplyr::filter(cluster == -comp) %>% pull(silhouette.coef)
+            pos.res <-  sil$average.cluster  %>% 
+                dplyr::filter(cluster == comp) %>% dplyr::pull(silhouette.coef)
+            result[result.index, "pos"] <- ifelse(length(pos.res) == 0, NA, pos.res)
+            neg.res <-  sil$average.cluster  %>%
+                dplyr::filter(cluster == -comp) %>% dplyr::pull(silhouette.coef)
+            result[result.index, "neg"] <- ifelse(length(neg.res) == 0, NA, neg.res)
         }
     }
     result <- list("silhouette" = result)
@@ -88,5 +94,9 @@ tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
     result[["test.keepY"]] <- test.keepY
     result[["block"]] <- c("X", "Y")
     class(result) <- "spls.tune.silhouette"
+    result[["slopes"]] <- tune.silhouette.get_slopes(result)
+    tmp <- tune.silhouette.get_choice_keepX(result) # choice keepX/keepY
+    result[["choice.keepX"]] <- unlist(lapply(tmp, function(x) x$X))
+    result[["choice.keepY"]] <- unlist(lapply(tmp, function(x) x$Y))
     return(result)
 }

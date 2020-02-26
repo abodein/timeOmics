@@ -103,7 +103,7 @@ validate.test.keepX <- function(test.keepX, X){
     if(any(test.keepX>ncol(X))){
         stop(paste0("'test.keepX' must be lower than ", ncol(X), ", ncol(X)"))
     }
-    return(test.keepX)
+    return(sort(unique(test.keepX)))
 }
 
 validate.test.keepY <- function(test.keepY, Y){
@@ -123,7 +123,7 @@ validate.test.keepY <- function(test.keepY, Y){
             stop(paste0("'test.keepY' must be lower than ", ncol(Y), ", ncol(Y)"))
         }
     }
-    return(test.keepY)
+    return(sort(unique(test.keepY)))
 }
 
 validate.test.list.keepX <- function(test.keepX, ncomp, X){
@@ -149,6 +149,7 @@ validate.test.list.keepX <- function(test.keepX, ncomp, X){
             stop(paste0("'test.list.keepX[[",i,"]] sould be lower than ",ncol(X[[i]]),", ncol(X[[",i,"]])."))
         }
     })
+    test.keepX <- lapply(test.keepX, function(x){x})
     return(test.keepX)
 }
 
@@ -161,4 +162,12 @@ validate.indY <- function(indY, X){
         stop(paste0("'indY' must be a numeric value lower or equal to ", length(X), ", the number of blocks in X."))
     }
     return(indY)
+}
+
+sd.new <- function(x, ...){
+    if(length(x) == 1){
+        return(0)
+    }else{
+        return(sd(x, ...))
+    }
 }
