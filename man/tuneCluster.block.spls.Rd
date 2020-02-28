@@ -4,18 +4,62 @@
 \alias{tuneCluster.block.spls}
 \title{tuneCluster.block.spls}
 \usage{
-tuneCluster.block.spls(X, Y = NULL, ncomp = 2,
-  test.list.keepX = rep(ncol(X), ncomp), test.keepY = NULL,
-  indY = NULL, ...)
+tuneCluster.block.spls(X, Y = NULL, indY = NULL, ncomp = 2,
+  test.list.keepX = NULL, test.keepY = NULL, ...)
+}
+\arguments{
+\item{X}{list of numeric matrix (or data.frame) with features in columns and samples in rows (with samples order matching in all data sets).}
+
+\item{Y}{(optional) numeric matrix (or data.frame) with features in columns and samples in rows (same rows as \code{X}).}
+
+\item{indY}{integer, to supply if Y is missing, indicates the position of the matrix response in the list \code{X}.}
+
+\item{ncomp}{integer, number of component to include in the model}
+
+\item{test.keepY}{only if Y is provideid. Vector of integer containing the different value of keepY to test for block \code{Y}.}
+
+\item{...}{other parameters to be included in the spls model (see \code{mixOmics::block.spls})}
+
+\item{list.test.keepX}{list of integers with the same size as X. Each entry corresponds to the different keepX value to test for each block of \code{X}.}
+}
+\value{
+\item{silhouette}{silhouette coef. computed for every combinasion of keepX/keepY}
+\item{ncomp}{number of component included in the model}
+\item{test.keepX}{list of tested keepX}
+\item{test.keepY}{list of tested keepY}
+\item{block}{names of blocks}
+\item{slopes}{"slopes" computed from the silhouette coef. for each keepX and keepY, used to determine the best keepX and keepY}
+\item{choice.keepX}{best \code{keepX} for each component}
+\item{choice.keepY}{best \code{keepY} for each component}
 }
 \description{
-tuneCluster.block.spls
+This function identify the number of feautures to keep per component and thus by cluster in \code{mixOmics::block.spls} by optimizing the silhouette coefficient, which assesses the quality of clustering.
+}
+\details{
+For each component and for each keepX/keepY value, a spls is done from these parameters.
+Then the clustering is performed and the silhouette coefficient is calculated for this clustering.
+
+We then calculate "slopes" where keepX/keepY are the coordinates and the silhouette is the intensity.
+A z-score is assigned to each slope.
+We then identify the most significant slope which indicates a drop in the silhouette coefficient and thus a deterioration of the clustering.
 }
 \examples{
-demo <- suppressMessages(get_demo_cluster())
+demo <- get_demo_cluster()
 X <- list(X = demo$X, Z = demo$Z)
 Y <- demo$Y
 test.list.keepX <- list("X" = c(5,10,15,20), "Z" = c(2,4,6,8))
 test.keepY <- c(2:5)
-tune.block.spls <- tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = test.list.keepX, test.keepY = test.keepY, mode = "canonical")
+
+# tuning
+tune.block.spls <- tuneCluster.block.spls(X= X, Y= Y, test.list.keepX= test.list.keepX, test.keepY= test.keepY, mode= "canonical")
+keepX <- tune.block.spls$choice.keepX
+keepY <- tune.block.spls$choice.keepY
+
+# final model
+block.spls.res <- block.spls(X= X, Y= Y, keepX = keepX, keepY = keepY, ncomp = 2, mode = "canonical")
+# get clusters and plot longitudinal profile by cluster
+block.spls.cluster <- getCluster(block.spls.res)
+}
+\seealso{
+\code{\link[mixOmics]{block.spls}}, \code{\link[timeOmics]{getCluster}}, \code{\link[timeOmics]{plotLong}}
 }

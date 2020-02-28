@@ -27,10 +27,10 @@ test_that("tuneCluster.spls failed on invalid input - X", {
 
 test_that("tuneCluster.spls failed on invalid input - ncomp", {   
     #-- ncomp  // integer 
-    expect_error(tuneCluster.spls(X = X, Y = Y, ncomp = NULL), "'ncomp' should be an integer between 1 and 10, min(unlist(lapply(X,function(x)ncol(x))))", fixed = TRUE)
-    expect_error(tuneCluster.spls(X = X, Y = Y, ncomp = "abc"), "'ncomp' should be an integer between 1 and 10, min(unlist(lapply(X,function(x)ncol(x))))", fixed = TRUE)
-    expect_error(tuneCluster.spls(X = X, Y = Y, ncomp = X), "'ncomp' should be an integer between 1 and 10, min(unlist(lapply(X,function(x)ncol(x))))", fixed = TRUE)
-    expect_error(tuneCluster.spls(X = X, Y = Y, ncomp = 55), "'ncomp' should be an integer between 1 and 10, min(unlist(lapply(X,function(x)ncol(x))))", fixed = TRUE)
+    expect_error(tuneCluster.spls(X = X, Y = Y, ncomp = NULL), "'ncomp' should be an integer between 1 and 10", fixed = TRUE)
+    expect_error(tuneCluster.spls(X = X, Y = Y, ncomp = "abc"), "'ncomp' should be an integer between 1 and 10", fixed = TRUE)
+    expect_error(tuneCluster.spls(X = X, Y = Y, ncomp = X), "'ncomp' should be an integer between 1 and 10", fixed = TRUE)
+    expect_error(tuneCluster.spls(X = X, Y = Y, ncomp = 55), "'ncomp' should be an integer between 1 and 10", fixed = TRUE)
 })
 
 test_that("tuneCluster.spls failed on invalid input - test.keepX", {  

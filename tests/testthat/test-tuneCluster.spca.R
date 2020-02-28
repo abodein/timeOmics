@@ -6,27 +6,26 @@ tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2,5,7))
 # plot(tune.spca.res)
 # plot(tune.spca.res, comp = 2)
 
-test_that("tuneCluster.spca failed on invalid input", {
-    #-- X should be a numeric matrix/data.frame
-    expect_error(tuneCluster.spca(X = ""), "X must be a numeric matrix with finite value", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = 1), "X must be a numeric matrix with finite value", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = NA), "X must be a numeric matrix with finite value", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = list()), "X must be a numeric matrix with finite value", fixed = TRUE)
-    
-    #-- ncomp
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = ""), "invalid value for 'ncomp'", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = c(1,2)), "invalid value for 'ncomp'", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = 0), "invalid value for 'ncomp'", fixed = TRUE)
+test_that("tuneCluster.spca failed on invalid input - X", {
+    expect_error(tuneCluster.spca(X = ""), "X must be a numeric matrix/data.frame", fixed = TRUE)
+    expect_error(tuneCluster.spca(X = 1), "X must be a numeric matrix/data.frame", fixed = TRUE)
+    expect_error(tuneCluster.spca(X = NA), "X must be a numeric matrix/data.frame", fixed = TRUE)
+    expect_error(tuneCluster.spca(X = list()), "X must be a numeric matrix/data.frame", fixed = TRUE)
+})
+
+test_that("tuneCluster.spca failed on invalid input - ncomp", {
+    expect_error(tuneCluster.spca(X = demo$X, ncomp = ""), "'ncomp' should be an integer between 1 and 10", fixed = TRUE)
+    expect_error(tuneCluster.spca(X = demo$X, ncomp = c(1,2)), "'ncomp' should be an integer between 1 and 10", fixed = TRUE)
+    expect_error(tuneCluster.spca(X = demo$X, ncomp = 0), "'ncomp' should be an integer between 1 and 10", fixed = TRUE)
     # ncomp < nrow(X)
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = 11), "use smaller 'ncomp'", fixed = TRUE)
-    
-    #-- keepX
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = c("a",1)), "'test.keepX' must be a numeric vector with more than two entries", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = 1), "'test.keepX' must be a numeric vector with more than two entries", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = list()), "'test.keepX' must be a numeric vector with more than two entries", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = "abc"), "'test.keepX' must be a numeric vector with more than two entries", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = matrix(1:9)), "'test.keepX' must be a numeric vector with more than two entries", fixed = TRUE)
-    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = NULL), "'test.keepX' must be a numeric vector with more than two entries", fixed = TRUE)
+    expect_error(tuneCluster.spca(X = demo$X, ncomp = 11),"'ncomp' should be an integer between 1 and 10", fixed = TRUE)
+})
+
+test_that("tuneCluster.spca failed on invalid input - keepX", {
+    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = c("a",1)), "'test.keepX' should be numeric", fixed = TRUE)
+    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = list()), "'test.keepX' should be numeric", fixed = TRUE)
+    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = "abc"), "'test.keepX' should be numeric", fixed = TRUE)
+    expect_error(tuneCluster.spca(X = demo$X, ncomp = 2, test.keepX = matrix(1:9)), "'test.keepX' should be numeric", fixed = TRUE)
 })
 
 test_that("tuneCluster.spca works", {

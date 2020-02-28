@@ -16,7 +16,7 @@ is.almostInteger <- function(X){
 }
 
 is.almostInteger.vector <- function(X){
-    if(is.list(X)){
+    if(!is.vector(X) || is.list(X)){
         return(FALSE)
     }
     # if(!is.numeric(X) & !is.vector(X)) return(FALSE)
@@ -79,12 +79,16 @@ validate.list.matrix.X <- function(X){
 validate.ncomp <- function(ncomp, X){
     # ncomp should be a positive non-null integer
     # lower than ncol(X)
-    ncomp.max <- min(unlist(lapply(X,function(x)ncol(x))))
-    if(!is.almostInteger(ncomp)){
-        stop(paste0("'ncomp' should be an integer between 1 and ", ncomp.max, ", min(unlist(lapply(X,function(x)ncol(x))))"))
+    nrow_X <- ifelse(is.list(X), nrow(X[[1]]), nrow(X))
+    ncomp.max <- min(unlist(lapply(X,function(x)ncol(x))), nrow_X)
+    if(is.list(X)){
+        ncomp.max <- min(ncomp.max, ncol(X))
     }
-    if(ncomp > ncomp.max){
-        stop(paste0("'ncomp' should be an integer between 1 and ", ncomp.max, ", min(unlist(lapply(X,function(x)ncol(x))))"))
+    if(!is.almostInteger(ncomp)){
+        stop(paste0("'ncomp' should be an integer between 1 and ", ncomp.max))
+    }
+    if(ncomp > ncomp.max || ncomp==0){
+        stop(paste0("'ncomp' should be an integer between 1 and ", ncomp.max))
     }
     ncomp <- round(ncomp)
     return(ncomp)

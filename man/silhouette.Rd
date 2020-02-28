@@ -13,7 +13,7 @@ information by}
 \item{X}{A numeric matrix of size NxP with feature in colnames.}
 }
 \description{
-A more detailed description.
+Compute silhouette coefficient from a matrix and clusters
 }
 \examples{
 data <- get_demo_silhouette()

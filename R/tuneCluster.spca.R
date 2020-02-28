@@ -1,7 +1,7 @@
 #' tuneCluster.spca
 #'
 #' @examples
-#' demo <- suppressMessages(get_demo_cluster())
+#' demo <- get_demo_cluster()
 #' X <- demo$X
 #' tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2,5,7))
 #' plot(tune.spca.res)
@@ -18,25 +18,13 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
     #--------------------------------------------------------------------------#
 
     #-- X
-    X <- check.matrix(X)
-    if(!is.numeric.matrix(X)){
-        stop("X must be a numeric matrix with finite value")
-    }
+    X <- validate.matrix.X(X)
 
     #-- ncomp
-    if (is.null(ncomp))
-        ncomp = min(nrow(X), ncol(X))
-
-    if (!is.almostInteger(ncomp) || ncomp < 1)
-        stop("invalid value for 'ncomp'.")
-    if (ncomp > min(ncol(X), nrow(X)))
-        stop("use smaller 'ncomp'")
-
-    #-- keepX
-    if (is.null(test.keepX) | length(test.keepX) == 1 | !is.numeric(test.keepX) | !is.vector(test.keepX))
-        stop("'test.keepX' must be a numeric vector with more than two entries")
-    test.keepX <- sort(unique(test.keepX))
-
+    ncomp <- validate.ncomp(ncomp, list(X))
+    
+    #-- test.keepX
+    test.keepX <- validate.test.keepX(test.keepX = test.keepX, X = X)
     min.test.keepX <- rep(min(test.keepX), ncomp)
 
 

@@ -1,10 +1,54 @@
 #' tuneCluster.spls
+#' 
+#' This function identify the number of feautures to keep per component and thus by cluster in \code{mixOmics::spls} by optimizing the silhouette coefficient, which assesses the quality of clustering.
+#' 
+#' @param X numeric matrix (or data.frame) with features in columns and samples in rows
+#' @param Y numeric matrix (or data.frame) with features in columns and samples in rows (same rows as \code{X})
+#' @param ncomp integer, number of component to include in the model
+#' @param test.keepX vector of integer containing the different value of keepX to test for block \code{X}.
+#' @param test.keepY vector of integer containing the different value of keepY to test for block \code{Y}.
+#' @param ... other parameters to be included in the spls model (see \code{mixOmics::spls})
+#' 
+#' @return 
+#' \item{silhouette}{silhouette coef. computed for every combinasion of keepX/keepY}
+#' \item{ncomp}{number of component included in the model}
+#' \item{test.keepX}{list of tested keepX}
+#' \item{test.keepY}{list of tested keepY}
+#' \item{block}{names of blocks}
+#' \item{slopes}{"slopes" computed from the silhouette coef. for each keepX and keepY, used to determine the best keepX and keepY}
+#' \item{choice.keepX}{best \code{keepX} for each component}
+#' \item{choice.keepY}{best \code{keepY} for each component}
+#' 
+#'
+#' @details
+#' For each component and for each keepX/keepY value, a spls is done from these parameters.
+#' Then the clustering is performed and the silhouette coefficient is calculated for this clustering.
+#'
+#' We then calculate "slopes" where keepX/keepY are the coordinates and the silhouette is the intensity.
+#' A z-score is assigned to each slope.
+#' We then identify the most significant slope which indicates a drop in the silhouette coefficient and thus a deterioration of the clustering.
+#'
+#' 
+#' @seealso 
+#' \code{\link[mixOmics]{spls}}, \code{\link[timeOmics]{getCluster}}, \code{\link[timeOmics]{plotLong}}
 #'
 #' @examples
-#' demo <- suppressMessages(get_demo_cluster())
+#' demo <- get_demo_cluster()
 #' X <- demo$X
 #' Y <- demo$Y
-#' tune.spls <- tuneCluster.spls(X, Y, ncomp = 2, test.keepX = c(5,10,15,20), test.keepY <- c(2,4,6))
+#' 
+#' # tuning
+#' tune.spls <- tuneCluster.spls(X, Y, ncomp= 2, test.keepX= c(5,10,15,20), test.keepY= c(2,4,6))
+#' keepX <- tune.spls$choice.keepX
+#' keepY <- tune.spls$choice.keepY
+#' 
+#' # final model
+#' spls.res <- spls(X, Y, ncomp= 2, keepX= keepX, keepY= keepY)
+#' 
+#' # get clusters and plot longitudinal profile by cluster
+#' spls.cluster <- getCluster(spls.res)
+#' #plotLong(spls.res)
+#' 
 #'
 #' @export
 #' @import mixOmics

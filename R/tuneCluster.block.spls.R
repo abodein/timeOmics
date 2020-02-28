@@ -1,20 +1,62 @@
 #' tuneCluster.block.spls
 #'
+#' This function identify the number of feautures to keep per component and thus by cluster in \code{mixOmics::block.spls} by optimizing the silhouette coefficient, which assesses the quality of clustering.
+#' 
+#' @param X list of numeric matrix (or data.frame) with features in columns and samples in rows (with samples order matching in all data sets).
+#' @param Y (optional) numeric matrix (or data.frame) with features in columns and samples in rows (same rows as \code{X}).
+#' @param indY integer, to supply if Y is missing, indicates the position of the matrix response in the list \code{X}.
+#' @param ncomp integer, number of component to include in the model
+#' @param list.test.keepX list of integers with the same size as X. Each entry corresponds to the different keepX value to test for each block of \code{X}.
+#' @param test.keepY only if Y is provideid. Vector of integer containing the different value of keepY to test for block \code{Y}.
+#' @param ... other parameters to be included in the spls model (see \code{mixOmics::block.spls})
+#' 
+#' @return 
+#' \item{silhouette}{silhouette coef. computed for every combinasion of keepX/keepY}
+#' \item{ncomp}{number of component included in the model}
+#' \item{test.keepX}{list of tested keepX}
+#' \item{test.keepY}{list of tested keepY}
+#' \item{block}{names of blocks}
+#' \item{slopes}{"slopes" computed from the silhouette coef. for each keepX and keepY, used to determine the best keepX and keepY}
+#' \item{choice.keepX}{best \code{keepX} for each component}
+#' \item{choice.keepY}{best \code{keepY} for each component}
+#' 
+#'
+#' @details
+#' For each component and for each keepX/keepY value, a spls is done from these parameters.
+#' Then the clustering is performed and the silhouette coefficient is calculated for this clustering.
+#'
+#' We then calculate "slopes" where keepX/keepY are the coordinates and the silhouette is the intensity.
+#' A z-score is assigned to each slope.
+#' We then identify the most significant slope which indicates a drop in the silhouette coefficient and thus a deterioration of the clustering.
+#'
+#' 
+#' @seealso 
+#' \code{\link[mixOmics]{block.spls}}, \code{\link[timeOmics]{getCluster}}, \code{\link[timeOmics]{plotLong}}
+#'
 #' @examples
-#' demo <- suppressMessages(get_demo_cluster())
+#' demo <- get_demo_cluster()
 #' X <- list(X = demo$X, Z = demo$Z)
 #' Y <- demo$Y
 #' test.list.keepX <- list("X" = c(5,10,15,20), "Z" = c(2,4,6,8))
 #' test.keepY <- c(2:5)
-#' tune.block.spls <- tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = test.list.keepX, test.keepY = test.keepY, mode = "canonical")
+#' 
+#' # tuning
+#' tune.block.spls <- tuneCluster.block.spls(X= X, Y= Y, test.list.keepX= test.list.keepX, test.keepY= test.keepY, mode= "canonical")
+#' keepX <- tune.block.spls$choice.keepX
+#' keepY <- tune.block.spls$choice.keepY
+#' 
+#' # final model
+#' block.spls.res <- block.spls(X= X, Y= Y, keepX = keepX, keepY = keepY, ncomp = 2, mode = "canonical")
+#' # get clusters and plot longitudinal profile by cluster
+#' block.spls.cluster <- getCluster(block.spls.res)
 
 #' @import mixOmics
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr filter
 #' @export
-tuneCluster.block.spls <- function(X, Y = NULL, ncomp = 2, test.list.keepX = NULL,
-                                   test.keepY = NULL, indY = NULL, ...){
+tuneCluster.block.spls <- function(X, Y = NULL,  indY = NULL, ncomp = 2, 
+                                   test.list.keepX = NULL, test.keepY = NULL, ...){
     #-- checking input parameters ---------------------------------------------#
     #--------------------------------------------------------------------------#
 
@@ -199,10 +241,10 @@ tune.silhouette.get_slopes <- function(object){
     # add Pval for signif slopes
     slopes <- slopes %>% dplyr::left_join(SD, by = c("direction", "comp")) %>%
         # pos
-        dplyr::mutate(Z_score.pos = (.$slope.pos - .$mean.pos)/.$sd.pos) %>%
+        dplyr::mutate(Z_score.pos = ifelse(.$sd.pos == 0,0,(.$slope.pos - .$mean.pos)/.$sd.pos)) %>%
         dplyr::mutate(Pval.pos = ifelse(Z_score.pos >= 0,1-pnorm(Z_score.pos), pnorm(Z_score.pos))) %>%
         # neg
-        dplyr::mutate(Z_score.neg = (.$slope.neg - .$mean.neg)/.$sd.neg) %>%
+        dplyr::mutate(Z_score.neg = ifelse(.$sd.neg == 0,0,(.$slope.neg - .$mean.neg)/.$sd.neg)) %>%
         dplyr::mutate(Pval.neg = ifelse(Z_score.neg >= 0,1-pnorm(Z_score.neg), pnorm(Z_score.neg)))
     return(slopes)
 }
