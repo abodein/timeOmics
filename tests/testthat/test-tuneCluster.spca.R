@@ -2,7 +2,7 @@ context("tuneCluster.spca")
 
 demo <- suppressMessages(get_demo_cluster())
 X <- demo$X
-tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2,5,7))
+# tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2,5,7))
 # plot(tune.spca.res)
 # plot(tune.spca.res, comp = 2)
 
@@ -33,18 +33,18 @@ test_that("tuneCluster.spca works", {
     expect_is(tuneCluster.spca(X = as.data.frame(X), ncomp = 3, test.keepX = c(5:10)), "spca.tune.silhouette")
 })
 
-test_that("plot.spca.tune.silhouette failed on invalid input", {
-    #-- comp
-    expect_error(plot(tune.spca.res, comp = 3), "Invalid 'comp', shoud be an integer between 1 and 2")
-    expect_error(plot(tune.spca.res, comp = NA),"Invalid 'comp', shoud be an integer between 1 and 2")
-    expect_error(plot(tune.spca.res, comp = c(1,2)),"Invalid 'comp', shoud be an integer between 1 and 2")
-})
-
-test_that("plot.spca.tune.silhouette works", {
-    #-- comp
-    expect_is(plot(tune.spca.res, comp = 1), "ggplot")
-    expect_is(plot(tune.spca.res, comp = 2), "ggplot")
-    expect_is(plot(tune.spca.res, comp = 2, plot = TRUE), "ggplot")
-    expect_is(plot(tune.spca.res, comp = 2, plot = FALSE), "ggplot")
-    expect_is(plot(tune.spca.res, comp = 2, plot = NULL), "ggplot")
-})
+# test_that("plot.spca.tune.silhouette failed on invalid input", {
+#     #-- comp
+#     expect_error(plot(tune.spca.res, comp = 3), "Invalid 'comp', shoud be an integer between 1 and 2")
+#     expect_error(plot(tune.spca.res, comp = NA),"Invalid 'comp', shoud be an integer between 1 and 2")
+#     expect_error(plot(tune.spca.res, comp = c(1,2)),"Invalid 'comp', shoud be an integer between 1 and 2")
+# })
+# 
+# test_that("plot.spca.tune.silhouette works", {
+#     #-- comp
+#     expect_is(plot(tune.spca.res, comp = 1), "ggplot")
+#     expect_is(plot(tune.spca.res, comp = 2), "ggplot")
+#     expect_is(plot(tune.spca.res, comp = 2, plot = TRUE), "ggplot")
+#     expect_is(plot(tune.spca.res, comp = 2, plot = FALSE), "ggplot")
+#     expect_is(plot(tune.spca.res, comp = 2, plot = NULL), "ggplot")
+# })

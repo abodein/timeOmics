@@ -6,13 +6,29 @@
 \usage{
 tuneCluster.spca(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...)
 }
+\arguments{
+\item{X}{numeric matrix (or data.frame) with features in columns and samples in rows}
+
+\item{ncomp}{integer, number of component to include in the model}
+
+\item{test.keepX}{vector of integer containing the different value of keepX to test for block \code{X}.}
+
+\item{...}{other parameters to be included in the spls model (see \code{mixOmics::spca})}
+}
+\value{
+\item{silhouette}{silhouette coef. computed for every combinasion of keepX/keepY}
+\item{ncomp}{number of component included in the model}
+\item{test.keepX}{list of tested keepX}
+\item{block}{names of blocks}
+\item{slopes}{"slopes" computed from the silhouette coef. for each keepX and keepY, used to determine the best keepX and keepY}
+\item{choice.keepX}{best \code{keepX} for each component}
+}
 \description{
-tuneCluster.spca
+This function identify the number of feautures to keep per component and thus by cluster in \code{mixOmics::spca} 
+by optimizing the silhouette coefficient, which assesses the quality of clustering.
 }
 \examples{
-demo <- suppressMessages(get_demo_cluster())
+demo <- get_demo_cluster()
 X <- demo$X
-tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2,5,7))
-plot(tune.spca.res)
-plot(tune.spca.res, comp = 2)
+tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2:10))
 }

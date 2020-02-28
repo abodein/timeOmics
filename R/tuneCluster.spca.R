@@ -1,11 +1,43 @@
 #' tuneCluster.spca
 #'
+#' This function identify the number of feautures to keep per component and thus by cluster in \code{mixOmics::spca} 
+#' by optimizing the silhouette coefficient, which assesses the quality of clustering.
+#' 
+#' @param X numeric matrix (or data.frame) with features in columns and samples in rows
+#' @param ncomp integer, number of component to include in the model
+#' @param test.keepX vector of integer containing the different value of keepX to test for block \code{X}.
+#' @param ... other parameters to be included in the spls model (see \code{mixOmics::spca})
+#' 
+#' @return 
+#' \item{silhouette}{silhouette coef. computed for every combinasion of keepX/keepY}
+#' \item{ncomp}{number of component included in the model}
+#' \item{test.keepX}{list of tested keepX}
+#' \item{block}{names of blocks}
+#' \item{slopes}{"slopes" computed from the silhouette coef. for each keepX and keepY, used to determine the best keepX and keepY}
+#' \item{choice.keepX}{best \code{keepX} for each component}
+#' 
+#' @details
+#' For each component and for each keepX value, a spls is done from these parameters.
+#' Then the clustering is performed and the silhouette coefficient is calculated for this clustering.
+#'
+#' We then calculate "slopes" where keepX are the coordinates and the silhouette is the intensity.
+#' A z-score is assigned to each slope.
+#' We then identify the most significant slope which indicates a drop in the silhouette coefficient and thus a deterioration of the clustering.
+#'
+#' 
 #' @examples
 #' demo <- get_demo_cluster()
 #' X <- demo$X
-#' tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2,5,7))
-#' plot(tune.spca.res)
-#' plot(tune.spca.res, comp = 2)
+#' 
+#' # tuning
+#' tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2:10))
+#' keepX <- tune.spca.res$choice.keepX
+#' 
+#' # final model
+#' spca.res <- spca(X=X, ncomp = 2, keepX = keepX)
+#' plot(spca.res)
+#' 
+
 
 #' @import mixOmics
 #' @importFrom dplyr left_join
@@ -32,18 +64,18 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
     #--------------------------------------------------------------------------#
 
     #-- 0. set output object
-    result = list()
+    result <- as.data.frame(matrix(ncol = 4, nrow = length(test.keepX)*ncomp))
+    colnames(result) <- c("comp", "X", "pos", "neg")
+    result.index <- 0
 
     #-- 1. compute dissimilarity matrix for silhouette coef. (once and for all)
     dmatrix <- dmatrix.spearman.dissimilarity(X)
     cluster <- as.data.frame(list("feature" = rownames(dmatrix)))
 
+    #-- tuning
     for(comp in 1:ncomp){
-        result[[comp]] <- list()
-
         tmp.keepX <- min.test.keepX  # foreach comp, keepX of other comp is set to minimum
         for(keepX in test.keepX){
-            result[[comp]][[as.character(keepX)]] <- list()
             tmp.keepX[comp] <- keepX
 
             #-- 2. run spca
@@ -59,13 +91,30 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
 
             #-- 4. compute silhouette
             sil <- silhouette(dmatrix, tmp.cluster$cluster)
-            result[[comp]][[as.character(keepX)]]$average.cluster <- sil$average.cluster
-            result[[comp]][[as.character(keepX)]]$average <- sil$average
-            result[[comp]][[as.character(keepX)]]$average.n0 <- sil$feature %>%
-                dplyr::filter(cluster != 0) %>% pull(silhouette.coef) %>% mean
+            
+            #-- 6. store
+            result.index <- result.index + 1
+            result[result.index, "comp"] <- comp
+            result[result.index, "X"] <- kX[comp]
+            
+            pos.res <-  sil$average.cluster  %>% 
+                dplyr::filter(cluster == comp) %>% dplyr::pull(silhouette.coef)
+            result[result.index, "pos"] <- ifelse(length(pos.res) == 0, NA, pos.res)
+            neg.res <-  sil$average.cluster  %>%
+                dplyr::filter(cluster == -comp) %>% dplyr::pull(silhouette.coef)
+            result[result.index, "neg"] <- ifelse(length(neg.res) == 0, NA, neg.res)
         }
     }
+    result <- list("silhouette" = result)
+    result[["ncomp"]] <- ncomp
+    result[["test.keepX"]] <- test.keepX
+    result[["block"]] <- c("X")
     class(result) <- "spca.tune.silhouette"
+
+    #-- 7. choice.keepX
+    result[["slopes"]] <- tune.silhouette.get_slopes(result)
+    tmp <- tune.silhouette.get_choice_keepX(result) # choice keepX/keepY
+    result[["choice.keepX"]] <- unlist(lapply(tmp, function(x) x$X))
     return(result)
 }
 

@@ -138,6 +138,8 @@ tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
     result[["test.keepY"]] <- test.keepY
     result[["block"]] <- c("X", "Y")
     class(result) <- "spls.tune.silhouette"
+    
+    #-- 7. choice.keepX / choice.keepY
     result[["slopes"]] <- tune.silhouette.get_slopes(result)
     tmp <- tune.silhouette.get_choice_keepX(result) # choice keepX/keepY
     result[["choice.keepX"]] <- unlist(lapply(tmp, function(x) x$X))

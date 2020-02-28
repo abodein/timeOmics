@@ -161,9 +161,9 @@ tuneCluster.block.spls <- function(X, Y = NULL,  indY = NULL, ncomp = 2,
     result[["test.keepY"]] <- test.keepY
     result[["block"]] <- names(list.keepX.keepY)
     class(result) <- "block.spls.tune.silhouette"
-    result[["slopes"]] <- tune.silhouette.get_slopes(result)
     
-    # choice keepX/keepY
+    #-- 7. choice.keepX / choice.keepY
+    result[["slopes"]] <- tune.silhouette.get_slopes(result)
     tmp <- tune.silhouette.get_choice_keepX(result) %>% 
         do.call(what = "rbind")
     if(!is.null(Y)){ # choice keepY
@@ -178,7 +178,7 @@ tuneCluster.block.spls <- function(X, Y = NULL,  indY = NULL, ncomp = 2,
 #' @importFrom dplyr filter mutate group_by summarise left_join
 #' @importFrom stringr str_split
 tune.silhouette.get_slopes <- function(object){
-    stopifnot(class(object) %in% c("block.spls.tune.silhouette", "spls.tune.silhouette"))
+    stopifnot(class(object) %in% c("block.spls.tune.silhouette", "spls.tune.silhouette", "spca.tune.silhouette"))
     # tune.silhouette is a data.frame (comp, X, Y, bock ..., pos, neg)
     # tune.silhouette <- tune.block.spls$silhouette
     
@@ -194,13 +194,15 @@ tune.silhouette.get_slopes <- function(object){
     }else if(is(object, "spls.tune.silhouette")){
         coord <- list(X= sort(object$test.keepX), 
                       Y= sort(object$test.keepY))
+    }else if(is(object, "spca.tune.silhouette")){
+        coord <- list(X= sort(object$test.keepX))
     }
 
     # get all points 
     all.points <- unique(object$silhouette[block])
     
     # define neighbours
-    neighbourhood <- map_dfr(1:nrow(all.points), ~tune.silhouette.get_neighbours(coord = coord, all.points[.x,]))
+    neighbourhood <- map_dfr(1:nrow(all.points), ~tune.silhouette.get_neighbours(coord = coord, all.points[.x,,drop=F]))
     
     # extract pos and neg and set it as named list for better performance
     split_by_comp <- split(object$silhouette, f= as.factor(object$silhouette$comp))
