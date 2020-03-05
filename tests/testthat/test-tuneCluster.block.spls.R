@@ -40,11 +40,11 @@ test_that("tuneCluster.block.spls failed on invalid input - ncomp", {
 
 test_that("tuneCluster.block.spls failed on invalid input - test.list.keepX", {     
     #-- test.list.keepX  // list of integer of the same size as X
-    expect_error(tuneCluster.block.spls(X = X, Y = Y), "'test.list.keepX' must be a list of numeric of size 2.", fixed = T)
-    expect_error(tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = c()), "'test.list.keepX' must be a list of numeric of size 2.", fixed = T)
-    expect_error(tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = list()), "'test.list.keepX' must be a list of numeric of size 2.", fixed = T)
-    expect_error(tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = list("A" = 1:3, "B"= c())), "'list.test.keepX' should have the same names as X", fixed = T)
-    expect_error(tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = list("X" = 1:3, "Z"= c(4,100))), "'test.list.keepX[[2]] sould be lower than 50, ncol(X[[2]]).", fixed = T)
+    expect_error(tuneCluster.block.spls(X = X, Y = Y), "'test.list.keepX' must be a list of numeric of size 2.", fixed = TRUE)
+    expect_error(tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = c()), "'test.list.keepX' must be a list of numeric of size 2.", fixed = TRUE)
+    expect_error(tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = list()), "'test.list.keepX' must be a list of numeric of size 2.", fixed = TRUE)
+    expect_error(tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = list("A" = 1:3, "B"= c())), "'list.test.keepX' should have the same names as X", fixed = TRUE)
+    expect_error(tuneCluster.block.spls(X = X, Y = Y, test.list.keepX = list("X" = 1:3, "Z"= c(4,100))), "'test.list.keepX[[2]] sould be lower than 50, ncol(X[[2]]).", fixed = TRUE)
 }) 
 
 test_that("tuneCluster.block.spls failed on invalid input - test.keepY", {      

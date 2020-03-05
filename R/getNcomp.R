@@ -15,7 +15,7 @@
 #' 
 #' @param indY (optional and only for \code{block.pls}, if Y is not provided), an integer which indicates the position of the matrix response in the list X
 #' 
-#' @param ... 	Other arguments to be passed to methods (pca, pls, block.pls)
+#' @param ... Other arguments to be passed to methods (pca, pls, block.pls)
 #' 
 #'
 #' @return
@@ -180,14 +180,14 @@ getNcomp <- function(object, max.ncomp = NULL, X, Y = NULL, indY = NULL, ...){
 
 #' @export
 #' @import ggplot2
-plot.ncomp.tune.silhouette <- function(X){
-    stopifnot(is(X, "ncomp.tune.silhouette"))
-    data <- as.data.frame(list(ncomp = X$ncomp, silhouette = X$silhouette))
+plot.ncomp.tune.silhouette <- function(x, ...){
+    stopifnot(is(x, "ncomp.tune.silhouette"))
+    data <- as.data.frame(list(ncomp = x$ncomp, silhouette = x$silhouette))
     ggplot_df <- ggplot2::ggplot(data, aes(x=ncomp, y = silhouette)) + geom_line() + geom_point() +
-        geom_vline(xintercept = X$choice.ncomp, lty=2, col = "grey") +
+        geom_vline(xintercept = x$choice.ncomp, lty=2, col = "grey") +
         theme_bw() +
         xlab("Number of Principal Components") + 
         ylab("Average Silhouette Coefficient")
     print(ggplot_df)
-    return(ggplot_df)
+    return(invisible(ggplot_df))
 }

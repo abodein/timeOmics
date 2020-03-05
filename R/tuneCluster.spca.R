@@ -126,23 +126,23 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
 #' @importFrom tidyr pivot_longer
 #' @importFrom ggrepel geom_label_repel
 #' @export
-plot.spca.tune.silhouette <- function(X, ...){
+plot.spca.tune.silhouette <- function(x, ...){
     #-- checking input parameters ---------------------------------------------#
     #--------------------------------------------------------------------------#
 
     #-- should be a spca.tune.silhouette" object.
-    ncomp <- X$ncomp
-    test.keepX <- X$test.keepX
+    ncomp <- x$ncomp
+    test.keepX <- x$test.keepX
     
-    tmp <- X$silhouette %>% 
+    tmp <- x$silhouette %>% 
         tidyr::pivot_longer(names_to = "contrib", values_to = "value", -c(comp,X)) %>%
         na.omit %>% # remove NA intruced in pos/neg
         dplyr::mutate(comp = as.factor(paste0("Comp ", comp)), 
                contrib = factor(contrib, levels = c("pos","neg"))) %>%
         dplyr::group_by(comp, contrib)
     
-    choice <- list(comp= as.factor(paste0("Comp ",names(X$choice.keepX))), 
-                   X = unname(X$choice.keepX)) %>%
+    choice <- list(comp= as.factor(paste0("Comp ",names(x$choice.keepX))), 
+                   X = unname(x$choice.keepX)) %>%
         as.data.frame() %>%
         dplyr::left_join(tmp, by = c("comp"="comp", "X"="X")) %>% 
         dplyr::group_by(comp, X) %>%
@@ -155,7 +155,7 @@ plot.spca.tune.silhouette <- function(X, ...){
         theme_bw() +
         geom_point(data = choice, size = 5, pch = 18) +
         ggrepel::geom_label_repel(data = choice, aes(label = X), col = "black") +
-        scale_color_manual(values = mixOmics::color.mixo(1:X$ncomp)) +
+        scale_color_manual(values = mixOmics::color.mixo(1:x$ncomp)) +
         labs(x ="tested keepX",  y = "Silhouette Coef.", color = "Comp.", lty = "Contrib.") +
         geom_vline(data = choice.vline, aes(xintercept = X), lty = 5, col = "grey")
 

@@ -75,7 +75,7 @@ tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
     test.keepY <- validate.test.keepY(test.keepY = test.keepY, Y = Y)
 
     list.keepX.keepY <- list("keepX" = test.keepX, "keepY" = test.keepY) %>%
-        expand.grid(stringsAsFactors = F, KEEP.OUT.ATTRS = F)
+        expand.grid(stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)
 
 
     #-- launch tuning  --------------------------------------------------------#

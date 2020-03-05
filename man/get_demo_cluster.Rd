@@ -6,6 +6,22 @@
 \usage{
 get_demo_cluster()
 }
+\value{
+a list containg:
+\item{X}{data.frame}
+\item{Y}{data.frame}
+\item{Z}{data.frame}
+\item{pca}{a mixOmics pca result}
+\item{spca}{a mixOmics spca result}
+\item{pls}{a mixOmics pls result}
+\item{spls}{a mixOmics spls result}
+\item{block.pls}{a mixOmics block.pls result}
+\item{block.spls}{a mixOmics block.spls result}
+}
 \description{
 Generates random data to be used in examples.
+}
+\examples{
+ 
+demo <- get_demo_cluster()
 }

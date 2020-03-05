@@ -1,6 +1,6 @@
 Package: timeOmics
 Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Version: 0.99.1
 Authors@R:
     person(given = "Antoine",
            family = "Bodein",
@@ -20,6 +20,10 @@ Imports:
     stringr,
     ggrepel,
     propr
+biocViews: Clustering,FeatureExtraction,TimeCourse,DimensionReduction,Software,
+    Sequencing, Microarray, Metabolomics, Metagenomics, Proteomics,
+      Classification, Regression, ImmunoOncology, GenePrediction,
+      MultipleComparison
 Depends: mixOmics
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr

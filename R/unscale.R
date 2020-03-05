@@ -26,7 +26,7 @@
 #'
 #' @export
 unscale <- function(x){
-    stopifnot(is(x, "matrix"))
+    stopifnot(methods::is(x, "matrix"))
     attrib <- attributes(x)
 
     if("scaled:scale" %in% names(attrib)){

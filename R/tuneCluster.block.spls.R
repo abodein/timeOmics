@@ -83,8 +83,8 @@ tuneCluster.block.spls <- function(X, Y = NULL,  indY = NULL, ncomp = 2,
     if(!is.null(Y)) {
         list.keepX.keepY$Y <- test.keepY
     }
-    list.keepX.keepY <- expand.grid(list.keepX.keepY, stringsAsFactors = F,
-                                    KEEP.OUT.ATTRS = F)
+    list.keepX.keepY <- expand.grid(list.keepX.keepY, stringsAsFactors = FALSE,
+                                    KEEP.OUT.ATTRS = FALSE)
 
 
     #-- launch tuning  --------------------------------------------------------#
@@ -175,7 +175,7 @@ tuneCluster.block.spls <- function(X, Y = NULL,  indY = NULL, ncomp = 2,
 }
 
 #' @importFrom purrr imap set_names map_dfr
-#' @importFrom dplyr filter mutate group_by summarise left_join
+#' @importFrom dplyr filter mutate group_by summarise left_join n
 #' @importFrom stringr str_split
 tune.silhouette.get_slopes <- function(object){
     stopifnot(class(object) %in% c("block.spls.tune.silhouette", "spls.tune.silhouette", "spca.tune.silhouette"))
@@ -202,7 +202,7 @@ tune.silhouette.get_slopes <- function(object){
     all.points <- unique(object$silhouette[block])
     
     # define neighbours
-    neighbourhood <- map_dfr(1:nrow(all.points), ~tune.silhouette.get_neighbours(coord = coord, all.points[.x,,drop=F]))
+    neighbourhood <- map_dfr(1:nrow(all.points), ~tune.silhouette.get_neighbours(coord = coord, all.points[.x,,drop=FALSE]))
     
     # extract pos and neg and set it as named list for better performance
     split_by_comp <- split(object$silhouette, f= as.factor(object$silhouette$comp))
@@ -238,7 +238,7 @@ tune.silhouette.get_slopes <- function(object){
         dplyr::summarise(sd.pos = sd.new(slope.pos, na.rm = TRUE),
                          sd.neg = sd.new(slope.neg, na.rm = TRUE),
                          mean.pos = mean(slope.pos, na.rm = TRUE),
-                         mean.neg = mean(slope.neg, na.rm = TRUE), N=n())
+                         mean.neg = mean(slope.neg, na.rm = TRUE), N=dplyr::n())
     
     # add Pval for signif slopes
     slopes <- slopes %>% dplyr::left_join(SD, by = c("direction", "comp")) %>%
@@ -271,7 +271,7 @@ tune.silhouette.get_neighbours <- function(coord, point){
     # get all close possible neighbours
     neighbourhood <- as.list(rbind(as.data.frame(point), as.data.frame(neighbour.max))) %>%
         lapply(unique) %>%
-    expand.grid(stringsAsFactors = F, KEEP.OUT.ATTRS = F)
+    expand.grid(stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)
     
     # get direction for standard deviation computation
     direction <- vector(mode = "numeric", length = nrow(neighbourhood))

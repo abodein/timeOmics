@@ -127,11 +127,13 @@ stat_median <- function(res.phs.X){
 
 #' @export
 #' @import ggplot2
-plot.proportionality <- function(X, ...){
-    ggplot2::ggplot(data = X$propr.distance.w.cluster, 
+#' @importFrom mixOmics color.mixo
+plot.proportionality <- function(x, ...){
+    ggplot2::ggplot(data = x$propr.distance.w.cluster, 
                     aes(x=as.factor(cluster1), y=value, col=insideout)) + 
         geom_boxplot() + theme_bw() + 
         xlab("Cluster ID") + 
         ylab("Proportionality distance") + 
-        labs(color = "Proportionality distance")
+        labs(color = "Proportionality distance") +
+        scale_color_manual(values = mixOmics::color.mixo(1:2))
 }

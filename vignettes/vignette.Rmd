@@ -8,7 +8,7 @@ package: timeOmics
 output: 
   BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{timeOmics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}  
 ---
@@ -25,8 +25,8 @@ For more details please check:
 
 ## Installation
 
-```{r, echo =  F}
-knitr::opts_chunk$set(eval = FALSE, 
+```{r, echo =  FALSE}
+knitr::opts_chunk$set(eval = TRUE, 
                       echo = TRUE,
                       fig.align = "center",
                       warning = FALSE,
@@ -43,7 +43,7 @@ install_github("abodein/timeOmics_BioC")
 
 ## Load the package
 
-```{r, message=F, warning=F}
+```{r, message=FALSE, warning=FALSE}
 library(timeOmics)
 ```
 
@@ -92,7 +92,7 @@ time <- rownames(sim.data) %>% str_remove("._") %>% as.numeric()
 LMMS.output <- lmms::lmmSpline(data = sim.data, time = time,
                         sampleID = rownames(sim.data), deri = FALSE,
                         basis = "p-spline", numCores = 4, timePredict = 1:9, 
-                        keepModels = T)
+                        keepModels = TRUE)
 data <- t(LMMS.output@predSpline)
 ```
 
@@ -155,7 +155,7 @@ First, run a PCA and optimise
 # run pca
 pca.res <- pca(X = data, ncomp = 5)
 
-pca.ncomp <- getNcomp(pca.res, max.ncomp = 5)
+pca.ncomp <- getNcomp(pca.res, max.ncomp = 5, X = data)
 plot(pca.ncomp)
 ```
 
@@ -198,13 +198,12 @@ In other words, if we add 1 OTU, will the cluster be distorted?
 data <- timeOmics.simdata$modelled
 tune.spca.res <- tuneCluster.spca(X = data, ncomp = 2, test.keepX = c(2:10))
 plot(tune.spca.res)
-plot(tune.spca.res, comp = 2)
 ```
 
-From the following graphs, silhouette coefficient tends to decrease at 8 for component 1, and 7 at component 2.
+
 
 ```{r}
-spca.res <- spca(X = data, ncomp = 2, keepX = c(8,7), scale = F)
+spca.res <- spca(X = data, ncomp = 2, keepX = c(8,7), scale = FALSE)
 plotLong(spca.res)
 ```
 
@@ -216,7 +215,7 @@ X <- data
 Y <- data[,sample(1:20, size = 8)]
 colnames(Y) <- paste0("Y", 1:ncol(Y))
 
-pls.res <- pls(X,Y, ncomp = 2, scale = T)
+pls.res <- pls(X,Y, ncomp = 2, scale = TRUE)
 
 getCluster(pls.res) %>% head
 
@@ -237,7 +236,7 @@ colnames(Y) <- paste0("Y", 1:ncol(Y))
 Z <- data[,sample(1:20, size = 12)]
 colnames(Z) <- paste0("Z", 1:ncol(Z))
 
-block.pls.res <- block.pls(X = list("X"=X,"Z"=Z), Y, ncomp = 2, scale = T)
+block.pls.res <- block.pls(X = list("X"=X,"Z"=Z), Y, ncomp = 2, scale = TRUE)
 
 block.pls.cluster <- getCluster(block.pls.res)
 head(block.pls.cluster)
@@ -245,7 +244,6 @@ head(block.pls.cluster)
 plotLong(block.pls.res)
 ```
 
-<!--need a graph for block.spls -->
 
 # Post-hoc evaluation
 
@@ -253,14 +251,14 @@ We compute the proportionality distance between features of the same cluster.
 By keeping the features close to each other, it guarantees the authenticity of the interactions.
 We also use a Wilcoxon U-test to compare the within cluster median compared to the entire background set.
 
-```{r}
+
+```{r, eval =T}
 # example fro multiblock analysis
-res <- proportionality(block.pls.res)
+res <- timeOmics::proportionality(block.pls.res)
 # distance between pairs of features
-res$propr.distance
+head(res$propr.distance)[1:6]
 # u-test pvalue by clusters
-res$pvalue
+pval.propr <- res$pvalue 
+knitr::kable(pval.propr)
 plot(res)
 ```
-
-Explication

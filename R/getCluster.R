@@ -28,9 +28,22 @@ getCluster <- function(X) UseMethod("getCluster")
 #' get_demo_cluster
 #' 
 #' Generates random data to be used in examples.
+#' 
+#' @return  a list containg:
+#' \item{X}{data.frame}
+#' \item{Y}{data.frame}
+#' \item{Z}{data.frame}
+#' \item{pca}{a mixOmics pca result}
+#' \item{spca}{a mixOmics spca result}
+#' \item{pls}{a mixOmics pls result}
+#' \item{spls}{a mixOmics spls result}
+#' \item{block.pls}{a mixOmics block.pls result}
+#' \item{block.spls}{a mixOmics block.spls result}
+#' 
+#' @examples  
+#' demo <- get_demo_cluster()
 #' @export
 get_demo_cluster<- function(){
-    set.seed(123)
     X <- matrix(sample(1:1000), nrow = 10)
     rownames(X) <- 1:nrow(X)
     colnames(X) <- paste0("X_",1:ncol(X))
