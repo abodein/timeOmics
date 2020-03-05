@@ -26,7 +26,7 @@ For more details please check:
 ## Installation
 
 ```{r, echo =  F}
-knitr::opts_chunk$set(eval = TRUE, 
+knitr::opts_chunk$set(eval = FALSE, 
                       echo = TRUE,
                       fig.align = "center",
                       warning = FALSE,

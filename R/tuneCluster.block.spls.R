@@ -6,7 +6,7 @@
 #' @param Y (optional) numeric matrix (or data.frame) with features in columns and samples in rows (same rows as \code{X}).
 #' @param indY integer, to supply if Y is missing, indicates the position of the matrix response in the list \code{X}.
 #' @param ncomp integer, number of component to include in the model
-#' @param list.test.keepX list of integers with the same size as X. Each entry corresponds to the different keepX value to test for each block of \code{X}.
+#' @param test.list.keepX list of integers with the same size as X. Each entry corresponds to the different keepX value to test for each block of \code{X}.
 #' @param test.keepY only if Y is provideid. Vector of integer containing the different value of keepY to test for block \code{Y}.
 #' @param ... other parameters to be included in the spls model (see \code{mixOmics::block.spls})
 #' 

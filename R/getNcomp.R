@@ -6,11 +6,17 @@
 #'
 #' @param object A mixOmics object of the class `pca`, `spca`, `mixo_pls`, `mixo_spls`, `block.pls`, `block.spls`
 #'
-#' @param min.ncomp integer, minimum number of component to include.
-#' Must be greater than 0. If no argument is given, `min.ncomp = 1`.
-#'
-#' @param max.ncomp integer, minimum number of component to include.
+#' @param max.ncomp integer, maximum number of component to include.
 #' If no argument is given, `max.ncomp=object$ncomp`
+#' 
+#' @param X a numeric matrix/data.frame or a list of data.frame for \code{block.pls}
+#' 
+#' @param Y (only for \code{pls}, optional for \code{block.spls}) a numeric matrix, with the same nrow as \code{X}
+#' 
+#' @param indY (optional and only for \code{block.pls}, if Y is not provided), an integer which indicates the position of the matrix response in the list X
+#' 
+#' @param ... 	Other arguments to be passed to methods (pca, pls, block.pls)
+#' 
 #'
 #' @return
 #' \code{getNcomp} returns a list with class "ncomp.tune.silhouette" containing the following components:
@@ -19,90 +25,169 @@
 #' \item{silhouette}{a vector containing the average silhouette coefficient by ncomp}
 #' \item{dmatrix}{the distance matrix used to compute silhouette coefficient}
 #'
-#' @seealso \code{\link{getCluster}}, \code{\link{silhouette}}
+#' @seealso 
+#' \code{\link{getCluster}}, \code{\link{silhouette}}, \code{\link[mixOmics]{pca}}, \code{\link[mixOmics]{pls}}, \code{\link[mixOmics]{block.pls}}
 #'
 #' @examples
 #' # random input data
-#' X <- matrix(rnorm(1:100), ncol = 10, dimnames = list(1:10, paste0("X_", 1:10)))
+#' demo <- get_demo_cluster()
 #'
-#' # Principal Component Analysis
-#' pca.res <- pca(X, ncomp = 5)
-#'
-#' # getNcomp
-#' res.ncomp <- getNcomp(pca.res, max.ncomp = 4)
+#' # pca
+#' pca.res <- pca(X=demo$X, ncomp = 5)
+#' res.ncomp <- getNcomp(pca.res, max.ncomp = 4, X = demo$X)
+#' plot(res.ncomp)
+#' 
+#' # pls
+#' pls.res <- pls(X=demo$X, Y=demo$Y)
+#' res.ncomp <- getNcomp(pls.res, max.ncomp = 4, X = demo$X, Y=demo$Y)
+#' plot(res.ncomp)
+#' 
+#' # block.pls
+#' block.pls.res <- suppressWarnings(block.pls(X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
+#' res.ncomp <- suppressWarnings(getNcomp(block.pls.res, max.ncomp = 4, X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
 #' plot(res.ncomp)
 #'
 #' @export
-#'
 #' @import mixOmics
-getNcomp <- function(object, max.ncomp = NULL, X, Y = NULL, ...){
+getNcomp <- function(object, max.ncomp = NULL, X, Y = NULL, indY = NULL, ...){
     #-- checking input parameters ---------------------------------------------#
     #--------------------------------------------------------------------------#
 
     #-- object
-    stopifnot( is(object, c("pca", "mixo_pls", "block.pls")))
+    allowed_object = c("pca", "mixo_pls", "block.pls")
+    if(!any(class(object) %in% allowed_object)){
+        stop("invalid object")
+    }
+    
 
     #-- max.ncomp
-    if(!is.null(max.ncomp)){
-        stopifnot(length(max.ncomp) == 1)
-        if ( !is.numeric(max.ncomp) || max.ncomp < 1 || !is.finite(max.ncomp))
-            stop("invalid value for 'max.ncomp'.")
+    if(is.almostInteger(max.ncomp)){
+        if (max.ncomp < 1)
+            stop("'max.ncomp' should be greater than 1")
 
-        if (max.ncomp > min(ncol(object$X), nrow(object$X)))
-            stop("use smaller 'max.ncomp'")
+        if(is(object, "block.pls")){
+            if (max.ncomp > min(ncol(object$X[[1]]), nrow(object$X[[1]])))
+                stop("use smaller 'max.ncomp'")   
+        } else {
+            if (max.ncomp > min(ncol(object$X), nrow(object$X)))
+                stop("use smaller 'max.ncomp'")
+        }
     } else {
         max.ncomp <- unique(object$ncomp)
     }
 
-    #-- check for correct parameters in object$call
-    Args = as.list(match.call())
-    mixo.call <- object$call
-    #mixo.call[[1]] <- as.name(paste0("mixOmics::", mixo.call[[1]]))
-    if(!(all(names(mixo.call)[-1] %in% names(Args)[-1]))){
-        stop("Missing parameters, please provide the same parameters as the ones contained in the mixOmics object.")
-    }
-    
-    #-- Iterating ncomp
     silhouette.res <- vector(length = max.ncomp)
 
-    #-- compute dmatrix using spearman dissimilarity
-    XX <- object$X
-    if(is.null(dim(XX))){
-        XX <- do.call("cbind", XX)
-    }
-    # if Y
-    if(!is.null(object$Y)){
-        XX <- cbind(XX,object$Y)
+    #-- run
+    if(is(object, "pca")){
+        #-- check X
+        X <- validate.matrix.X(X)
+        
+        #-- dmatrix
+        dmatrix <- dmatrix.spearman.dissimilarity(X)
+        
+        #-- iterative ncomp silhouette coef.
+        for(comp in 1:max.ncomp){
+            #-- mixo pca
+            mixo.res <- mixOmics::pca(X = X, ncomp = comp, ...)
+            
+            #-- cluster
+            cluster.res <- getCluster(X = mixo.res)
+            # same names, same cluster
+            stopifnot(all(cluster.res$molecule == colnames(dmatrix))) 
+            
+            #-- silhouette
+            sil <- silhouette(dmatrix, cluster.res$cluster)
+            
+            #-- store
+            silhouette.res[comp] <- sil$average
+        }
+        
+    # pls
+    } else if(is(object, "mixo_pls")){
+        #-- check X
+        X <- validate.matrix.X(X)
+        
+        #-- check Y
+        Y <- validate.matrix.Y(Y)
+        
+        #-- dmatrix
+        dmatrix <- dmatrix.spearman.dissimilarity(cbind(X,Y))
+        
+        #-- iterative ncomp silhouette coef.
+        for(comp in 1:max.ncomp){
+            #-- mixo pls
+            mixo.res <- mixOmics::pls(X = X, Y=Y, ncomp = comp, ...)
+            
+            #-- cluster
+            cluster.res <- getCluster(X = mixo.res)
+            # same names, same cluster
+            stopifnot(all(cluster.res$molecule == colnames(dmatrix))) 
+            
+            #-- silhouette
+            sil <- silhouette(dmatrix, cluster.res$cluster)
+            
+            #-- store
+            silhouette.res[comp] <- sil$average
+        } 
+    }else if(is(object, "block.pls")){
+        #-- check X
+        X <- validate.list.matrix.X(X)
+
+        data <- do.call("cbind", X)
+            
+        #-- Y
+        if(!is.null(Y)){
+            Y <- validate.matrix.Y(Y)
+            dmatrix <- dmatrix.spearman.dissimilarity(cbind(data,Y))
+            indY <- NULL
+        } else {
+            indY <- validate.indY(indY = indY, X=X)
+            dmatrix <- dmatrix.spearman.dissimilarity(data)
+        }
+
+        #-- iterative ncomp silhouette coef.
+        for(comp in 1:max.ncomp){
+            #-- mixo block.pls
+            if(is.null(indY)){
+                mixo.res <- mixOmics::block.pls(X = X, ncomp = comp, Y = Y, ...)
+            }else{
+                mixo.res <- mixOmics::block.pls(X = X, ncomp = comp, indY = indY, ...)
+            }
+
+            #-- cluster
+            cluster.res <- getCluster(X = mixo.res)
+            # same names, same cluster
+            stopifnot(all(cluster.res$molecule == colnames(dmatrix))) 
+            
+            #-- silhouette
+            sil <- silhouette(dmatrix, cluster.res$cluster)
+            
+            #-- store
+            silhouette.res[comp] <- sil$average
+        }
     }
     
-    dmatrix <- dmatrix.spearman.dissimilarity(XX)
-
-    #-- iterative
-    i <- 1
-    for(comp in 1:max.ncomp){
-        mixo.call$ncomp <- comp
-        mixo.res <- eval(mixo.call)
-        cluster <- getCluster(mixo.res)
-        # order of feature is the same as colnames(X)
-        cluster %>% mutate(molecule = factor(molecule, levels = colnames(dmatrix))) 
-        stopifnot(cluster$molecule == colnames(dmatrix))
-        silhouette.res[i] <- silhouette(dmatrix, cluster$cluster)$average
-        i <- i + 1
-    }
-
     to_return <- list()
     to_return[["ncomp"]] <- c(0,1:max.ncomp)
     to_return[["silhouette"]] <- c(0,silhouette.res)
     to_return[["dmatrix"]] <- dmatrix
+    to_return[["choice.ncomp"]] <- to_return[["ncomp"]][which.max(to_return[["silhouette"]])]
 
     class(to_return) <- "ncomp.tune.silhouette"
     return(invisible(to_return))
 }
 
 #' @export
-plot.ncomp.tune.silhouette <- function(object){
-    stopifnot(is(object, "ncomp.tune.silhouette"))
-    plot(x = object$ncomp, y = object$silhouette, type = "b", xaxt="n",
-         xlab = "Number of Principal Components", ylab = "Average Silhouette Coefficient")
-    axis(side = 1, at = object$ncomp)
+#' @import ggplot2
+plot.ncomp.tune.silhouette <- function(X){
+    stopifnot(is(X, "ncomp.tune.silhouette"))
+    data <- as.data.frame(list(ncomp = X$ncomp, silhouette = X$silhouette))
+    ggplot_df <- ggplot2::ggplot(data, aes(x=ncomp, y = silhouette)) + geom_line() + geom_point() +
+        geom_vline(xintercept = X$choice.ncomp, lty=2, col = "grey") +
+        theme_bw() +
+        xlab("Number of Principal Components") + 
+        ylab("Average Silhouette Coefficient")
+    print(ggplot_df)
+    return(ggplot_df)
 }

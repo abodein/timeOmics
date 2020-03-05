@@ -7,13 +7,10 @@
 getSilhouette(object)
 }
 \arguments{
-\item{X}{A numeric matrix.}
-
-\item{cluster}{A data.frame
-that contains clustering information with molecule and cluster}
+\item{object}{a mixOmics object of the class \code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls}, \code{block.spls}}
 }
 \value{
-
+silhouette coefficient
 }
 \description{
 \code{getSilhouette} is a generic function that compute silhouette coefficient
@@ -25,7 +22,7 @@ This method extract the componant contribution depending on the object,
 perform the clustering step, and compute the silhouette coefficient.
 }
 \examples{
-demo <- suppressMessages(get_demo_cluster())
+demo <- get_demo_cluster()
 getSilhouette(object = demo$pca)
 getSilhouette(object = demo$spca)
 getSilhouette(object = demo$pls)

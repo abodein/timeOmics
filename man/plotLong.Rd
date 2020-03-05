@@ -5,24 +5,67 @@
 \title{plotLong}
 \usage{
 plotLong(object, time = NULL, plot = TRUE, center = TRUE,
-  scale = TRUE)
+  scale = TRUE, title = "Time-course Expression", X.label = NULL,
+  Y.label = NULL, legend = FALSE, legend.title = NULL)
 }
 \arguments{
-\item{X}{A numeric matrix.}
+\item{object}{a mixOmics result of class (s)pca, (s)pls, block.(s)pls.}
 
-\item{(s)pca, }{(s)pls, block.(s)pls results
-that contains clustering information with molecule and cluster}
+\item{time}{(optional) a numeric vector, the same size as \code{ncol(X)}, to change the time scale.}
+
+\item{plot}{a logical, if TRUE then  a plot is produced. Otherwise, the data.frame on which the plot is based on is returned.}
+
+\item{center}{a logical value indicating whether the variables should be shifted to be zero centered.}
+
+\item{scale}{a logical value indicating whether the variables should be scaled to have unit variance before the analysis takes place.}
+
+\item{title}{character indicating the title plot.}
+
+\item{X.label}{x axis titles.}
+
+\item{Y.label}{y axis titles.}
+
+\item{legend}{a logical, to display or not the legend}
+
+\item{legend.title}{if \code{legend} is provided, title of the legend}
 }
 \value{
-\describe{
-  \item{One}{First item}
-  \item{Two}{Second item}
-}
+a data.frame (gathered form) containing the following columns:
+\item{time}{x axis values}
+\item{molecule}{names of features}
+\item{value}{y axis values}
+\item{cluster}{assigned clusters}
+\item{block}{name of 'blocks'}
 }
 \description{
-A more detailed description.
+This function provides a expression profile representation over time and by cluster.
 }
 \examples{
+demo <- get_demo_cluster()
+X <- demo$X
+Y <- demo$Y
+Z <- demo$Z
+
+# (s)pca
+pca.res <- pca(X, ncomp = 3)
+plotLong(pca.res)
+spca.res <- spca(X, ncomp =2, keepX = c(15, 10))
+plotLong(spca.res)
+
+# (s)pls
+pls.res <- pls(X,Y)
+plotLong(pls.res)
+spls.res <- spls(X,Y, keepX = c(15,10), keepY=c(5,6))
+plotLong(spls.res)
+
+# (s)block.spls
+block.pls.res <- block.pls(X=list(X=X,Z=Z), Y=Y)
+plotLong(block.pls.res)
+block.spls.res <- block.spls(X=list(X=X,Z=Z), Y=Y, keepX = list(X = c(15,10), Z = c(5,6)), keepY = c(3,6))
+plotLong(block.spls.res)
 
 
+}
+\seealso{
+\code{\link[timeOmics]{getCluster}}
 }

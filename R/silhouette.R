@@ -12,23 +12,8 @@ get_demo_silhouette <- function() {
 }
 
 
-#' silhouette
-#'
-#' Compute silhouette coefficient from a matrix and clusters
-#'
-#' @param X A numeric matrix of size NxP with feature in colnames.
-#'
-#' @param cluster A numeric vector of sive ncol(X) containing the cluster
-#' information by
-#'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarise
-#' 
-#' @examples
-#' data <- get_demo_silhouette()
-#' data$dist <- dmatrix.proportionality.distance(data$data)
-#' sil <- silhouette(data$dist, data$cluster$cluster)
-#' 
 silhouette <- function(dmatrix,  # distance matrix
                        cluster)  # cluster vector of size ncol(dmatrix)
     {

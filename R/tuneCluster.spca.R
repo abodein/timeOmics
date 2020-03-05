@@ -32,18 +32,17 @@
 #' # tuning
 #' tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2:10))
 #' keepX <- tune.spca.res$choice.keepX
+#' plot(tune.spca.res)
 #' 
 #' # final model
 #' spca.res <- spca(X=X, ncomp = 2, keepX = keepX)
-#' plot(spca.res)
-#' 
+#' plotLong(spca.res)
 
 
 #' @import mixOmics
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr filter
-#'
 #' @export
 tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...){
     #-- checking input parameters ---------------------------------------------#
@@ -118,61 +117,50 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
     return(result)
 }
 
-#' plot.spca.tune.silhouette
-#'
-#' Plot 
-#'
+
+
+
 #' @import mixOmics
-#' @importFrom dplyr left_join mutate filter
+#' @importFrom dplyr left_join mutate filter group_by top_n
 #' @import ggplot2
+#' @importFrom tidyr pivot_longer
+#' @importFrom ggrepel geom_label_repel
 #' @export
-plot.spca.tune.silhouette <- function(X, comp = 1, plot = TRUE){
+plot.spca.tune.silhouette <- function(X, ...){
     #-- checking input parameters ---------------------------------------------#
     #--------------------------------------------------------------------------#
 
     #-- should be a spca.tune.silhouette" object.
-
-    #-- comp
-    if(length(comp) != 1){
-        stop(paste0("Invalid 'comp', shoud be an integer between 1 and ", length(X)))
-    }
-    if(!(comp %in% seq_along(X))){
-        stop(paste0("Invalid 'comp', shoud be an integer between 1 and ", length(X)))
-    }
+    ncomp <- X$ncomp
+    test.keepX <- X$test.keepX
     
+    tmp <- X$silhouette %>% 
+        tidyr::pivot_longer(names_to = "contrib", values_to = "value", -c(comp,X)) %>%
+        na.omit %>% # remove NA intruced in pos/neg
+        dplyr::mutate(comp = as.factor(paste0("Comp ", comp)), 
+               contrib = factor(contrib, levels = c("pos","neg"))) %>%
+        dplyr::group_by(comp, contrib)
+    
+    choice <- list(comp= as.factor(paste0("Comp ",names(X$choice.keepX))), 
+                   X = unname(X$choice.keepX)) %>%
+        as.data.frame() %>%
+        dplyr::left_join(tmp, by = c("comp"="comp", "X"="X")) %>% 
+        dplyr::group_by(comp, X) %>%
+        dplyr::top_n(n = 1, wt = value)
+    
+    choice.vline <- choice %>% dplyr::select(c("comp", "X"))
+    
+    ggplot.df <- ggplot(tmp, aes(x=X, y =value, col = comp)) + 
+        geom_line(aes(lty = contrib)) + facet_wrap(~comp) +
+        theme_bw() +
+        geom_point(data = choice, size = 5, pch = 18) +
+        ggrepel::geom_label_repel(data = choice, aes(label = X), col = "black") +
+        scale_color_manual(values = mixOmics::color.mixo(1:X$ncomp)) +
+        labs(x ="tested keepX",  y = "Silhouette Coef.", color = "Comp.", lty = "Contrib.") +
+        geom_vline(data = choice.vline, aes(xintercept = X), lty = 5, col = "grey")
 
-    #-- plot : if plot is not correct, plot = FALSE
-    if(is.null(plot)) plot = FALSE
-    if(!is.finite(plot) || !is.logical(plot)){ plot = FALSE }
 
-    ncomp <- length(X)
-    test.keepX <- names(X[[1]])
-    X.df <- .spca.tune.rearrange_result(X)
-
-    plot.df <- X.df[[comp]] %>% filter(cluster != 0) %>%
-        mutate(keepX = as.numeric(keepX)) %>%
-        mutate(cluster = as.numeric(as.character(cluster))) %>%
-        mutate(linetype = factor(ifelse(sign(cluster) > 0, "pos", "neg"), levels = c("pos", "neg"))) %>%
-        mutate(alpha = I(ifelse(abs(cluster) == comp, 1, 0.5))) %>%
-        mutate(size = I(ifelse(abs(cluster) == comp, 1, 0.5))) %>%
-        mutate(color = paste("comp", abs(cluster)))
-
-    ggplot.df <- ggplot(plot.df, aes(x = keepX, y = silhouette.coef, color = color, group = cluster)) +
-        geom_line(aes(alpha = alpha, size = size, lty = linetype)) +
-        scale_x_continuous(name = "keepX", breaks = as.numeric(test.keepX), labels = test.keepX)+
-        scale_color_manual(values = color.mixo(1:ncomp))  +
-        facet_wrap(~paste0("comp ", comp)) +
-        theme_bw() + labs(y = "Silhouette Coefficient", color = "Comp.", lty = "Contrib.")
-
-    if(plot){
-        print(ggplot.df)
-    }
+    print(ggplot.df)
+    
     return(invisible(ggplot.df))
-}
-
-.spca.tune.rearrange_result <- function(X){
-    res <- lapply(seq_along(X), function(Z){
-        do.call("rbind",imap(X[[Z]], ~.x$average.cluster %>%
-                                 mutate(keepX = .y))) %>%
-            mutate(comp = Z)})
 }

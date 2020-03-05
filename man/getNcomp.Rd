@@ -4,16 +4,21 @@
 \alias{getNcomp}
 \title{Get optimal number of components}
 \usage{
-getNcomp(object, max.ncomp = NULL, X, Y = NULL, ...)
+getNcomp(object, max.ncomp = NULL, X, Y = NULL, indY = NULL, ...)
 }
 \arguments{
 \item{object}{A mixOmics object of the class `pca`, `spca`, `mixo_pls`, `mixo_spls`, `block.pls`, `block.spls`}
 
-\item{max.ncomp}{integer, minimum number of component to include.
+\item{max.ncomp}{integer, maximum number of component to include.
 If no argument is given, `max.ncomp=object$ncomp`}
 
-\item{min.ncomp}{integer, minimum number of component to include.
-Must be greater than 0. If no argument is given, `min.ncomp = 1`.}
+\item{X}{a numeric matrix/data.frame or a list of data.frame for \code{block.pls}}
+
+\item{Y}{(only for \code{pls}, optional for \code{block.spls}) a numeric matrix, with the same nrow as \code{X}}
+
+\item{indY}{(optional and only for \code{block.pls}, if Y is not provided), an integer which indicates the position of the matrix response in the list X}
+
+\item{...}{Other arguments to be passed to methods (pca, pls, block.pls)}
 }
 \value{
 \code{getNcomp} returns a list with class "ncomp.tune.silhouette" containing the following components:
@@ -29,16 +34,24 @@ Longitudinal clustering is performed and average silhouette coefficient is compu
 }
 \examples{
 # random input data
-X <- matrix(rnorm(1:100), ncol = 10, dimnames = list(1:10, paste0("X_", 1:10)))
+demo <- get_demo_cluster()
 
-# Principal Component Analysis
-pca.res <- pca(X, ncomp = 5)
+# pca
+pca.res <- pca(X=demo$X, ncomp = 5)
+res.ncomp <- getNcomp(pca.res, max.ncomp = 4, X = demo$X)
+plot(res.ncomp)
 
-# getNcomp
-res.ncomp <- getNcomp(pca.res, max.ncomp = 4)
+# pls
+pls.res <- pls(X=demo$X, Y=demo$Y)
+res.ncomp <- getNcomp(pls.res, max.ncomp = 4, X = demo$X, Y=demo$Y)
+plot(res.ncomp)
+
+# block.pls
+block.pls.res <- suppressWarnings(block.pls(X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
+res.ncomp <- suppressWarnings(getNcomp(block.pls.res, max.ncomp = 4, X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
 plot(res.ncomp)
 
 }
 \seealso{
-\code{\link{getCluster}}, \code{\link{silhouette}}
+\code{\link{getCluster}}, \code{\link{silhouette}}, \code{\link[mixOmics]{pca}}, \code{\link[mixOmics]{pls}}, \code{\link[mixOmics]{block.pls}}
 }

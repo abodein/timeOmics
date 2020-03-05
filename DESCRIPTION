@@ -17,7 +17,9 @@ Imports:
     purrr,
     magrittr,
     ggplot2,
-    stringr
+    stringr,
+    ggrepel,
+    propr
 Depends: mixOmics
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr

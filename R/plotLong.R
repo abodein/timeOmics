@@ -1,252 +1,187 @@
 #' plotLong
 #'
-#' A more detailed description.
+#' This function provides a expression profile representation over time and by cluster.
 #'
-#' @param X A numeric matrix.
-#'
-#' @param (s)pca, (s)pls, block.(s)pls results
-#' that contains clustering information with molecule and cluster
-#'
+#' @param object a mixOmics result of class (s)pca, (s)pls, block.(s)pls.
+#' @param time (optional) a numeric vector, the same size as \code{ncol(X)}, to change the time scale.
+#' @param plot a logical, if TRUE then  a plot is produced. Otherwise, the data.frame on which the plot is based on is returned.
+#' @param center a logical value indicating whether the variables should be shifted to be zero centered. 
+#' @param scale a logical value indicating whether the variables should be scaled to have unit variance before the analysis takes place. 
+#' @param title character indicating the title plot.
+#' @param X.label x axis titles.
+#' @param Y.label y axis titles.
+#' @param legend a logical, to display or not the legend
+#' @param legend.title if \code{legend} is provided, title of the legend
+#' 
 #'
 #' @return
-#' \describe{
-#'   \item{One}{First item}
-#'   \item{Two}{Second item}
-#' }
+#' a data.frame (gathered form) containing the following columns:
+#' \item{time}{x axis values}
+#' \item{molecule}{names of features}
+#' \item{value}{y axis values}
+#' \item{cluster}{assigned clusters}
+#' \item{block}{name of 'blocks'}
+#' 
+#' @seealso 
+#' \code{\link[timeOmics]{getCluster}}
 #'
 #' @examples
+#' demo <- get_demo_cluster()
+#' X <- demo$X
+#' Y <- demo$Y
+#' Z <- demo$Z
+#' 
+#' # (s)pca
+#' pca.res <- pca(X, ncomp = 3)
+#' plotLong(pca.res)
+#' spca.res <- spca(X, ncomp =2, keepX = c(15, 10))
+#' plotLong(spca.res)
+#' 
+#' # (s)pls
+#' pls.res <- pls(X,Y)
+#' plotLong(pls.res)
+#' spls.res <- spls(X,Y, keepX = c(15,10), keepY=c(5,6))
+#' plotLong(spls.res)
+#' 
+#' # (s)block.spls
+#' block.pls.res <- block.pls(X=list(X=X,Z=Z), Y=Y)
+#' plotLong(block.pls.res)
+#' block.spls.res <- block.spls(X=list(X=X,Z=Z), Y=Y, keepX = list(X = c(15,10), Z = c(5,6)), keepY = c(3,6))
+#' plotLong(block.spls.res)
+#' 
 #'
-#'
-#' @export
-plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
-    #allowed_object = c("pca", "spca", "mixo_pls", "mixo_spls", "block.pls", "block.spls")
-    #stopifnot(is(object, allowed_object))
-    UseMethod("plotLong")
-}
-
-#' @importFrom magrittr %>%
-#' @export
-plotLong.pca <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
-
-    if(!is.null(time)){
-        stopifnot(is.numeric(time)) # works with integer
-        stopifnot(length(time) == nrow(object$X))
-
-    } else{ # time IS NULL
-        # we rely on rownames and assume it's numeric,  correspond to times
-        time <- as.numeric(rownames(object$X))
-        # not numeric value can introduce NA
-        stopifnot(!is.na(time))
-    }
-    # unscale and rescale if desired
-    data <- object$X %>% scale(scale, center)
-
-    # cluster info
-    cluster <- getCluster(object)
-
-    gg <- plotLongGGplot(data = data, time = time, cluster = cluster)
-    return(invisible(gg))
-}
-
-#' @importFrom magrittr %>%
-#' @importFrom dplyr select
-#' @export
-plotLong.spca <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
-    print("plotLong.spca")
-
-    if(!is.null(time)){
-        stopifnot(is.numeric(time)) # works with integer
-        stopifnot(length(time) == nrow(object$X))
-
-    } else{ # time IS NULL
-        # we rely on rownames and assume it's numeric,  correspond to times
-        time <- as.numeric(rownames(object$X))
-        # not numeric value can introduce NA
-        stopifnot(!is.na(time))
-    }
-
-    # cluster info
-    # unselected features are removed here.
-    cluster <- getCluster(object)
-
-    # unscale and rescale if desired
-    data <- unscale(object$X) %>% as.data.frame() %>%
-        dplyr::select(cluster$molecule) %>%
-        scale(scale, center)
-
-
-    gg <- plotLongGGplot(data = data, time = time, cluster = cluster)
-    return(invisible(gg))
-}
-
-#' @export
-#' @importFrom magrittr %>%
-plotLong.mixo_pls <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
-    print("plotLong.mixo_pls")
-
-    stopifnot(!is.null(object$Y)) # wrong object
-    stopifnot(nrow(object$X) == nrow(object$Y)) # PLS so X and Y should
-    # have same nrow.
-    stopifnot(rownames(object$X) == rownames(object$Y))
-
-    if(!is.null(time)){
-        stopifnot(is.numeric(time)) # works with integer
-        stopifnot(length(time) == nrow(object$X)) # can use object$Y
-
-    } else{ # time IS NULL
-        # we rely on rownames and assume it's numeric,  correspond to times
-        time <- as.numeric(rownames(object$X))  # idem can use object$Y
-        # not numeric value can introduce NA
-        stopifnot(!is.na(time))
-    }
-    # unscale and rescale if desired
-    # X
-    X <- unscale(object$X) %>% scale(scale, center)
-    Y <- unscale(object$Y) %>% scale(scale, center)
-    data <- cbind(X,Y)
-
-    # cluster info
-    cluster <- getCluster(object)
-
-    gg <- plotLongGGplot(data = data, time = time, cluster = cluster)
-    return(invisible(gg))
-}
-
-#' @export
-#' @importFrom magrittr %>%
-#' @importFrom dplyr select
-plotLong.mixo_spls <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
-    print("plotLong.mixo_spls")
-
-    stopifnot(!is.null(object$Y)) # wrong object
-    stopifnot(nrow(object$X) == nrow(object$Y)) # PLS so X and Y should
-    # have same nrow.
-    stopifnot(rownames(object$X) == rownames(object$Y))
-
-    if(!is.null(time)){
-        stopifnot(is.numeric(time)) # works with integer
-        stopifnot(length(time) == nrow(object$X)) # can use object$Y
-
-    } else{ # time IS NULL
-        # we rely on rownames and assume it's numeric,  correspond to times
-        time <- as.numeric(rownames(object$X))  # idem can use object$Y
-        # not numeric value can introduce NA
-        stopifnot(!is.na(time))
-    }
-    # unscale and rescale if desired
-    # X
-    X <- unscale(object$X) %>% scale(scale, center)
-    Y <- unscale(object$Y) %>% scale(scale, center)
-
-    # cluster info
-    # unselected features are removed here.
-    cluster <- getCluster(object)
-
-
-    data <- cbind(X,Y) %>% as.data.frame %>%
-        dplyr::select(cluster$molecule)
-
-    gg <- plotLongGGplot(data = data, time = time, cluster = cluster)
-    return(invisible(gg))
-}
-
-#' @export
-#' @importFrom magrittr %>%
-plotLong.block.pls <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
-    print("plotLong.block.pls")
-
-    stopifnot(1 == object$X %>% lapply(nrow) %>% unlist %>% unique %>% length())
-    # have same nrow.
-    stopifnot(lapply(object$X, function(x)
-        rownames(x) == rownames(object$X[[1]])) %>%
-            unlist %>% all) # have same rownames
-
-    if(!is.null(time)){
-        stopifnot(is.numeric(time)) # works with integer
-        stopifnot(length(time) == nrow(object$X[[1]])) # can use object$Y
-
-    } else{ # time IS NULL
-        # we rely on rownames and assume it's numeric,  correspond to times
-        time <- as.numeric(rownames(object$X[[1]]))  # idem can use object$Y
-        # not numeric value can introduce NA
-        stopifnot(!is.na(time))
-    }
-    # unscale and rescale if desired
-    data <- lapply(object$X, function(x) unscale(x) %>% scale(scale, center))
-
-    # cluster info
-    # unselected features are removed here.
-    cluster <- getCluster(object)
-
-
-    data <- do.call("cbind", data) %>% as.data.frame
-
-    gg <- plotLongGGplot(data = data, time = time, cluster = cluster)
-    return(invisible(gg))
-}
-
-#' @export
-#' @importFrom magrittr %>%
-#' @importFrom dplyr select
-plotLong.block.spls <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE){
-    print("plotLong.block.spls")
-
-    stopifnot(1 == object$X %>% lapply(nrow) %>% unlist %>% unique %>% length())
-    # have same nrow.
-    stopifnot(lapply(object$X, function(x)
-        rownames(x) == rownames(object$X[[1]])) %>%
-            unlist %>% all) # have same rownames
-
-    if(!is.null(time)){
-        stopifnot(is.numeric(time)) # works with integer
-        stopifnot(length(time) == nrow(object$X[[1]])) # can use object$Y
-
-    } else{ # time IS NULL
-        # we rely on rownames and assume it's numeric,  correspond to times
-        time <- as.numeric(rownames(object$X[[1]]))  # idem can use object$Y
-        # not numeric value can introduce NA
-        stopifnot(!is.na(time))
-    }
-    # unscale and rescale if desired
-    data <- lapply(object$X, function(x) unscale(x) %>% scale(scale, center))
-
-    # cluster info
-    # unselected features are removed here.
-    cluster <- getCluster(object)
-
-
-    data <- do.call("cbind", data) %>% as.data.frame %>%
-        dplyr::select(cluster$molecule)
-
-    gg <- plotLongGGplot(data = data, time = time, cluster = cluster)
-    return(invisible(gg))
-}
-
-#' @export
-#' @importFrom mixOmics color.mixo
 #' @import ggplot2
-#' @importFrom tidyr gather
-#' @importFrom dplyr mutate left_join
-plotLongGGplot <- function(data, time, cluster, plot = TRUE){
-    # graphical call
-    stopifnot(is.numeric(time)) # works with integer
-    stopifnot(nrow(data) == length(time))
+#' @import mixOmics
+#' @importFrom tibble rownames_to_column
+#' @importFrom dplyr mutate select left_join
+#' @importFrom tidyr pivot_longer
+#' @export
+plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE, 
+                     title="Time-course Expression", X.label=NULL, Y.label=NULL, legend=FALSE, legend.title=NULL)
+{
+    
+    # Check parameters
+    #-- object
+    allowed_object = c("pca", "spca", "mixo_pls", "mixo_spls", "block.pls", "block.spls")
+    if(!any(class(object) %in% allowed_object)){
+        stop("invalid object")
+    }
+    
+    #-- plot : if plot is not correct, plot = FALSE
+    if(is.null(plot)) plot = FALSE
+    if(!is.finite(plot) || !is.logical(plot)){plot = FALSE}
+    
+    #-- center
+    if(is.null(center)) center = TRUE
+    if(!is.finite(center) || !is.logical(center)){center = TRUE}
+    
+    #-- scale
+    if(is.null(scale)) scale = TRUE
+    if(!is.finite(scale) || !is.logical(scale)){scale = TRUE}
+    
+    # graphical options
+    #-- title
+    if(!is.character(title)){title = NULL}
+    
+    #-- X.label
+    if(!is.character(X.label)){X.label = NULL}
+    
+    #-- Y.label
+    if(!is.character(Y.label)){Y.label = NULL}
+    
+    #-- legend
+    if(is.null(legend)) legend = FALSE
+    if(!is.finite(legend) || !is.logical(legend)){legend = FALSE}
+    
+    #-- legend title
+    if(!is.character(legend.title)){legend.title = NULL}
+    
+    # cluster info
+    cluster <- getCluster(object)
+    
+    if(is(object, "pca") || is(object, "spca")){
+        #-- check time
+        if(!is.null(time) && (!is.almostInteger.vector(time) || (length(time) != nrow(object$X)))){
+            stop("'time' should be a numeric vector")
+        }
+        # scale/unscale if desired
+        data <- unscale(object$X) %>% as.data.frame() %>%
+            dplyr::select(intersect(cluster$molecule, colnames(.))) %>%
+            scale(scale, center)
+        
+        
+    } else if(is(object, "mixo_pls") || is(object, "mixo_spls")){
+        #-- check time
+        if(!is.null(time) && (!is.almostInteger.vector(time) || (length(time) != nrow(object$X)))){
+            stop("'time' should be a numeric vector")
+        }
+        data.X <- unscale(object$X) %>% scale(scale, center)
+        data.Y <- unscale(object$Y) %>% scale(scale, center)
+        
+        data <- cbind(data.X, data.Y) %>% as.data.frame() %>%
+            dplyr::select(intersect(cluster$molecule, colnames(.)))
+        
+        
+    } else if(is(object, "block.pls") || is(object, "block.spls")){
+        #-- check time
+        if(!is.null(time) &&(!is.almostInteger.vector(time) || (length(time) != nrow(object$X[[1]])))){
+            stop("'time' should be a numeric vector")
+        }
+        
+        data <- lapply(object$X, function(i){unscale(i) %>% scale(scale, center)}) %>% 
+            do.call(what = "cbind")
 
-    data.gather <- data %>% as.data.frame() %>%
-        mutate(time = time) %>%
-        gather(molecule, value, -time) %>%
-        left_join(cluster, by = c("molecule"="molecule"))
-
+        if(!is.null(object$Y)){
+            data.Y <- unscale(object$Y) %>% scale(scale, center)
+            data <- cbind(data, data.Y)
+        }
+        data <- as.data.frame(data) %>% 
+            dplyr::select(intersect(cluster$molecule, colnames(.)))
+    }
+    
+    # plot
+    if(!is.null(time)){
+        rownames(data) <- time   
+    }
+    data.gather <- data %>% as.data.frame() %>% 
+        tibble::rownames_to_column("time") %>%
+        dplyr::mutate(time = as.numeric(.$time)) %>%
+        tidyr::pivot_longer(names_to = "molecule", values_to = "value", -time) %>%
+        dplyr::left_join(cluster, by = c("molecule"="molecule")) %>%
+        dplyr::mutate(block = factor(block))
+    
     gg <- ggplot(data.gather, aes(x = time, y = value, group = molecule)) +
         geom_line(aes(color = block)) +
         facet_grid(contribution ~ comp, scales = "free") +
         scale_color_manual(values = mixOmics::color.mixo(1:length(levels(data.gather$block)))) +
-        theme_bw()
-
+        theme_bw() 
+    
+    if(is.character(title)){
+        gg <- gg + ggtitle(title)
+    }
+    
+    if(!is.null(X.label)){
+        gg <- gg + xlab(X.label)
+    } else {
+        gg <- gg + xlab("Time")
+    }
+    
+    if(!is.null(Y.label)){
+        gg <- gg + ylab(Y.label)
+    } else {
+        gg <- gg + ylab("Expression")
+    }
+    
+    if(!legend){
+        gg <- gg + theme(legend.position = "none")
+    } else { # legend is TRUE
+        if(!is.null(legend.title)){
+            gg <- gg + labs(color = legend.title)
+        }
+    }
+    
     if(plot){
         print(gg)
     }
-    
-    return(data.gather)
+    return(invisible(gg$data))
 }
-

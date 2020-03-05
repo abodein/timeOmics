@@ -21,18 +21,28 @@
 #' Quinn, T. P., Richardson, M. F., Lovell, D., Crowley, T. M. (2017). propr: an r-package for identifying proportionally abundant features using compositional data analysis. Sci. Rep. 7, 16252. doi: 10.1038/s41598-017-16520-0
 #' 
 #' @examples 
-#' demo <- suppressMessages(get_demo_cluster())
+#' demo <- get_demo_cluster()
+#' 
+#' # pca
 #' X <- demo$pca
-#' proportionality(X)
+#' propr.res <- proportionality(X)
+#' plot(propr.res)
+#' 
+#' # pls
 #' X <- demo$spls
-#' proportionality(X)
+#' propr.res <- proportionality(X)
+#' plot(propr.res)
+#' 
+#' # block.pls
 #' X <- demo$block.spls
-#' proportionality(X)
+#' propr.res <- proportionality(X)
+#' plot(propr.res)
 #' 
 #' @importFrom dplyr mutate filter rename left_join
 #' @importFrom magrittr %>%
 #' @importFrom tibble rownames_to_column
 #' @importFrom tidyr pivot_longer
+#' @importFrom propr propr
 #' 
 #' @export
 proportionality <- function(X){
@@ -115,7 +125,9 @@ stat_median <- function(res.phs.X){
     return(res.pval)
 }
 
-plot.proportionality <- function(X){
+#' @export
+#' @import ggplot2
+plot.proportionality <- function(X, ...){
     ggplot2::ggplot(data = X$propr.distance.w.cluster, 
                     aes(x=as.factor(cluster1), y=value, col=insideout)) + 
         geom_boxplot() + theme_bw() + 

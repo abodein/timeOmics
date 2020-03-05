@@ -4,19 +4,17 @@
 #' for an object of the type \code{pca}, \code{spca}, \code{pls}, \code{spls},
 #' \code{block.pls}, \code{block.spls}.
 #'
-#' @param X A numeric matrix.
-#'
-#' @param cluster A data.frame
-#' that contains clustering information with molecule and cluster
+#' @param object a mixOmics object of the class \code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls}, \code{block.spls}
 #'
 #' @details
 #' This method extract the componant contribution depending on the object,
 #' perform the clustering step, and compute the silhouette coefficient.
 #'
 #' @return
+#' silhouette coefficient
 #' 
 #' @examples
-#' demo <- suppressMessages(get_demo_cluster())
+#' demo <- get_demo_cluster()
 #' getSilhouette(object = demo$pca)
 #' getSilhouette(object = demo$spca)
 #' getSilhouette(object = demo$pls)
@@ -32,6 +30,7 @@ getSilhouette <- function(object){
 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
+#' @export
 getSilhouette.pca <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
@@ -42,6 +41,7 @@ getSilhouette.pca <- function(object){
 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
+#' @export
 getSilhouette.spca <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
@@ -52,6 +52,8 @@ getSilhouette.spca <- function(object){
     return(silhouette.res$average)
 }
 
+#' @export
+#' @importFrom dplyr select
 #' @importFrom magrittr %>%
 getSilhouette.mixo_pls <- function(object){
     cluster <- getCluster(object) %>%
@@ -66,6 +68,7 @@ getSilhouette.mixo_pls <- function(object){
 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
+#' @export
 getSilhouette.mixo_spls <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
@@ -80,6 +83,8 @@ getSilhouette.mixo_spls <- function(object){
 }
 
 #' @importFrom magrittr %>%
+#' @importFrom dplyr select
+#' @export
 getSilhouette.block.pls <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
@@ -93,6 +98,7 @@ getSilhouette.block.pls <- function(object){
 
 #' @importFrom magrittr %>%
 #' @importFrom dplyr select
+#' @export
 getSilhouette.block.spls <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")

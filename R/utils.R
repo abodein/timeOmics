@@ -1,5 +1,15 @@
-#' check numeric matrix
-#'
+#' plot
+#' 
+#' Generic function for plotiing R object
+#' 
+#' @param X object to plot
+#' @param ... Other arguments to be passed to methods
+#' 
+#' @export
+plot <- function(X, ...){
+    UseMethod("plot")
+}
+
 is.numeric.matrix <- function(X){
     if(any(is.infinite(X))) return(FALSE)
     if(is.numeric(X) & is.matrix(X)) return(TRUE)

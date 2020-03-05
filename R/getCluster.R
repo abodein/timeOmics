@@ -14,7 +14,7 @@
 #' \code{\link[mixOmics]{selectVar}}
 #' 
 #' @examples
-#' demo <- suppressMessages(get_demo_cluster())
+#' demo <- get_demo_cluster()
 #' pca.cluster <- getCluster(demo$pca)
 #' spca.cluster <- getCluster(demo$spca)
 #' pls.cluster <- getCluster(demo$pls)
@@ -25,8 +25,12 @@
 #' @export
 getCluster <- function(X) UseMethod("getCluster")
 
+#' get_demo_cluster
+#' 
+#' Generates random data to be used in examples.
 #' @export
 get_demo_cluster<- function(){
+    set.seed(123)
     X <- matrix(sample(1:1000), nrow = 10)
     rownames(X) <- 1:nrow(X)
     colnames(X) <- paste0("X_",1:ncol(X))

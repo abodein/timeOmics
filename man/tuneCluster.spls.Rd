@@ -56,7 +56,7 @@ spls.res <- spls(X, Y, ncomp= 2, keepX= keepX, keepY= keepY)
 
 # get clusters and plot longitudinal profile by cluster
 spls.cluster <- getCluster(spls.res)
-#plotLong(spls.res)
+plotLong(spls.res)
 
 
 }

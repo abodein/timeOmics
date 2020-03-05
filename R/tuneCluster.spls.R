@@ -47,7 +47,7 @@
 #' 
 #' # get clusters and plot longitudinal profile by cluster
 #' spls.cluster <- getCluster(spls.res)
-#' #plotLong(spls.res)
+#' plotLong(spls.res)
 #' 
 #'
 #' @export

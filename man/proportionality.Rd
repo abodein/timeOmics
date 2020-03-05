@@ -21,13 +21,22 @@ a clustering result (\code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{blo
 and it performs a u-test to compare the median within a cluster to the median of the entire background set.
 }
 \examples{
-demo <- suppressMessages(get_demo_cluster())
+demo <- get_demo_cluster()
+
+# pca
 X <- demo$pca
-proportionality(X)
+propr.res <- proportionality(X)
+plot(propr.res)
+
+# pls
 X <- demo$spls
-proportionality(X)
+propr.res <- proportionality(X)
+plot(propr.res)
+
+# block.pls
 X <- demo$block.spls
-proportionality(X)
+propr.res <- proportionality(X)
+plot(propr.res)
 
 }
 \references{

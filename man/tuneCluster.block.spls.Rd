@@ -16,11 +16,11 @@ tuneCluster.block.spls(X, Y = NULL, indY = NULL, ncomp = 2,
 
 \item{ncomp}{integer, number of component to include in the model}
 
+\item{test.list.keepX}{list of integers with the same size as X. Each entry corresponds to the different keepX value to test for each block of \code{X}.}
+
 \item{test.keepY}{only if Y is provideid. Vector of integer containing the different value of keepY to test for block \code{Y}.}
 
 \item{...}{other parameters to be included in the spls model (see \code{mixOmics::block.spls})}
-
-\item{list.test.keepX}{list of integers with the same size as X. Each entry corresponds to the different keepX value to test for each block of \code{X}.}
 }
 \value{
 \item{silhouette}{silhouette coef. computed for every combinasion of keepX/keepY}

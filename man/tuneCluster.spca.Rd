@@ -27,8 +27,24 @@ tuneCluster.spca(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...)
 This function identify the number of feautures to keep per component and thus by cluster in \code{mixOmics::spca} 
 by optimizing the silhouette coefficient, which assesses the quality of clustering.
 }
+\details{
+For each component and for each keepX value, a spls is done from these parameters.
+Then the clustering is performed and the silhouette coefficient is calculated for this clustering.
+
+We then calculate "slopes" where keepX are the coordinates and the silhouette is the intensity.
+A z-score is assigned to each slope.
+We then identify the most significant slope which indicates a drop in the silhouette coefficient and thus a deterioration of the clustering.
+}
 \examples{
 demo <- get_demo_cluster()
 X <- demo$X
+
+# tuning
 tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2:10))
+keepX <- tune.spca.res$choice.keepX
+plot(tune.spca.res)
+
+# final model
+spca.res <- spca(X=X, ncomp = 2, keepX = keepX)
+plotLong(spca.res)
 }
