@@ -57,38 +57,68 @@ install_github("abodein/timeOmics_BioC")
 library(timeOmics)
 ```
 
-# Data preprocessing
-
-Each analysis starts with a pre-processing step. 
-In longitudinal multi-omics analysis we have a 2-step pre-processing.
-
-1. Omic-specific pre-processing depending on the used technology to collect Omics data. 
-(log, scale, rle, low count removal, ...)
-2. Time-specific pre-processing. Here, we are interested in keeping only features that vary over time.
-
 ## Required data
 
+Each omics technology produces abundance tables with samples in rows and features in columns (genes, proteins, species, ...).
+In multi-Omics, each *block* has the same rows and a variable number of columns depending on the technology and number of identified features.
+
+We assume each block is a matrix/data.frame with samples in rows (similar in each block) and features in columns (variable number of column).
+
+For this example, we will use simulated data based on the above-mentioned article.
 
 ```{r}
 data("timeOmics.simdata")
 raw.data <- timeOmics.simdata$rawdata
+
+dim(sim.data) 
+head(raw.data[1:6])
 ```
 
 
+# Data preprocessing
+
+Every analysis starts with a pre-processing step. 
+In longitudinal multi-omics analysis we have a 2-step pre-processing procedure.
+
+## Omic-specific
+
+Omic-specific pre-processing is the type of standardization normally used without time component.
+It may differ depending on the type of technology
+*(log, scale, rle, low count removal, ...)*.
+That is why we let the user apply his favorite method of standardization.
+
+## Time-specific
+
+In a longitudinal context, one can be interested only in features that vary over time and filter out molecules that would have a negligible impact on the system.
+
+To do so, we can first naively set a threshold on the variation coefficient and keep those features that exceed the threshold.
+
+```{r}
+remove.low.cv <- function(X, cutoff = 0.5){
+  # var.coef
+  cv <- unlist(lapply(as.data.frame(X), 
+                      function(x) abs(sd(x)/mean(x))))
+  return(X[,cv > cutoff])
+}
+
+data.filtered <- remove.low.cv(sim.data, 0.5)
+```
 
 
 # Time Modelling
 
-We rely on a *Linear Mixed Model Splines* framework (package `LMMS`) to model features expression as a function of time.
+We rely on a *Linear Mixed Model Splines* framework (package `lmms`) to model features expression as a function of time by taking into account all inter-individual variability.
 
-LMMS framework tests 4 different models and assigns one of the following models to each feature:
+`lmms` framework tests 4 different models and assigns one of the following models to each feature:
 
 * 0 = linear model, 
 * 1 = linear mixed effect model spline (LMMS) with defined basis, 
 * 2 = LMMS taking subject-specific random intercept, 
 * 3 = LMMS with subject specific intercept and slope.
 
-LMMS will take into account all inter-individual variability and summarize each feature into a unique time profile.
+The package also has an interesting feature for filtering profiles not differentially expressed over time, in a more robust way (see `lmms::lmmsDE`).
+
+At the end, `lmms` summarize each feature into a unique time profile.
 
 ## Required data
 
@@ -99,9 +129,6 @@ Let's run `lmms` on simulated dataset.
 library(lmms)
 library(tidyverse) # this one will be useful for the rest
 
-data("timeOmics.simdata")
-sim.data <- timeOmics.simdata$sim
-sim.data[1:15,1:6]
 ```
 
 LMMS requires a dataframe with features in columns and samples in rows.
@@ -148,7 +175,9 @@ We then add a filter on the mean squared error to reduce the dispersion of the r
 #wrapper.filter.splines
 ```
 
-# (s)PCA longitudinal clustering
+# Single-Omic longitudinal clustering
+
+## (s)PCA 
 
 From the modelled data, we use a PCA to cluster features with a samilar expression profile over time.
 
