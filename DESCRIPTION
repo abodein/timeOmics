@@ -19,7 +19,8 @@ Imports:
     ggplot2,
     stringr,
     ggrepel,
-    propr
+    propr,
+    lmtest
 biocViews: Clustering,FeatureExtraction,TimeCourse,DimensionReduction,Software,
     Sequencing, Microarray, Metabolomics, Metagenomics, Proteomics,
       Classification, Regression, ImmunoOncology, GenePrediction,

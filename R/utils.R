@@ -186,3 +186,15 @@ sd.new <- function(x, ...){
         return(sd(x, ...))
     }
 }
+
+return.true.false <- function(x, default){
+    if(is.logical(x)){
+        if(is.finite(x)){
+            return(x)
+        } else { #NA
+            return(default)
+        }
+    } else {
+        return(default)
+    }
+}

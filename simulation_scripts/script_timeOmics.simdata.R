@@ -67,14 +67,77 @@ sim.data <- tmp %>% dplyr::select(-c(value)) %>%
     mutate(ind = c(paste0(ind, "_", time))) %>% dplyr::select(-time) %>%
     spread(ind, value) %>% column_to_rownames("sample") %>% t
 
-# medelled data
+# modelled data
 time <- rownames(sim.data) %>% str_split("_") %>% map_chr(~.x[2]) %>% as.numeric()
 sampleID <- rownames(sim.data)
-lmms.out <- lmms::lmmSpline(data = sim.data, time = time, sampleID = sampleID)
+lmms.out <- lmms::lmmSpline(data = sim.data, time = time, sampleID = sampleID, keepModels = T)
 
 modelled.data <-  as.data.frame(t(lmms.out@predSpline))
 
 timeOmics.simdata <- list(rawdata = raw.data, sim = sim.data,
-                          modelled = modelled.data[,-c0])
+                          modelled = modelled.data[,-c0], 
+                          lmms.output = lmms.out,
+                          time = time)
+
+# Y same as data but increase noise
+sd <- 0.5
+N_Ind <- 4
+set.seed(123)
+
+tmp <- data.gather %>% filter(time %in% c(1,2,3,5,7,9))
+for(ind in 1:N_Ind){
+    vect <- vector(length = nrow(tmp), mode = "numeric")
+    for(x in 1:length(vect)){
+        vect[x] <- rnorm(1, mean = tmp$value[x], sd = sd)
+    }
+    name.c <- names(tmp)
+    tmp <- data.frame(tmp, vect)
+    colnames(tmp) <- c(name.c, LETTERS[ind])
+}
+
+Y <- tmp %>% dplyr::select(-c(value)) %>%
+    gather(ind, value, -c(sample, time))%>%
+    mutate(ind = c(paste0(ind, "_", time))) %>% dplyr::select(-time) %>%
+    spread(ind, value) %>% column_to_rownames("sample") %>% t
+
+time.Y <- rownames(Y) %>% str_split("_") %>% map_chr(~.x[2]) %>% as.numeric()
+sampleID.Y <- rownames(Y)
+lmms.Y <- lmms::lmmSpline(data = Y, time = time.Y, sampleID = sampleID.Y, keepModels = T, 
+                          timePredict = 1:9)
+modelled.Y <- lmms.Y@predSpline %>% t %>% as.data.frame()
+colnames(modelled.Y) <- paste0("Y_", seq_along(colnames(modelled.Y)))
+
+timeOmics.simdata[["Y"]] <- modelled.Y
+
+# Z
+# Y same as data but increase noise
+sd <- 1
+N_Ind <- 4
+set.seed(123)
+
+tmp <- data.gather %>% filter(time %in% c(1,3,4,5,8,9))
+for(ind in 1:N_Ind){
+    vect <- vector(length = nrow(tmp), mode = "numeric")
+    for(x in 1:length(vect)){
+        vect[x] <- rnorm(1, mean = tmp$value[x], sd = sd)
+    }
+    name.c <- names(tmp)
+    tmp <- data.frame(tmp, vect)
+    colnames(tmp) <- c(name.c, LETTERS[ind])
+}
+
+Z <- tmp %>% dplyr::select(-c(value)) %>%
+    gather(ind, value, -c(sample, time))%>%
+    mutate(ind = c(paste0(ind, "_", time))) %>% dplyr::select(-time) %>%
+    spread(ind, value) %>% column_to_rownames("sample") %>% t
+
+time.Z <- rownames(Z) %>% str_split("_") %>% map_chr(~.x[2]) %>% as.numeric()
+sampleID.Z <- rownames(Z)
+lmms.Z <- lmms::lmmSpline(data = Z, time = time.Z, sampleID = sampleID.Z, keepModels = T, 
+                          timePredict = 1:9)
+modelled.Z <- lmms.Z@predSpline %>% t %>% as.data.frame()
+colnames(modelled.Z) <- paste0("Z_", seq_along(colnames(modelled.Z)))
+
+timeOmics.simdata[["Z"]] <- modelled.Z
 
 save(timeOmics.simdata, file = "./data/timeOmics.simdata.RData")

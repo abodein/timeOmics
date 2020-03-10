@@ -57,7 +57,14 @@ install_github("abodein/timeOmics_BioC")
 library(timeOmics)
 ```
 
-## Required data
+## Useful packages to run this vignette
+
+```{r}
+library(lmms)
+library(tidyverse)
+```
+
+# Required data
 
 Each omics technology produces abundance tables with samples in rows and features in columns (genes, proteins, species, ...).
 In multi-Omics, each *block* has the same rows and a variable number of columns depending on the technology and number of identified features.
@@ -68,10 +75,11 @@ For this example, we will use simulated data based on the above-mentioned articl
 
 ```{r}
 data("timeOmics.simdata")
-raw.data <- timeOmics.simdata$rawdata
+?timeOmics.simdata
+sim.data <- timeOmics.simdata$sim
 
 dim(sim.data) 
-head(raw.data[1:6])
+head(sim.data[,1:6])
 ```
 
 
@@ -120,64 +128,53 @@ The package also has an interesting feature for filtering profiles not different
 
 At the end, `lmms` summarize each feature into a unique time profile.
 
-## Required data
+## `lmms` example
 
-Let's run `lmms` on simulated dataset.
+`lmms` requires a dataframe with features in columns and samples in rows.
 
+For more information about `lmms` modelling parameters, please check \code{\link[lmms]{lmms}}
 
-```{r}
-library(lmms)
-library(tidyverse) # this one will be useful for the rest
-
-```
-
-LMMS requires a dataframe with features in columns and samples in rows.
-Here my rownames are represented like this: **ID_Time**
-
-For more information about LMMS modelling parameters, please check (link lmms)
-
-```{r}
-time <- rownames(sim.data) %>% str_remove("._") %>% as.numeric()
-LMMS.output <- lmms::lmmSpline(data = sim.data, time = time,
-                        sampleID = rownames(sim.data), deri = FALSE,
+```{r, message=FALSE}
+time <- rownames(data.filtered) %>% str_remove("._") %>% as.numeric()
+lmms.output <- lmms::lmmSpline(data = data.filtered, time = time,
+                        sampleID = rownames(data.filtered), deri = FALSE,
                         basis = "p-spline", numCores = 4, timePredict = 1:9, 
                         keepModels = TRUE)
-data <- t(LMMS.output@predSpline)
+modelled.data <- t(slot(lmms.output, 'predSpline'))
 ```
 
-## LMMS output 
-
-LMMS reduces the dimension of the data.
-The produced table contains features in columns and now, times in lines.
-
+The produced table contains features in columns and now, times in rows.
 Let's plot the modelled profiles.
 
 ```{r}
 # gather data
-data.gathered <- data %>% as.data.frame() %>% 
+data.gathered <- modelled.data %>% as.data.frame() %>% 
   rownames_to_column("time") %>%
   mutate(time = as.numeric(time)) %>%
-  gather(feature, value, -time)
+  pivot_longer(names_to="feature", values_to = 'value', -time)
 
 # plot profiles
 ggplot(data.gathered, aes(x = time, y = value, color = feature)) + geom_line() +
-  theme_bw() + ggtitle("LMMS profiles") + ylab("Features expression") +
+  theme_bw() + ggtitle("`lmms` profiles") + ylab("Feature expression") +
   xlab("Time")
 ```
 
 ## Profile filtering
 
 Straight line modelling can occur when the inter-individual variation is too high.
-To remove the noisy profiles, we first use the Breusch-Pagan test, which tests the homo-sedasticity of the residues.
-We then add a filter on the mean squared error to reduce the dispersion of the residues around the line.
+To remove the noisy profiles, we have implemented a 2-phase test procedure.
+
+* *Breusch-Pagan test*, which tests the homo-sedasticity of the residues.
+* *cutoff on MSE* (mean squared error), to reduce dispersion of the residues around the line.
 
 ```{r}
-#wrapper.filter.splines
+filter.res <- lmms.filter.lines(data = modelled.data, lmms.obj = lmms.output, time = time)
+profile.filtered <- filter.res$filtered
 ```
 
 # Single-Omic longitudinal clustering
 
-## (s)PCA 
+## Principal Component Analysis
 
 From the modelled data, we use a PCA to cluster features with a samilar expression profile over time.
 
@@ -185,38 +182,38 @@ PCA is un unsupervised reduction dimension technique which use uncorrelated
 intrumental variable (a.k.a principal components) to summarize as much information 
 (*variance*) as possible from the data.
 
-```{r}
-data("timeOmics.simdata")
-data <- timeOmics.simdata$modelled
-```
 
-## clustering
+### Clustering
 
-Text about clustering and how it is done in our case. 
+Clusters of similar expression profiles are grouped as follows
 
-* loading scores
-* component
-* contribution
-* silhouette coefficient
+In PCA, components are generated using variables. Each variable can either contribute positively or negatively to the creation of the components.
+Each variable (feature) will be associated with a component (the one that most represents it).
+Finally, each component can create 2 clusters and each feature is assigned to a cluster according to the maximum contribution on a component and the sign of that contribution.
 
-Optimize the number of component
-First, run a PCA and optimise 
+To optimize the number of clusters, the number of PCA components needs to be optimized first.
+The quality of clustering is assessed using the silhouette coefficient.
+The number of components that maximizes the silhouette coefficient will provide the best clustering.
 
 ```{r}
 # run pca
-pca.res <- pca(X = data, ncomp = 5, scale=F)
+pca.res <- pca(X = profile.filtered, ncomp = 5, scale=F)
 
-pca.ncomp <- getNcomp(pca.res, max.ncomp = 5, X = data)
+# tuning ncomp
+pca.ncomp <- getNcomp(pca.res, max.ncomp = 5, X = profile.filtered, scale = F, center=F)
+
+pca.ncomp$choice.ncomp
 plot(pca.ncomp)
 ```
 
-Thanks to the previous plot, highest silhouette coefficient is achieved when `ncomp = 2`.
+Thanks to the previous plot, highest silhouette coefficient is achieved when `ncomp = 2`(4 clusters).
 
 ```{r}
-pca.res <- pca(X = data, ncomp = 2,scale = F, center=F)
+# final model
+pca.res <- pca(X = profile.filtered, ncomp = 2, scale = F, center=F)
 ```
 
-All information about the cluster is displayed here.
+All information about the cluster is displayed below.
 
 ```{r}
 # extract cluster
@@ -227,71 +224,125 @@ head(pca.cluster)
 ### Plot PCA clusters
 
 ```{r}
-plotVar(pca.res)
-plotLong(pca.res, scale = F, center = F)
+#mixOmics::plotVar(pca.res)
+plotLong(pca.res, scale = F, center = F, title = "PCA longitudinal clustering")
 ```
 
 
-## sparse PCA
+## *sparse* PCA
 
 The previous clustering used all features. Sometimes we are interested in a cluster signature.
 We then use the sparse PCA to extract this key signature.
 
-To find the right number of features to keep per component and thus per cluster, we evaluate the silhouette for a list of selected features on each component.
+### `keepX` optimization
+
+To find the right number of features to keep per component (`keepX`) and thus per cluster, silhouette coefficient is assessed for a list of selected features on each component.
+
+Evolution of silhouette coefficient of each cluster (component and contribution) is observed to 
+detect a significant decrease in the silhouette for each component.
 
 We do not recommend using a parameter that is too small since it will tend to pull the silhouette coefficient upwards and bias the interpretation regarding the number of features to be selected.
 
-We will then follow the evolution of the silhouette coefficient of each cluster (component and contribution). 
-The main idea here is to detect a significant decrease in the evolution of the silhouette for each component.
-In other words, if we add 1 OTU, will the cluster be distorted?
 
 ```{r}
-data <- timeOmics.simdata$modelled
-tune.spca.res <- tuneCluster.spca(X = data, ncomp = 2, test.keepX = c(2:10))
+tune.spca.res <- tuneCluster.spca(X = profile.filtered, ncomp = 2, test.keepX = c(2:10))
+tune.spca.res$choice.keepX
 plot(tune.spca.res)
 ```
 
 
-
 ```{r}
-spca.res <- spca(X = data, ncomp = 2, keepX = c(8,7), scale = FALSE)
+spca.res <- spca(X = profile.filtered, ncomp = 2, keepX = tune.spca.res$choice.keepX, scale = FALSE)
 plotLong(spca.res)
 ```
 
 
-# (s)PLS longitudinal clustering
+# multi-Omics longitudinal clustering 
+
+The clustering strategy with more than one block of data is the same as longitudinal clustering with PCA and is based on the projection of variables on a reduced common space.
+
+With 2 blocks, it is then necessary to use PLS.
+With more than 2 blocks, the user has to use a multi-block PLS.
+
+
+## Projection on Latent Structures (PLS)
+
+### Ncomp and Clustering 
 
 ```{r}
-X <- data
-Y <- data[,sample(1:20, size = 8)]
-colnames(Y) <- paste0("Y", 1:ncol(Y))
+X <- profile.filtered
+Y <- timeOmics.simdata$Y
 
-pls.res <- pls(X,Y, ncomp = 2, scale = TRUE)
-
-getCluster(pls.res) %>% head
-
-plotLong(pls.res)
-
-tune.spls <- tuneCluster.spls(X, Y, ncomp = 2, test.keepX = c(5,10,15,20), test.keepY <- c(2,4,6))
+pls.res <- pls(X,Y, ncomp = 5, scale = FALSE)
+pls.ncomp <- getNcomp(pls.res, max.ncomp = 5, X=X, Y=Y, scale = F)
+pls.ncomp$choice.ncomp
+plot(pls.ncomp)
 ```
 
-need a graph for keepX/keepY
+Thanks to the previous plot, highest silhouette coefficient is achieved when `ncomp = 2`(4 clusters).
 
-# Multi-block (s)PLS longitudinal clustering
 
 ```{r}
-X <- data
-Y <- data[,sample(1:20, size = 8)]
-colnames(Y) <- paste0("Y", 1:ncol(Y))
+# final model
+pls.res <- pls(X,Y, ncomp = 2, scale = FALSE)
 
-Z <- data[,sample(1:20, size = 12)]
-colnames(Z) <- paste0("Z", 1:ncol(Z))
+getCluster(pls.res) %>% head
+plotLong(pls.res, title = "PLS longitudinal clustering")
+```
 
-block.pls.res <- block.pls(X = list("X"=X,"Z"=Z), Y, ncomp = 2, scale = TRUE)
+### Signature with *sparse* PLS
 
+As with PCA, it is possible to use the *sparse* PLS to get a signature of the clusters.
+
+`tuneCluster.spls` choose the correct number of feature to keep on block X `keepX` as well as 
+the correct number of feature to keep on block Y `keepY` among a list provided by the user.
+
+```{r}
+tune.spls <- tuneCluster.spls(X, Y, ncomp = 2, test.keepX = c(4:10), test.keepY <- c(2,4,6))
+tune.spls$choice.keepX
+tune.spls$choice.keepY
+
+#final model
+spls.res <- spls(X,Y, ncomp = 2, scale = FALSE, 
+                 keepX = tune.spls$choice.keepX, keepY = tune.spls$choice.keepY)
+spls.cluster <- getCluster(spls.res)
+plotLong(spls.res, title = "sPLS clustering")
+```
+
+## Multi-block (s)PLS longitudinal clustering
+
+### Ncomp and Clustering 
+
+```{r}
+X <- list("X" = profile.filtered, "Z" = timeOmics.simdata$Z)
+Y <- as.matrix(timeOmics.simdata$Y)
+
+block.pls.res <- block.pls(X=X, Y=Y, ncomp = 5, scale = FALSE, mode = "canonical")
+block.ncomp <- getNcomp(block.pls.res,X=X, Y=Y, scale = FALSE, mode = "canonical")
+block.ncomp$choice.ncomp
+plot(block.ncomp)
+
+# final model
+block.pls.res <- block.pls(X=X, Y=Y, ncomp = 1, scale = FALSE, mode = "canonical")
 block.pls.cluster <- getCluster(block.pls.res)
 head(block.pls.cluster)
 
+plotLong(block.pls.res)
+```
+
+### Signature with multi-block *sparse* PLS
+
+```{r}
+test.list.keepX <- list("X" = 4:10, "Z" = c(2,4,6,8))
+test.keepY <- c(2,4,6)
+
+tune.block.res <- tuneCluster.block.spls(X= X, Y= Y, test.list.keepX=test.list.keepX, test.keepY= test.keepY, scale=FALSE, mode = "canonical")
+tune.block.res$choice.keepX
+tune.block.res$choice.keepY
+
+# final model
+block.pls.res <- block.spls(X=X, Y=Y, scale = FALSE, mode = "canonical", keepX = tune.block.res$choice.keepX, keepY = tune.block.res$choice.keepY)
+head(getCluster(block.pls.res))
 plotLong(block.pls.res)
 ```
 
