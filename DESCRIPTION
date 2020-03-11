@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "antoine.bodein.1@ulaval.ca")
 Description: What the package does (one paragraph).
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports:
@@ -28,4 +28,4 @@ biocViews: Clustering,FeatureExtraction,TimeCourse,DimensionReduction,Software,
 Depends: mixOmics, R (>= 3.6.0)
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
-Suggests: BiocStyle, knitr, rmarkdown, testthat, lmms, snow
+Suggests: BiocStyle, knitr, rmarkdown, testthat, lmms, snow, tidyverse
