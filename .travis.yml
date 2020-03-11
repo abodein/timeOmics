@@ -1,2 +1,13 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
 language: r
+cache: packages
+
+r_check_args:
+
+# Tell Travis that we're using bioconductor packages.
+# Could also use bioc-release  
 r: bioc-devel
+
+# Tell Travis to run BiocCheck.
+bioc_check: true
