@@ -65,7 +65,7 @@ validate.matrix.X <- function(X){
     if(!is.numeric(X)){
         stop("X must be a numeric matrix/data.frame")
     }
-    suppressWarnings(if(!X) stop("X must be a numeric matrix/data.frame"))
+    if(any(!X)) stop("X must be a numeric matrix/data.frame")
     return(X)
 }
 
@@ -75,7 +75,7 @@ validate.matrix.Y <- function(Y){
     if(!is.numeric(Y)){
         stop("Y must be a numeric matrix/data.frame")
     }
-    suppressWarnings(if(!Y) stop("Y must be a numeric matrix/data.frame"))
+    if(any(!Y)) stop("Y must be a numeric matrix/data.frame")
     return(Y)
 }
 

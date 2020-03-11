@@ -23,12 +23,16 @@ test_that("getNcomp failed on invalid input - X", {
     expect_error(getNcomp(object=demo$pca, X = NA), "X must be a numeric matrix/data.frame", fixed = TRUE)
     expect_error(getNcomp(object=demo$pca, X = NULL), "X must be a numeric matrix/data.frame", fixed = TRUE)
     expect_error(getNcomp(object=demo$pca, X = "ah!"), "X must be a numeric matrix/data.frame", fixed = TRUE)
+    expect_error(getNcomp(object=demo$pca, X = matrix(LETTERS[1:9])), "X must be a numeric matrix/data.frame", fixed = TRUE)
+    expect_error(getNcomp(object=demo$pca, X = list()), "X must be a numeric matrix/data.frame", fixed = TRUE)
     
     # block.pls
     expect_error(getNcomp(object=demo$block.pls, X = demo$X), "X must be a list of matrix/data.frame", fixed = TRUE)
     expect_error(getNcomp(object=demo$block.pls, X = NA), "X must be a list of matrix/data.frame", fixed = TRUE)
     expect_error(getNcomp(object=demo$block.pls, X = NULL), "X must be a list of matrix/data.frame", fixed = TRUE)
     expect_error(getNcomp(object=demo$block.pls, X = "ah!"), "X must be a list of matrix/data.frame", fixed = TRUE)
+    expect_error(getNcomp(object=demo$block.pls, X = list(matrix(LETTERS[1:9]))), "X must be a numeric matrix/data.frame", fixed = TRUE)
+    expect_error(getNcomp(object=demo$block.pls, X = list("a" = matrix(1:9), "b"= matrix(LETTERS[1:9]))), "X must be a numeric matrix/data.frame", fixed = TRUE)
 })
      
 test_that("getNcomp failed on invalid input - Y", {
