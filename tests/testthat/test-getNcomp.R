@@ -3,7 +3,7 @@ context("getNcomp")
 demo <- get_demo_cluster()
 demo$pca <- mixOmics::pca(X = demo$X, ncomp = 5)
 demo$pls <- mixOmics::pls(X = demo$X, Y=demo$Y, ncomp =5, mode = "canonical")
-demo$block.pls = mixOmics::block.pls(X=list(X=demo$X, Y=demo$Y, Z=demo$Z), indY=1, ncomp = 5, mode = "canonical")
+demo$block.pls = suppressWarnings(mixOmics::block.pls(X=list(X=demo$X, Y=demo$Y, Z=demo$Z), indY=1, ncomp = 5, mode = "canonical"))
 
 
 test_that("getNcomp failed on invalid input - object", {

@@ -7,7 +7,7 @@ lmms.output <- timeOmics.simdata$lmms.output
 time <- timeOmics.simdata$time
 
 lmms.bad1 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data))
-lmms.bad2 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data), timePredict = c(1:3), keepModels = T)
+lmms.bad2 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data), timePredict = c(1:3), keepModels = TRUE)
 
 test_that("lmms.filter.lines failed on invalid input - data",{
     expect_error(lmms.filter.lines(data = ""), "X must be a numeric matrix/data.frame")
@@ -38,7 +38,7 @@ test_that("lmms.filter.lines failed on invalid input - time",{
     expect_error(lmms.filter.lines(data = data, lmms.obj = lmms.output, time = c(1,2,3)),  "'time' should be a numeric vector with the same length as 'nrow(data)'", fixed = TRUE)
     
     # not identical
-    expect_error(lmms.filter.lines(data = data, lmms.obj = lmms.output, time = sample(x=9:20,size = 45,replace = T)),  "wrong time between 'lmms.obj', and 'time'", fixed = TRUE)
+    expect_error(lmms.filter.lines(data = data, lmms.obj = lmms.output, time = sample(x=9:20,size = 45,replace = TRUE)),  "wrong time between 'lmms.obj', and 'time'", fixed = TRUE)
 })
 
 test_that("lmms.filter.lines failed on invalid input - homoskedasticity.cutoff",{

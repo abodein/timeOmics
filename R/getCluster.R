@@ -99,7 +99,7 @@ getCluster.pca <- function(X){
 #' @importFrom magrittr %>%
 getCluster.spca <- function(X){
     # print(class(X))
-    selected.features.loadings <- X$loadings$X[rowSums(X$loadings$X) != 0,]
+    selected.features.loadings <- X$loadings$X[rowSums(X$loadings$X) != 0,,drop=FALSE]
     loadings.max <- getMaxContrib(selected.features.loadings)
 
     loadings.max <- loadings.max %>% rownames_to_column("molecule") %>%
@@ -150,7 +150,7 @@ getCluster.mixo_spls <- function(X){
 
     # print(class(X))
     # block X
-    X.selected.features.loadings <- X$loadings$X[rowSums(X$loadings$X) != 0,]
+    X.selected.features.loadings <- X$loadings$X[rowSums(X$loadings$X) != 0,,drop=FALSE]
     loadings.max.X <- getMaxContrib(X.selected.features.loadings)
 
     loadings.max.X <- loadings.max.X %>% rownames_to_column("molecule") %>%
@@ -221,7 +221,7 @@ getCluster.block.spls <- function(X){
 
     # sparse
     loadings <- do.call("rbind", X$loadings)
-    X.selected.features.loadings <- loadings[rowSums(loadings) != 0,]
+    X.selected.features.loadings <- loadings[rowSums(loadings) != 0,, drop=FALSE]
     loadings.max <- getMaxContrib(X.selected.features.loadings)
 
     loadings.max <- loadings.max %>% rownames_to_column("molecule") %>%

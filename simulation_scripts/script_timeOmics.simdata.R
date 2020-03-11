@@ -70,7 +70,7 @@ sim.data <- tmp %>% dplyr::select(-c(value)) %>%
 # modelled data
 time <- rownames(sim.data) %>% str_split("_") %>% map_chr(~.x[2]) %>% as.numeric()
 sampleID <- rownames(sim.data)
-lmms.out <- lmms::lmmSpline(data = sim.data, time = time, sampleID = sampleID, keepModels = T)
+lmms.out <- lmms::lmmSpline(data = sim.data, time = time, sampleID = sampleID, keepModels = TRUE)
 
 modelled.data <-  as.data.frame(t(lmms.out@predSpline))
 
@@ -102,7 +102,7 @@ Y <- tmp %>% dplyr::select(-c(value)) %>%
 
 time.Y <- rownames(Y) %>% str_split("_") %>% map_chr(~.x[2]) %>% as.numeric()
 sampleID.Y <- rownames(Y)
-lmms.Y <- lmms::lmmSpline(data = Y, time = time.Y, sampleID = sampleID.Y, keepModels = T, 
+lmms.Y <- lmms::lmmSpline(data = Y, time = time.Y, sampleID = sampleID.Y, keepModels = TRUE, 
                           timePredict = 1:9)
 modelled.Y <- lmms.Y@predSpline %>% t %>% as.data.frame()
 colnames(modelled.Y) <- paste0("Y_", seq_along(colnames(modelled.Y)))
@@ -133,7 +133,7 @@ Z <- tmp %>% dplyr::select(-c(value)) %>%
 
 time.Z <- rownames(Z) %>% str_split("_") %>% map_chr(~.x[2]) %>% as.numeric()
 sampleID.Z <- rownames(Z)
-lmms.Z <- lmms::lmmSpline(data = Z, time = time.Z, sampleID = sampleID.Z, keepModels = T, 
+lmms.Z <- lmms::lmmSpline(data = Z, time = time.Z, sampleID = sampleID.Z, keepModels = TRUE, 
                           timePredict = 1:9)
 modelled.Z <- lmms.Z@predSpline %>% t %>% as.data.frame()
 colnames(modelled.Z) <- paste0("Z_", seq_along(colnames(modelled.Z)))

@@ -182,6 +182,8 @@ PCA is un unsupervised reduction dimension technique which use uncorrelated
 intrumental variable (a.k.a principal components) to summarize as much information 
 (*variance*) as possible from the data.
 
+*(see also \code{\link[mixOmics]{pca}} for more details about `pca` and available options)*
+
 
 ### Clustering
 
@@ -197,10 +199,10 @@ The number of components that maximizes the silhouette coefficient will provide 
 
 ```{r}
 # run pca
-pca.res <- pca(X = profile.filtered, ncomp = 5, scale=F)
+pca.res <- pca(X = profile.filtered, ncomp = 5, scale=FALSE)
 
 # tuning ncomp
-pca.ncomp <- getNcomp(pca.res, max.ncomp = 5, X = profile.filtered, scale = F, center=F)
+pca.ncomp <- getNcomp(pca.res, max.ncomp = 5, X = profile.filtered, scale = FALSE, center=FALSE)
 
 pca.ncomp$choice.ncomp
 plot(pca.ncomp)
@@ -210,7 +212,7 @@ Thanks to the previous plot, highest silhouette coefficient is achieved when `nc
 
 ```{r}
 # final model
-pca.res <- pca(X = profile.filtered, ncomp = 2, scale = F, center=F)
+pca.res <- pca(X = profile.filtered, ncomp = 2, scale = FALSE, center=FALSE)
 ```
 
 All information about the cluster is displayed below.
@@ -225,7 +227,7 @@ head(pca.cluster)
 
 ```{r}
 #mixOmics::plotVar(pca.res)
-plotLong(pca.res, scale = F, center = F, title = "PCA longitudinal clustering")
+plotLong(pca.res, scale = FALSE, center = FALSE, title = "PCA longitudinal clustering")
 ```
 
 
@@ -233,6 +235,8 @@ plotLong(pca.res, scale = F, center = F, title = "PCA longitudinal clustering")
 
 The previous clustering used all features. Sometimes we are interested in a cluster signature.
 We then use the sparse PCA to extract this key signature.
+
+*(see also \code{\link[mixOmics]{spca}} for more details about `spca` and available options)*
 
 ### `keepX` optimization
 
@@ -267,14 +271,21 @@ With more than 2 blocks, the user has to use a multi-block PLS.
 
 ## Projection on Latent Structures (PLS)
 
+In the following section, *PLS* is used to cluster time profiles coming from 2 blocks of data.
+*PLS* accepts 2 data.frames with the same number of rows (corresponding samples).
+
+*(see also \code{\link[mixOmics]{pls}} for more details about `pls` and available options)*
+
 ### Ncomp and Clustering 
+
+Like *PCA*, number of components of PLS model and thus number of clusters needs to be optimized.
 
 ```{r}
 X <- profile.filtered
 Y <- timeOmics.simdata$Y
 
 pls.res <- pls(X,Y, ncomp = 5, scale = FALSE)
-pls.ncomp <- getNcomp(pls.res, max.ncomp = 5, X=X, Y=Y, scale = F)
+pls.ncomp <- getNcomp(pls.res, max.ncomp = 5, X=X, Y=Y, scale = FALSE)
 pls.ncomp$choice.ncomp
 plot(pls.ncomp)
 ```
@@ -292,24 +303,35 @@ plotLong(pls.res, title = "PLS longitudinal clustering")
 
 ### Signature with *sparse* PLS
 
-As with PCA, it is possible to use the *sparse* PLS to get a signature of the clusters.
+As with *PCA*, it is possible to use the *sparse* PLS to get a signature of the clusters.
 
 `tuneCluster.spls` choose the correct number of feature to keep on block X `keepX` as well as 
 the correct number of feature to keep on block Y `keepY` among a list provided by the user.
+
+*(see also \code{\link[mixOmics]{spls}} for more details about `spls` and available options)*
 
 ```{r}
 tune.spls <- tuneCluster.spls(X, Y, ncomp = 2, test.keepX = c(4:10), test.keepY <- c(2,4,6))
 tune.spls$choice.keepX
 tune.spls$choice.keepY
 
-#final model
+# final model
 spls.res <- spls(X,Y, ncomp = 2, scale = FALSE, 
                  keepX = tune.spls$choice.keepX, keepY = tune.spls$choice.keepY)
+# spls cluster
 spls.cluster <- getCluster(spls.res)
+
+# longitudinal cluster plot
 plotLong(spls.res, title = "sPLS clustering")
 ```
 
 ## Multi-block (s)PLS longitudinal clustering
+
+With more than 2 blocks of data, it is necessary to use *multi-block PLS* to identify cluster of similar profile coming from 3 and more blocks of data.
+
+This methods accepts a list of data.frame as `X` (same corresponding rows) and a Y data.frame.
+
+*(see also \code{\link[mixOmics]{block.pls}} for more details about `block.pls` and available options)*
 
 ### Ncomp and Clustering 
 
@@ -321,27 +343,40 @@ block.pls.res <- block.pls(X=X, Y=Y, ncomp = 5, scale = FALSE, mode = "canonical
 block.ncomp <- getNcomp(block.pls.res,X=X, Y=Y, scale = FALSE, mode = "canonical")
 block.ncomp$choice.ncomp
 plot(block.ncomp)
+```
 
+Thanks to the previous plot, highest silhouette coefficient is achieved when `ncomp = 1`(2 clusters).
+
+```{r}
 # final model
 block.pls.res <- block.pls(X=X, Y=Y, ncomp = 1, scale = FALSE, mode = "canonical")
+# block.pls cluster
 block.pls.cluster <- getCluster(block.pls.res)
-head(block.pls.cluster)
 
+# longitudinal cluster plot
 plotLong(block.pls.res)
 ```
 
 ### Signature with multi-block *sparse* PLS
 
+As with *PCA* and *PLS*, it is possible to use the *sparse* multi-block PLS to get a signature of the clusters.
+
+`tuneCluster.block.spls` choose the correct number of feature to keep on each block of X `keepX` as well as 
+the correct number of feature to keep on block Y `keepY` among a list provided by the user.
+
+*(see also \code{\link[mixOmics]{block.spls}} for more details about `block.spls` and available options)*
+
+
 ```{r}
 test.list.keepX <- list("X" = 4:10, "Z" = c(2,4,6,8))
 test.keepY <- c(2,4,6)
 
-tune.block.res <- tuneCluster.block.spls(X= X, Y= Y, test.list.keepX=test.list.keepX, test.keepY= test.keepY, scale=FALSE, mode = "canonical")
+tune.block.res <- tuneCluster.block.spls(X= X, Y= Y, test.list.keepX=test.list.keepX, test.keepY= test.keepY, scale=FALSE, mode = "canonical", ncomp = 1)
 tune.block.res$choice.keepX
 tune.block.res$choice.keepY
 
 # final model
-block.pls.res <- block.spls(X=X, Y=Y, scale = FALSE, mode = "canonical", keepX = tune.block.res$choice.keepX, keepY = tune.block.res$choice.keepY)
+block.pls.res <- block.spls(X=X, Y=Y, ncomp = 1, scale = FALSE, mode = "canonical", keepX = tune.block.res$choice.keepX, keepY = tune.block.res$choice.keepY)
 head(getCluster(block.pls.res))
 plotLong(block.pls.res)
 ```
@@ -349,12 +384,15 @@ plotLong(block.pls.res)
 
 # Post-hoc evaluation
 
-We compute the proportionality distance between features of the same cluster.
-By keeping the features close to each other, it guarantees the authenticity of the interactions.
+Interpretation based on correlations between profiles must be made with caution as it is highly likely to be
+spurious. Proportional distances has been proposed as an alternative to measure association.
+
+In the following graphs, we represent all the proportionality distance $\varphi_s$ within clusters and the distance of features inside the clusters with entire background set.
+
 We also use a Wilcoxon U-test to compare the within cluster median compared to the entire background set.
 
 
-```{r, eval =T}
+```{r, eval=TRUE}
 # example fro multiblock analysis
 res <- timeOmics::proportionality(block.pls.res)
 # distance between pairs of features
