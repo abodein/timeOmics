@@ -11,6 +11,7 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports:
+    mixOmics,
     dplyr,
     tidyr,
     tibble,
@@ -25,7 +26,7 @@ biocViews: Clustering,FeatureExtraction,TimeCourse,DimensionReduction,Software,
     Sequencing, Microarray, Metabolomics, Metagenomics, Proteomics,
       Classification, Regression, ImmunoOncology, GenePrediction,
       MultipleComparison
-Depends: mixOmics, R (>= 3.6.0)
+Depends: R (>= 3.6.0)
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
 Suggests: BiocStyle, knitr, rmarkdown, testthat, lmms, snow, tidyverse

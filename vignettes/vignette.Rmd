@@ -59,7 +59,8 @@ library(timeOmics)
 
 ## Useful packages to run this vignette
 
-```{r}
+```{r, message=F}
+library(mixOmics)
 library(lmms)
 library(tidyverse)
 ```
