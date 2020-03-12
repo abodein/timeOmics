@@ -7,7 +7,7 @@ Authors@R:
            role = c("aut", "cre"),
            email = "antoine.bodein.1@ulaval.ca")
 Description: What the package does (one paragraph).
-License: GPL-3 | file LICENSE
+License: GPL-3 | file LICENSE.md
 Encoding: UTF-8
 LazyData: true
 Imports:

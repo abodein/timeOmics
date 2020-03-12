@@ -34,10 +34,7 @@ devtools::install_github("abodein/timeOmics_BioC")
 
 ## Bugs/Feature requests
 
-To report a bug:
-<https://github.com/abodein/timeOmics_BioC/issues>. We fully welcome and
-appreciate well-formatted and detailed pull requests. Preferrably with
-tests on our datasets.
+To report a bug: <https://github.com/abodein/timeOmics_BioC/issues>. 
 
 ## Maintainer
 Antoine Bodein (<antoine.bodein.1@ulaval.ca>)
