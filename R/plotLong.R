@@ -46,7 +46,9 @@
 #' # (s)block.spls
 #' block.pls.res <- block.pls(X=list(X=X,Z=Z), Y=Y)
 #' plotLong(block.pls.res)
-#' block.spls.res <- block.spls(X=list(X=X,Z=Z), Y=Y, keepX = list(X = c(15,10), Z = c(5,6)), keepY = c(3,6))
+#' block.spls.res <- block.spls(X=list(X=X,Z=Z), Y=Y, 
+#'                              keepX = list(X = c(15,10), Z = c(5,6)), 
+#'                              keepY = c(3,6))
 #' plotLong(block.spls.res)
 #' 
 #'

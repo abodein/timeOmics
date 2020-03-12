@@ -31,13 +31,15 @@ is.almostInteger.vector <- function(X){
         return(FALSE)
     }
     # if(!is.numeric(X) & !is.vector(X)) return(FALSE)
-    return(all(sapply(X, is.almostInteger)))
+    #return(all(sapply(X, is.almostInteger)))
+    return(all(vapply(X, is.almostInteger, logical(1))))
 }
 
 is.almostInteger.list <- function(X){
     if(!is.list(X)) return(FALSE)
     # if(!is.numeric(X) & !is.vector(X)) return(FALSE)
-    return(all(sapply(X, is.almostInteger)))
+    # return(all(sapply(X, is.almostInteger)))
+    return(all(vapply(X, is.almostInteger, logical(1))))
 }
 
 

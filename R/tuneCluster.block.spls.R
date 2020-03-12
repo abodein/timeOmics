@@ -41,12 +41,16 @@
 #' test.keepY <- c(2:5)
 #' 
 #' # tuning
-#' tune.block.spls <- tuneCluster.block.spls(X= X, Y= Y, test.list.keepX= test.list.keepX, test.keepY= test.keepY, mode= "canonical")
+#' tune.block.spls <- tuneCluster.block.spls(X= X, Y= Y, 
+#'                                           test.list.keepX= test.list.keepX, 
+#'                                           test.keepY= test.keepY, 
+#'                                           mode= "canonical")
 #' keepX <- tune.block.spls$choice.keepX
 #' keepY <- tune.block.spls$choice.keepY
 #' 
 #' # final model
-#' block.spls.res <- block.spls(X= X, Y= Y, keepX = keepX, keepY = keepY, ncomp = 2, mode = "canonical")
+#' block.spls.res <- block.spls(X= X, Y= Y, keepX = keepX, 
+#'                              keepY = keepY, ncomp = 2, mode = "canonical")
 #' # get clusters and plot longitudinal profile by cluster
 #' block.spls.cluster <- getCluster(block.spls.res)
 
@@ -230,7 +234,7 @@ tune.silhouette.get_slopes <- function(object){
                                                              x2 = lapply(stringr::str_split(.$destination, "_"), as.numeric),
                                                              y1 = .$origin.neg,
                                                              y2 = .$destination.neg)) %>%
-        dplyr::mutate("distance_from_origin" = tune.silhouette.distance_from_origin(x = lapply(stringr::str_split(.$origin, "_"), as.numeric)))
+        dplyr::mutate("distance_from_origin" = tune.silhouette.distance_from_origin(x1 = lapply(stringr::str_split(.$origin, "_"), as.numeric)))
     
     # cumpute SD by comp and direction
     SD <- slopes %>% 

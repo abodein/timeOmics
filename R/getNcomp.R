@@ -44,7 +44,8 @@
 #' 
 #' # block.pls
 #' block.pls.res <- suppressWarnings(block.pls(X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
-#' res.ncomp <- suppressWarnings(getNcomp(block.pls.res, max.ncomp = 4, X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
+#' res.ncomp <- suppressWarnings(getNcomp(block.pls.res, max.ncomp = 4,
+#'                                        X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
 #' plot(res.ncomp)
 #'
 #' @export
