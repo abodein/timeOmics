@@ -71,11 +71,15 @@ In multi-Omics, each *block* has the same rows and a variable number of columns 
 
 We assume each block is a matrix/data.frame with samples in rows (similar in each block) and features in columns (variable number of column).
 
-For this example, we will use simulated data based on the above-mentioned article.
+For this example, we will use a part of simulated data based on the above-mentioned article and generated as follow:
+
+Twenty reference time profiles were generated on 9 equally spaced time points and assigned to 4 clusters (5 profiles each). These ground truth profiles were then used to simulate new profiles.
+For each of the reference profiles, 5 new profiles (corresponding to 5 individuals $(A,B,C,D,E)$) were sampled to reflect some inter-individual variability as follows: Let x be the observation vector for a reference profile r, r = 1 … 20, for each time point t (t = 1, …, 9), 5 measurements were randomly simulated from a Gaussian distribution with parameters µ = xt,r and $\sigma^2$, where $\sigma = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 1.5, 2, 3}$ to vary the level of noise. The profiles from the 5 individuals were then modelled with LMMS.
+
+
 
 ```{r}
 data("timeOmics.simdata")
-?timeOmics.simdata
 sim.data <- timeOmics.simdata$sim
 
 dim(sim.data) 
@@ -88,9 +92,9 @@ head(sim.data[,1:6])
 Every analysis starts with a pre-processing step. 
 In longitudinal multi-omics analysis we have a 2-step pre-processing procedure.
 
-## Omic-specific
+## Platform-specific
 
-Omic-specific pre-processing is the type of standardization normally used without time component.
+Platform-specific pre-processing is the type of standardization normally used without time component.
 It may differ depending on the type of technology
 *(log, scale, rle, low count removal, ...)*.
 That is why we let the user apply his favorite method of standardization.
@@ -115,6 +119,8 @@ data.filtered <- remove.low.cv(sim.data, 0.5)
 
 # Time Modelling
 
+The next step is the modelling of each feature (molecule) as a function of time.
+
 We rely on a *Linear Mixed Model Splines* framework (package `lmms`) to model features expression as a function of time by taking into account all inter-individual variability.
 
 `lmms` framework tests 4 different models and assigns one of the following models to each feature:
@@ -124,7 +130,7 @@ We rely on a *Linear Mixed Model Splines* framework (package `lmms`) to model fe
 * 2 = LMMS taking subject-specific random intercept, 
 * 3 = LMMS with subject specific intercept and slope.
 
-The package also has an interesting feature for filtering profiles not differentially expressed over time, in a more robust way (see `lmms::lmmsDE`).
+The package also has an interesting feature for filtering profiles which are not differentially expressed over time, in a more robust way (see `lmms::lmmsDE`).
 
 At the end, `lmms` summarize each feature into a unique time profile.
 
@@ -132,7 +138,7 @@ At the end, `lmms` summarize each feature into a unique time profile.
 
 `lmms` requires a dataframe with features in columns and samples in rows.
 
-For more information about `lmms` modelling parameters, please check \code{\link[lmms]{lmms}}
+For more information about `lmms` modelling parameters, please check `?lmms::lmmSpline`
 
 ```{r, message=FALSE}
 time <- rownames(data.filtered) %>% str_remove("._") %>% as.numeric()
@@ -143,7 +149,8 @@ lmms.output <- lmms::lmmSpline(data = data.filtered, time = time,
 modelled.data <- t(slot(lmms.output, 'predSpline'))
 ```
 
-The produced table contains features in columns and now, times in rows.
+The produced table contains features in columns and now, **times in rows**.
+
 Let's plot the modelled profiles.
 
 ```{r}
@@ -168,7 +175,8 @@ To remove the noisy profiles, we have implemented a 2-phase test procedure.
 * *cutoff on MSE* (mean squared error), to reduce dispersion of the residues around the line.
 
 ```{r}
-filter.res <- lmms.filter.lines(data = modelled.data, lmms.obj = lmms.output, time = time)
+filter.res <- lmms.filter.lines(data = modelled.data, 
+                                lmms.obj = lmms.output, time = time)
 profile.filtered <- filter.res$filtered
 ```
 
@@ -182,18 +190,18 @@ PCA is un unsupervised reduction dimension technique which use uncorrelated
 intrumental variable (a.k.a principal components) to summarize as much information 
 (*variance*) as possible from the data.
 
-*(see also \code{\link[mixOmics]{pca}} for more details about `pca` and available options)*
+*(see also `?mixOmics::pca` for more details about PCA and available options)*
 
 
-### Clustering
+### Longitudinal clustering
 
-Clusters of similar expression profiles are grouped as follows
+Clusters of similar expression profiles are grouped as follow:
 
 In PCA, components are generated using variables. Each variable can either contribute positively or negatively to the creation of the components.
 Each variable (feature) will be associated with a component (the one that most represents it).
 Finally, each component can create 2 clusters and each feature is assigned to a cluster according to the maximum contribution on a component and the sign of that contribution.
 
-To optimize the number of clusters, the number of PCA components needs to be optimized first.
+To optimize the number of clusters, the number of PCA components needs to be optimized first (`getNcomp`).
 The quality of clustering is assessed using the silhouette coefficient.
 The number of components that maximizes the silhouette coefficient will provide the best clustering.
 
@@ -208,14 +216,14 @@ pca.ncomp$choice.ncomp
 plot(pca.ncomp)
 ```
 
-Thanks to the previous plot, highest silhouette coefficient is achieved when `ncomp = 2`(4 clusters).
+Thanks to the previous plot, highest silhouette coefficient is achieved when `r ncomp = pca.ncomp$choice.ncomp`(4 clusters).
 
 ```{r}
 # final model
 pca.res <- pca(X = profile.filtered, ncomp = 2, scale = FALSE, center=FALSE)
 ```
 
-All information about the cluster is displayed below.
+All information about the cluster is displayed below (`getCluster`).
 
 ```{r}
 # extract cluster
@@ -223,10 +231,13 @@ pca.cluster <- getCluster(pca.res)
 head(pca.cluster)
 ```
 
-### Plot PCA clusters
+### Plot PCA longitudinal clusters
+
+Clustered profiles can be displayed with `plotLong`. 
+
+(*See also `mixOmics::plotVar(pca.res)` for variable representation*)
 
 ```{r}
-#mixOmics::plotVar(pca.res)
 plotLong(pca.res, scale = FALSE, center = FALSE, title = "PCA longitudinal clustering")
 ```
 
@@ -249,13 +260,17 @@ We do not recommend using a parameter that is too small since it will tend to pu
 
 
 ```{r}
-tune.spca.res <- tuneCluster.spca(X = profile.filtered, ncomp = 2, test.keepX = c(2:10))
+tune.spca.res <- tuneCluster.spca(X = profile.filtered, ncomp = 2, 
+                                  test.keepX = c(2:10))
+# selected features in each component
 tune.spca.res$choice.keepX
 plot(tune.spca.res)
 ```
 
+In the above graph, evolution of silhouette coefficient per component and per contribution is plotted as a function of `keepX`.
 
 ```{r}
+# final model
 spca.res <- spca(X = profile.filtered, ncomp = 2, keepX = tune.spca.res$choice.keepX, scale = FALSE)
 plotLong(spca.res)
 ```
@@ -274,11 +289,11 @@ With more than 2 blocks, the user has to use a multi-block PLS.
 In the following section, *PLS* is used to cluster time profiles coming from 2 blocks of data.
 *PLS* accepts 2 data.frames with the same number of rows (corresponding samples).
 
-*(see also \code{\link[mixOmics]{pls}} for more details about `pls` and available options)*
+*(see also `?mixOmics::pls` for more details about PLS and available options)*
 
 ### Ncomp and Clustering 
 
-Like *PCA*, number of components of PLS model and thus number of clusters needs to be optimized.
+Like *PCA*, number of components of PLS model and thus number of clusters needs to be optimized (`getNcomp`).
 
 ```{r}
 X <- profile.filtered
@@ -290,15 +305,16 @@ pls.ncomp$choice.ncomp
 plot(pls.ncomp)
 ```
 
-Thanks to the previous plot, highest silhouette coefficient is achieved when `ncomp = 2`(4 clusters).
+Thanks to the previous plot, highest silhouette coefficient is achieved when `ncomp = pls.ncomp$choice.ncomp` (4 clusters).
 
 
 ```{r}
 # final model
 pls.res <- pls(X,Y, ncomp = 2, scale = FALSE)
 
-getCluster(pls.res) %>% head
-plotLong(pls.res, title = "PLS longitudinal clustering")
+head(getCluster(pls.res))
+# plot clusters
+plotLong(pls.res, title = "PLS longitudinal clustering", legend = TRUE)
 ```
 
 ### Signature with *sparse* PLS
