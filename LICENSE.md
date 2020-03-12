@@ -552,7 +552,7 @@ to the start of each source file to most effectively state the exclusion of warr
 and each file should have at least the “copyright” line and a pointer to
 where the full notice is found.
 
-    <one line to give the program's name and a brief idea of what it does.>
+    timeOmics: longitudinal multi-Omics data integration
     Copyright (C) 2020 Antoine Bodein
 
     This program is free software: you can redistribute it and/or modify

@@ -11,3 +11,11 @@ r: bioc-devel
 
 # Tell Travis to run BiocCheck.
 bioc_check: true
+
+# Install the covr dependancy
+r_packages:
+  - covr
+
+# Run the coverage tests after a successful build.  
+after_success:
+  - Rscript -e 'covr::codecov(type="all")'      
