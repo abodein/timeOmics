@@ -32,9 +32,13 @@ if (!requireNamespace("devtools", quietly = TRUE))
 devtools::install_github("abodein/timeOmics_BioC")
 ```
 
-## Bugs/Feature requests
+## Citing
 
-To report a bug: <https://github.com/abodein/timeOmics_BioC/issues>. 
+*Bodein A, Chapleur O, Droit A and Lê Cao K-A (2019) A Generic Multivariate Framework for the Integration of Microbiome Longitudinal Studies With Other Data Types. Front. Genet. 10:963. <a href="http://dx.doi.org/10.3389/fgene.2019.00963"> doi:10.3389/fgene.2019.00963</a>*
 
 ## Maintainer
 Antoine Bodein (<antoine.bodein.1@ulaval.ca>)
+
+## Bugs/Feature requests
+
+If you have any bugs or feature requests, [let us know](https://github.com/abodein/timeOmics_BioC/issues). Thanks!

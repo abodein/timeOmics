@@ -88,7 +88,7 @@ proportionality <- function(X){
         dplyr::mutate(insideout = ifelse(cluster1 == cluster2, "inside", "outside"))
         
     # compute stat (median, u-test pval, adj.pval)
-    res.stat <- stat_median(data.propr.gather)
+    res.stat <- stat_median(data.propr.gather) %>% na.omit()
     
     res <- list()
     res[["propr.distance"]] <- data.propr
@@ -121,7 +121,9 @@ stat_median <- function(res.phs.X){
                           round(median(outside), digits = 2), utest.pval)
         i = i+1
     }
-    as.data.frame(res.pval) %>% dplyr::mutate("Adj.Pvalue" = stats::p.adjust(Pvalue, method = "fdr"))
+    as.data.frame(res.pval) %>% 
+        dplyr::mutate("Adj.Pvalue" = stats::p.adjust(Pvalue, method = "fdr")) %>%
+        na.omit
     return(res.pval)
 }
 
