@@ -43,7 +43,7 @@
 #' keepY <- tune.spls$choice.keepY
 #' 
 #' # final model
-#' spls.res <- spls(X, Y, ncomp= 2, keepX= keepX, keepY= keepY)
+#' spls.res <- mixOmics::spls(X, Y, ncomp= 2, keepX= keepX, keepY= keepY)
 #' 
 #' # get clusters and plot longitudinal profile by cluster
 #' spls.cluster <- getCluster(spls.res)

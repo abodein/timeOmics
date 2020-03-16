@@ -49,7 +49,7 @@
 #' keepY <- tune.block.spls$choice.keepY
 #' 
 #' # final model
-#' block.spls.res <- block.spls(X= X, Y= Y, keepX = keepX, 
+#' block.spls.res <- mixOmics::block.spls(X= X, Y= Y, keepX = keepX, 
 #'                              keepY = keepY, ncomp = 2, mode = "canonical")
 #' # get clusters and plot longitudinal profile by cluster
 #' block.spls.cluster <- getCluster(block.spls.res)
@@ -308,41 +308,6 @@ tune.silhouette.get_slopes_coef <- function(x1,x2,y1,y2){
 tune.silhouette.distance_from_origin <- function(x1){
     euc.dist <- purrr::map_dbl(seq_along(x1), ~{ sqrt(sum((x1[[.x]])^2))})
     return(euc.dist)
-}
-
-tune.silhouette.choice_keepX <- function(slopes, alpha){
-    # filter with pvalue on slope coef.
-    slope.signif <- slopes %>% dplyr::filter(Pval.pos < alpha | Pval.neg <alpha) 
-}
-
-#' @importFrom dplyr mutate select filter
-#' @importFrom tidyr gather
-#' @import ggplot2
-plot.block.spls.tune.silhouette <- function(object, pvalue = 0.05){
-    data.gather <- object$silhouette %>%  
-        dplyr::mutate(dim1 = pull(object$silhouette[block[1]])) %>% 
-        dplyr::select(-c(object$block[1])) %>%
-        tidyr::gather(dim2, value, -c(comp, pos, neg, dim1)) %>%
-        dplyr::filter(comp == 1) %>% group_by(dim2,value)
-    
-    data.gather <- object$silhouette %>% mutate(dim2 = paste(Z,Y, sep = "_"))
-    ggplot(data.gather, aes(x = X, y = pos, group = dim2)) + geom_line() + facet_wrap(~comp)
-    
-    data.gather <-  object$silhouette %>% gather(dim, value, -c(comp, pos, neg))
-    
-    ggplot(data.gather, aes(x = dim1, y = pos)) + geom_line(aes(col = dim2))
-    
-    plot.df <- map_dfr(object$block, ~{object$silhouette %>%
-            unite("dim1", .x, remove = FALSE) %>%
-            mutate(dim1 = as.numeric(dim1)) %>%
-            tidyr::unite("dim2", one_of(object$block[which(object$block != .x)]), remove = FALSE) %>%
-            mutate(dim2 = paste(.x, dim2, sep = "_")) %>%
-            mutate(block = .x) %>%
-            gather(silhouette, value, c(pos,neg))})
-           
-    ggplot(plot.df %>% filter( dim2 == "X_2_2") #Z == 2, Y == 2, comp==1, silhouette =="neg")
-           ,aes(x = dim1, y = value, group = dim2, color = silhouette)) + geom_line() + facet_grid(comp~block, scales = "free_x")
-    ggplot(plot.df, aes(x = dim1, y = value, group = dim2, color = silhouette)) + geom_line() + facet_grid(comp~block, scales = "free_x")
 }
 
 #' @importFrom dplyr select summarise left_join

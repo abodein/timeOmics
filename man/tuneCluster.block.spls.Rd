@@ -51,12 +51,16 @@ test.list.keepX <- list("X" = c(5,10,15,20), "Z" = c(2,4,6,8))
 test.keepY <- c(2:5)
 
 # tuning
-tune.block.spls <- tuneCluster.block.spls(X= X, Y= Y, test.list.keepX= test.list.keepX, test.keepY= test.keepY, mode= "canonical")
+tune.block.spls <- tuneCluster.block.spls(X= X, Y= Y, 
+                                          test.list.keepX= test.list.keepX, 
+                                          test.keepY= test.keepY, 
+                                          mode= "canonical")
 keepX <- tune.block.spls$choice.keepX
 keepY <- tune.block.spls$choice.keepY
 
 # final model
-block.spls.res <- block.spls(X= X, Y= Y, keepX = keepX, keepY = keepY, ncomp = 2, mode = "canonical")
+block.spls.res <- mixOmics::block.spls(X= X, Y= Y, keepX = keepX, 
+                             keepY = keepY, ncomp = 2, mode = "canonical")
 # get clusters and plot longitudinal profile by cluster
 block.spls.cluster <- getCluster(block.spls.res)
 }

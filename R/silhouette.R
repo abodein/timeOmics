@@ -88,17 +88,17 @@ dmatrix.spearman.dissimilarity <- function(X){
     return(dmatrix)
 }
 
-dmatrix.proportionality.distance <- function(X){
-    # clr first
-    dmatrix <- matrix(ncol = ncol(X), nrow = ncol(X))
-    rownames(dmatrix) <- colnames(dmatrix) <- colnames(X)
-    for(i in 1:ncol(X)){
-        for(j in 1:ncol(X)){
-            dmatrix[i,j] <- var(X[,i] - X[,j])/var(X[,i] + X[,j])
-        }
-    }
-    return(dmatrix)
-}
+# dmatrix.proportionality.distance <- function(X){
+#     # clr first
+#     dmatrix <- matrix(ncol = ncol(X), nrow = ncol(X))
+#     rownames(dmatrix) <- colnames(dmatrix) <- colnames(X)
+#     for(i in 1:ncol(X)){
+#         for(j in 1:ncol(X)){
+#             dmatrix[i,j] <- var(X[,i] - X[,j])/var(X[,i] + X[,j])
+#         }
+#     }
+#     return(dmatrix)
+# }
 
 silhoutte.formula <- function(A,B){
     # A average dist inside cluster; # B: min average dist outside

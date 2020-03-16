@@ -37,18 +37,19 @@ Longitudinal clustering is performed and average silhouette coefficient is compu
 demo <- get_demo_cluster()
 
 # pca
-pca.res <- pca(X=demo$X, ncomp = 5)
+pca.res <- mixOmics::pca(X=demo$X, ncomp = 5)
 res.ncomp <- getNcomp(pca.res, max.ncomp = 4, X = demo$X)
 plot(res.ncomp)
 
 # pls
-pls.res <- pls(X=demo$X, Y=demo$Y)
+pls.res <- mixOmics::pls(X=demo$X, Y=demo$Y)
 res.ncomp <- getNcomp(pls.res, max.ncomp = 4, X = demo$X, Y=demo$Y)
 plot(res.ncomp)
 
 # block.pls
-block.pls.res <- suppressWarnings(block.pls(X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
-res.ncomp <- suppressWarnings(getNcomp(block.pls.res, max.ncomp = 4, X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
+block.pls.res <- suppressWarnings(mixOmics::block.pls(X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
+res.ncomp <- suppressWarnings(getNcomp(block.pls.res, max.ncomp = 4,
+                                       X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
 plot(res.ncomp)
 
 }

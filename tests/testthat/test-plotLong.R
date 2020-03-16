@@ -50,26 +50,31 @@ test_that("plotLong works", {
     expect_is(plotLong(object = demo$spls), "data.frame")
     expect_is(plotLong(object = demo$block.pls), "data.frame")
     expect_is(plotLong(object = demo$block.spls), "data.frame")
+    expect_is(plotLong(object = demo$block.spls, time=NULL), "data.frame")
     
     # plot TRUE/FALSE
     expect_is(plotLong(object = demo$pca, plot=""), "data.frame")
     expect_is(plotLong(object = demo$pca, plot=FALSE), "data.frame")
     expect_is(plotLong(object = demo$pca, plot=1), "data.frame")
+    expect_is(plotLong(object = demo$pca, plot=NULL), "data.frame")
     
     # scale TRUE/FALSE
     expect_is(plotLong(object = demo$pca, scale=""), "data.frame")
     expect_is(plotLong(object = demo$pca, scale=FALSE), "data.frame")
     expect_is(plotLong(object = demo$pca, scale=1), "data.frame")
+    expect_is(plotLong(object = demo$pca, scale=NULL), "data.frame")
     
     # scale TRUE/FALSE
     expect_is(plotLong(object = demo$pca, center=""), "data.frame")
     expect_is(plotLong(object = demo$pca, center=FALSE), "data.frame")
     expect_is(plotLong(object = demo$pca, center=1), "data.frame")
+    expect_is(plotLong(object = demo$pca, center=NULL), "data.frame")
     
     # legend TRUE/FALSE
     expect_is(plotLong(object = demo$pca, legend=""), "data.frame")
     expect_is(plotLong(object = demo$pca, legend=FALSE), "data.frame")
     expect_is(plotLong(object = demo$pca, legend=1), "data.frame")
+    expect_is(plotLong(object = demo$pca, legend=NULL), "data.frame")
     
     # title string
     expect_is(plotLong(object = demo$pca, title=""), "data.frame")

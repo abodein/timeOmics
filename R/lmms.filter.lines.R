@@ -87,9 +87,6 @@ lmms.filter.lines <- function(data,
     #--------------------------------------------
     predSpline <- slot(lmms.obj,'predSpline') %>% t %>% as.data.frame()
     modelsUsed <- slot(lmms.obj,'modelsUsed')
-    if(all(modelsUsed == 0)){
-        MSE.filter <- FALSE
-    }
     
     result <- colnames(predSpline) %>% as.data.frame() %>%
         purrr::set_names(c("feature")) %>%

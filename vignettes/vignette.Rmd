@@ -60,8 +60,9 @@ library(timeOmics)
 ## Useful packages to run this vignette
 
 ```{r, message=F}
-library(lmms)
+library(mixOmics)
 library(tidyverse)
+library(lmms)
 ```
 
 # Required data

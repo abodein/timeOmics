@@ -6,6 +6,8 @@ data <- timeOmics.simdata$sim
 lmms.output <- timeOmics.simdata$lmms.output
 time <- timeOmics.simdata$time
 
+ok <- lmms::lmmSpline(data = data[,c(2,3)], time = time, sampleID = rownames(data), keepModels = TRUE)
+
 lmms.bad1 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data))
 lmms.bad2 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data), timePredict = c(1:3), keepModels = TRUE)
 
@@ -58,5 +60,6 @@ test_that("lmms.filter.lines works",{
     expect_is(lmms.filter.lines(data = data, lmms.obj = lmms.output, time = time, MSE.filter = list()), "list")
     expect_is(lmms.filter.lines(data = data, lmms.obj = lmms.output, time = time, MSE.filter = ""), "list")
     expect_is(lmms.filter.lines(data = data, lmms.obj = lmms.output, time = time, homoskedasticity.cutoff = 0.01), "list")
+    expect_is(lmms.filter.lines(data = data[,c(2,3)], lmms.obj = ok, time = time), "list")
 })
     

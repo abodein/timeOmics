@@ -47,21 +47,23 @@ Y <- demo$Y
 Z <- demo$Z
 
 # (s)pca
-pca.res <- pca(X, ncomp = 3)
+pca.res <- mixOmics::pca(X, ncomp = 3)
 plotLong(pca.res)
-spca.res <- spca(X, ncomp =2, keepX = c(15, 10))
+spca.res <- mixOmics::spca(X, ncomp =2, keepX = c(15, 10))
 plotLong(spca.res)
 
 # (s)pls
-pls.res <- pls(X,Y)
+pls.res <- mixOmics::pls(X,Y)
 plotLong(pls.res)
-spls.res <- spls(X,Y, keepX = c(15,10), keepY=c(5,6))
+spls.res <- mixOmics::spls(X,Y, keepX = c(15,10), keepY=c(5,6))
 plotLong(spls.res)
 
 # (s)block.spls
-block.pls.res <- block.pls(X=list(X=X,Z=Z), Y=Y)
+block.pls.res <- mixOmics::block.pls(X=list(X=X,Z=Z), Y=Y)
 plotLong(block.pls.res)
-block.spls.res <- block.spls(X=list(X=X,Z=Z), Y=Y, keepX = list(X = c(15,10), Z = c(5,6)), keepY = c(3,6))
+block.spls.res <- mixOmics::block.spls(X=list(X=X,Z=Z), Y=Y, 
+                             keepX = list(X = c(15,10), Z = c(5,6)), 
+                             keepY = c(3,6))
 plotLong(block.spls.res)
 
 

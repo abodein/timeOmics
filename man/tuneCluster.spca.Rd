@@ -45,6 +45,6 @@ keepX <- tune.spca.res$choice.keepX
 plot(tune.spca.res)
 
 # final model
-spca.res <- spca(X=X, ncomp = 2, keepX = keepX)
+spca.res <- mixOmics::spca(X=X, ncomp = 2, keepX = keepX)
 plotLong(spca.res)
 }
