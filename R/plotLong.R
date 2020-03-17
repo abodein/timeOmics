@@ -133,10 +133,6 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
         data <- lapply(object$X, function(i){unscale(i) %>% scale(scale, center)}) %>% 
             do.call(what = "cbind")
 
-        if(!is.null(object$Y)){
-            data.Y <- unscale(object$Y) %>% scale(scale, center)
-            data <- cbind(data, data.Y)
-        }
         data <- as.data.frame(data) %>% 
             dplyr::select(intersect(cluster$molecule, colnames(.)))
     }

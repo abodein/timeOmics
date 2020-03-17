@@ -30,6 +30,7 @@ test_that("tuneCluster.spca failed on invalid input - keepX", {
 
 test_that("tuneCluster.spca works", {
     expect_is(tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(5:10)), "spca.tune.silhouette")
+    expect_is(tuneCluster.spca(X = X, ncomp = 2, test.keepX = NULL), "spca.tune.silhouette")
     expect_is(tuneCluster.spca(X = as.data.frame(X), ncomp = 3, test.keepX = c(5:10)), "spca.tune.silhouette")
 })
 

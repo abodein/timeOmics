@@ -55,5 +55,6 @@ test_that("tuneCluster.spls works", {
     #-- test.keepX  // numeric vecter lower than ncol(X)
     expect_is(tuneCluster.spls(X = X, Y = Y), "spls.tune.silhouette")
     expect_is(tuneCluster.spls(X = X, Y = Y, ncomp = 3), "spls.tune.silhouette")
+    expect_is(tuneCluster.spls(X = X, Y = Y, ncomp = 3, test.keepX = NULL, test.keepY = NULL), "spls.tune.silhouette")
     expect_is(tuneCluster.spls(X = X, Y = Y, ncomp = 2, test.keepX = c(1,2)), "spls.tune.silhouette")
 })

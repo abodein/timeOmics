@@ -1,6 +1,11 @@
 context("plotLong")
 
 demo <- get_demo_cluster()
+demo$block.pls2 <- suppressWarnings(mixOmics::block.pls(X=list(X=demo$X, 
+                                                               Z=demo$Z), 
+                                                        Y=demo$Y, ncomp = 5, 
+                                                        mode = "canonical"))
+
 
 pdf(NULL)
 test_that("plotLong failed on invalid - object", {
@@ -50,7 +55,7 @@ test_that("plotLong works", {
     expect_is(plotLong(object = demo$spls), "data.frame")
     expect_is(plotLong(object = demo$block.pls), "data.frame")
     expect_is(plotLong(object = demo$block.spls), "data.frame")
-    expect_is(plotLong(object = demo$block.spls, time=NULL), "data.frame")
+    expect_is(plotLong(object = demo$block.pls, time=1:10), "data.frame")
     
     # plot TRUE/FALSE
     expect_is(plotLong(object = demo$pca, plot=""), "data.frame")

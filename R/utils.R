@@ -1,22 +1,3 @@
-# #' plot
-# #' 
-# #' Generic function for plotiing R object
-# #' 
-# #' @param x object to plot
-# #' @param ... Other arguments to be passed to methods
-# #' 
-# #' 
-# #' @export
-# plot <- function(x, ...){
-#     UseMethod("plot")
-# }
-
-is.numeric.matrix <- function(X){
-    if(any(is.infinite(X))) return(FALSE)
-    if(is.numeric(X) & is.matrix(X)) return(TRUE)
-    return(FALSE)
-}
-
 is.almostInteger <- function(X){
     if(!is.numeric(X) & !is.vector(X)) return(FALSE)
     if(length(X) != 1) return(FALSE)
@@ -67,7 +48,7 @@ validate.matrix.X <- function(X){
     if(!is.numeric(X)){
         stop("X must be a numeric matrix/data.frame")
     }
-    if(any(!X)) stop("X must be a numeric matrix/data.frame")
+    # if(any(!X)) stop("X must be a numeric matrix/data.frame")
     return(X)
 }
 
@@ -77,7 +58,7 @@ validate.matrix.Y <- function(Y){
     if(!is.numeric(Y)){
         stop("Y must be a numeric matrix/data.frame")
     }
-    if(any(!Y)) stop("Y must be a numeric matrix/data.frame")
+    # if(any(!Y)) stop("Y must be a numeric matrix/data.frame")
     return(Y)
 }
 

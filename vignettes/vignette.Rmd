@@ -19,7 +19,7 @@ vignette: >
 
 The main steps of ***timeOmics*** are:
 
-* a pre-procesing step (**B.**) to normalize and filter low-expressed and not time-varying features,
+* a pre-procesing step (**B.**) to normalize and filter low-expressed features and not those not varying in time,
 * a modelling step (**C.**) to capture inter-individual variability in biological/technical replicates and accommodate heterogeneous experimental designs,
 * a clustering step (**D.**) to group features with the same expression profile over time. We can also use a feature selection step to identify a signature per cluster,
 * a post-hoc validation step (**E.**) to ensure clustering quality.
@@ -70,12 +70,12 @@ library(lmms)
 Each omics technology produces abundance tables with samples in rows and features in columns (genes, proteins, species, ...).
 In multi-Omics, each *block* has the same rows and a variable number of columns depending on the technology and number of identified features.
 
-We assume each block is a matrix/data.frame with samples in rows (similar in each block) and features in columns (variable number of column).
+We assume each *block* *(omics)* is a matrix/data.frame with samples in **rows** (similar in each *block*) and features in **columns** (variable number of column).
 
 For this example, we will use a part of simulated data based on the above-mentioned article and generated as follow:
 
 Twenty reference time profiles were generated on 9 equally spaced time points and assigned to 4 clusters (5 profiles each). These ground truth profiles were then used to simulate new profiles.
-For each of the reference profiles, 5 new profiles (corresponding to 5 individuals $(A,B,C,D,E)$) were sampled to reflect some inter-individual variability as follows: Let x be the observation vector for a reference profile r, r = 1 … 20, for each time point t (t = 1, …, 9), 5 measurements were randomly simulated from a Gaussian distribution with parameters µ = xt,r and $\sigma^2$, where $\sigma = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 1.5, 2, 3}$ to vary the level of noise. The profiles from the 5 individuals were then modelled with LMMS.
+For each of the reference profiles, 5 new profiles (corresponding to 5 individuals $(A,B,C,D,E)$) were sampled to reflect some inter-individual variability as follows: Let x be the observation vector for a reference profile r, r = 1 … 20, for each time point t (t = 1, …, 9), 5 measurements were randomly simulated from a Gaussian distribution with parameters µ = xt,r and $\sigma^2$, where $\sigma = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 1.5, 2, 3}$ to vary the level of noise. The profiles from the 5 individuals were then modelled with `lmms`.
 
 
 
@@ -122,14 +122,14 @@ data.filtered <- remove.low.cv(sim.data, 0.5)
 
 The next step is the modelling of each feature (molecule) as a function of time.
 
-We rely on a *Linear Mixed Model Splines* framework (package `lmms`) to model features expression as a function of time by taking into account all inter-individual variability.
+We rely on a *Linear Mixed Model Splines* framework (package `lmms`) to model the features expression as a function of time by taking into account all inter-individual variability.
 
 `lmms` framework tests 4 different models and assigns one of the following models to each feature:
 
 * 0 = linear model, 
 * 1 = linear mixed effect model spline (LMMS) with defined basis, 
-* 2 = LMMS taking subject-specific random intercept, 
-* 3 = LMMS with subject specific intercept and slope.
+* 2 = LMMS taking subject-specific random intercepts, 
+* 3 = LMMS with subject-specific intercept and slope.
 
 The package also has an interesting feature for filtering profiles which are not differentially expressed over time, in a more robust way (see `lmms::lmmsDE`).
 
@@ -137,7 +137,7 @@ At the end, `lmms` summarize each feature into a unique time profile.
 
 ## `lmms` example
 
-`lmms` requires a dataframe with features in columns and samples in rows.
+`lmms` requires a data.frame with features in columns and samples in rows.
 
 For more information about `lmms` modelling parameters, please check `?lmms::lmmSpline`
 
@@ -172,8 +172,8 @@ ggplot(data.gathered, aes(x = time, y = value, color = feature)) + geom_line() +
 Straight line modelling can occur when the inter-individual variation is too high.
 To remove the noisy profiles, we have implemented a 2-phase test procedure.
 
-* *Breusch-Pagan test*, which tests the homo-sedasticity of the residues.
-* *cutoff on MSE* (mean squared error), to reduce dispersion of the residues around the line.
+* *Breusch-Pagan test*, which tests the homoscedasticity of the residues.
+* *Cutoff on MSE* (mean squared error), to reduce dispersion of the residues around the line.
 
 ```{r}
 filter.res <- lmms.filter.lines(data = modelled.data, 
@@ -185,10 +185,10 @@ profile.filtered <- filter.res$filtered
 
 ## Principal Component Analysis
 
-From the modelled data, we use a PCA to cluster features with a samilar expression profile over time.
+From the modelled data, we use a PCA to cluster features with samilar expression profiles over time.
 
-PCA is un unsupervised reduction dimension technique which use uncorrelated 
-intrumental variable (a.k.a principal components) to summarize as much information 
+PCA is an unsupervised reduction dimension technique which uses uncorrelated 
+intrumental variable (i.e. principal components) to summarize as much information 
 (*variance*) as possible from the data.
 
 *(see also `?mixOmics::pca` for more details about PCA and available options)*
@@ -202,7 +202,7 @@ In PCA, components are generated using variables. Each variable can either contr
 Each variable (feature) will be associated with a component (the one that most represents it).
 Finally, each component can create 2 clusters and each feature is assigned to a cluster according to the maximum contribution on a component and the sign of that contribution.
 
-To optimize the number of clusters, the number of PCA components needs to be optimized first (`getNcomp`).
+To optimize the number of clusters, the number of PCA components needs to be optimized (`getNcomp`).
 The quality of clustering is assessed using the silhouette coefficient.
 The number of components that maximizes the silhouette coefficient will provide the best clustering.
 
@@ -217,7 +217,7 @@ pca.ncomp$choice.ncomp
 plot(pca.ncomp)
 ```
 
-Thanks to the previous plot, highest silhouette coefficient is achieved when `r ncomp = pca.ncomp$choice.ncomp`(4 clusters).
+In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = pca.ncomp$choice.ncomp`(`r 2*ncomp` clusters).
 
 ```{r}
 # final model
@@ -253,7 +253,7 @@ We then use the sparse PCA to extract this key signature.
 
 ### `keepX` optimization
 
-To find the right number of features to keep per component (`keepX`) and thus per cluster, silhouette coefficient is assessed for a list of selected features on each component.
+To find the right number of features to keep per component (`keepX`) and thus per cluster, the silhouette coefficient is assessed for a list of selected features on each component.
 
 Evolution of silhouette coefficient of each cluster (component and contribution) is observed to 
 detect a significant decrease in the silhouette for each component.
@@ -307,7 +307,7 @@ pls.ncomp$choice.ncomp
 plot(pls.ncomp)
 ```
 
-Thanks to the previous plot, highest silhouette coefficient is achieved when `r ncomp = pls.ncomp$choice.ncomp` (4 clusters).
+In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = pls.ncomp$choice.ncomp` (`r 2*ncomp` clusters).
 
 
 ```{r}
@@ -368,7 +368,7 @@ block.ncomp$choice.ncomp
 plot(block.ncomp)
 ```
 
-Thanks to the previous plot, highest silhouette coefficient is achieved when `r ncomp = block.ncomp$choice.ncomp` (2 clusters).
+In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = block.ncomp$choice.ncomp` (`r 2*ncomp` clusters).
 
 ```{r}
 # final model

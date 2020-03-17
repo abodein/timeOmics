@@ -63,15 +63,15 @@ proportionality <- function(X){
         data.Y <- unscale(X$Y) %>% `+`(abs(min(.)))
         data <- cbind(data.X, data.Y)
     } else if(is(X, c("block.pls", "block.spls"))){
-        if(is.null(X$Y)){
-            data <- lapply(X$X, function(x) x %>% unscale %>% `+`(abs(min(.)))) %>%
-                do.call(what="cbind")
-        } else {
-            data.X <- lapply(X$X, function(x) x %>% unscale %>% `+`(abs(min(.)))) %>%
-                do.call(what="cbind")
-            data.Y <- unscale(X$Y) %>% `+`(abs(min(.)))
-            data <- cbind(data.X, data.Y)
-        }
+        # if(is.null(X$Y)){  ## no need: Y is passed to X
+        data <- lapply(X$X, function(x) x %>% unscale %>% `+`(abs(min(.)))) %>%
+            do.call(what="cbind")
+        # } else {
+        #     data.X <- lapply(X$X, function(x) x %>% unscale %>% `+`(abs(min(.)))) %>%
+        #         do.call(what="cbind")
+        #     data.Y <- unscale(X$Y) %>% `+`(abs(min(.)))
+        #     data <- cbind(data.X, data.Y)
+        # }
     }
     
     # 3. compute phi_s

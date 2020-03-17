@@ -49,8 +49,9 @@ test_that("getNcomp failed on invalid input - indY", {
     expect_error(getNcomp(object=demo$block.pls, X = list(X =demo$X, Z=demo$Z), indY = NULL), "'indY' must be a numeric value lower or equal to 2, the number of blocks in X.", fixed = TRUE)
 }) 
 
-test_that("getNcomp failed works", {  
+test_that("getNcomp works", {  
     expect_is(getNcomp(demo$pca, max.ncomp = 4, X = demo$X), "ncomp.tune.silhouette")
+    expect_is(getNcomp(demo$pca, max.ncomp = 4.9, X = demo$X), "ncomp.tune.silhouette")
     expect_is(getNcomp(demo$pca, max.ncomp = 4, X = demo$X, scale = TRUE, center = TRUE), "ncomp.tune.silhouette")
     expect_is(getNcomp(demo$pls, max.ncomp = 4, X = demo$X, Y=demo$Y, scale = TRUE), "ncomp.tune.silhouette")
     expect_is(suppressWarnings(getNcomp(demo$block.pls, max.ncomp = 4, X=list(X=demo$X, Z=demo$Z), Y=demo$Y)), "ncomp.tune.silhouette")
