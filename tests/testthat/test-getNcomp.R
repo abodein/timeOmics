@@ -58,7 +58,7 @@ test_that("getNcomp works", {
     expect_is(suppressWarnings(getNcomp(demo$block.pls, max.ncomp = 4, X=list(X=demo$X, Z=demo$Z, Y = demo$Y), indY=3, scale = TRUE)), "ncomp.tune.silhouette")
 })
     
-
+pdf(NULL)
 test_that("getNcomp plot works",{
     res <- getNcomp(object = demo$pca, X=demo$X)
     expect_is(plot(res), "ggplot")
@@ -69,3 +69,4 @@ test_that("getNcomp plot works",{
     res <- suppressWarnings(getNcomp(demo$block.pls, max.ncomp = 4, X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
     expect_is(plot(res), "ggplot")
 })
+devv.off()
