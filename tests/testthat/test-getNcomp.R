@@ -69,4 +69,4 @@ test_that("getNcomp plot works",{
     res <- suppressWarnings(getNcomp(demo$block.pls, max.ncomp = 4, X=list(X=demo$X, Z=demo$Z), Y=demo$Y))
     expect_is(plot(res), "ggplot")
 })
-devv.off()
+dev.off()
