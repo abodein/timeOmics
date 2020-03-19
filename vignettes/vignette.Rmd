@@ -19,12 +19,12 @@ vignette: >
 
 The main steps of ***timeOmics*** are:
 
-* a pre-procesing step (**B.**) to normalize and filter low-expressed features and not those not varying in time,
-* a modelling step (**C.**) to capture inter-individual variability in biological/technical replicates and accommodate heterogeneous experimental designs,
-* a clustering step (**D.**) to group features with the same expression profile over time. We can also use a feature selection step to identify a signature per cluster,
-* a post-hoc validation step (**E.**) to ensure clustering quality.
+a pre-processing step (**B.**) Normalize and filter low-expressed features, except those not varying in time,
+* a modelling step (**C.**)  Capture inter-individual variability in biological/technical replicates and accommodate heterogeneous experimental designs,
+* a clustering step (**D.**) Group features with the same expression profile over time. Feature selection step can also be used to identify a signature per cluster,
+* a post-hoc validation step (**E.**) Ensure clustering quality.
 
-We present this framework on both single-Omic and multi-Omics situations.
+This framework is presented on both single-Omic and multi-Omics situations.
 
 ![Framework Overview](./img/method_overview.png)
 
@@ -185,7 +185,7 @@ profile.filtered <- filter.res$filtered
 
 ## Principal Component Analysis
 
-From the modelled data, we use a PCA to cluster features with samilar expression profiles over time.
+From the modelled data, we use a PCA to cluster features with similar expression profiles over time.
 
 PCA is an unsupervised reduction dimension technique which uses uncorrelated 
 intrumental variable (i.e. principal components) to summarize as much information 
@@ -225,7 +225,7 @@ pca.res <- pca(X = profile.filtered, ncomp = 2, scale = FALSE, center=FALSE)
 ```
 
 All information about the cluster is displayed below (`getCluster`). 
-For each feature (molecule), one can see for each feature (molecule) the selected component where the contribution is maximum, the direction of the contribution and the attributed cluster.
+For each feature (molecule), one can see the selected component where the contribution is maximum, the direction of the contribution and the attributed cluster.
 
 ```{r}
 # extract cluster
@@ -246,8 +246,9 @@ plotLong(pca.res, scale = FALSE, center = FALSE, title = "PCA longitudinal clust
 
 ## *sparse* PCA
 
-The previous clustering used all features. Sometimes we are interested in a cluster signature.
-We then use the sparse PCA to extract this key signature.
+The previous clustering used all features. 
+*sparse* PCA is an optional step to define a cluster signature per cluster. 
+It extracts key components on each component to develop a signature.
 
 *(see also \code{\link[mixOmics]{spca}} for more details about sPCA and available options)*
 
@@ -350,7 +351,7 @@ plotLong(spls.res, title = "sPLS clustering")
 
 ## Multi-block (s)PLS longitudinal clustering
 
-With more than **2 blocks** of data, it is necessary to use *multi-block PLS* to identify cluster of similar profile coming from **3 and more blocks** of data.
+With more than **2 blocks** of data, it is necessary to use *multi-block PLS* to identify cluster of similar profile from **3 and more blocks** of data.
 
 This methods accepts a list of data.frame as `X` (same corresponding rows) and a Y data.frame.
 
