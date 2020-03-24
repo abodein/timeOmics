@@ -4,14 +4,33 @@ author:
 - name:  "Antoine Bodein"
   affiliation: "CHU de Québec Research Center, Université Laval, Molecular Medicine department, Québec, QC, Canada"
   email: "antoine.bodein.1@ulaval.ca"
-package: timeOmics
+- name: "Olivier Chapleur"
+  affiliation: "Hydrosystems and Biopresses Research Unit, Irstea, Antony, France"
+- name: "Arnaud Droit"
+  affiliation: "CHU de Québec Research Center, Université Laval, Molecular Medicine department, Québec, QC, Canada"
+- name: "Kim-Anh Lê Cao"
+  affiliation: "Melbourne Integrative Genomics, School of Mathematics and Statistics, University of Melbourne, Melbourne, VIC, Australia"
+package: timeOmics  
 output: 
   BiocStyle::html_document
+  
 vignette: >
   %\VignetteIndexEntry{timeOmics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}  
+  
+bibliography: ["mybib.bib"]
+biblio-style: apalike
+link-citations: true
 ---
+
+```{r, echo =  FALSE}
+knitr::opts_chunk$set(eval = TRUE, 
+                      echo = TRUE,
+                      fig.align = "center",
+                      warning = FALSE,
+                      message = FALSE)
+```
 
 # Introduction
 
@@ -19,7 +38,7 @@ vignette: >
 
 The main steps of ***timeOmics*** are:
 
-a pre-processing step (**B.**) Normalize and filter low-expressed features, except those not varying in time,
+* a pre-processing step (**B.**) Normalize and filter low-expressed features, except those not varying over time,
 * a modelling step (**C.**)  Capture inter-individual variability in biological/technical replicates and accommodate heterogeneous experimental designs,
 * a clustering step (**D.**) Group features with the same expression profile over time. Feature selection step can also be used to identify a signature per cluster,
 * a post-hoc validation step (**E.**) Ensure clustering quality.
@@ -35,14 +54,18 @@ For more details please check:
 
 ## Installation
 
-```{r, echo =  FALSE}
-knitr::opts_chunk$set(eval = TRUE, 
-                      echo = TRUE,
-                      fig.align = "center",
-                      warning = FALSE,
-                      message = FALSE)
-```
+### Lastest Bioconductor Release
 
+**when available**
+
+```r
+## install BiocManager if not installed
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+## install timeOmics
+BiocManager::install('timeOmics')
+``` 
+### Lastest `Github` version
 
 ```r
 install.packages("devtools")
@@ -57,27 +80,28 @@ install_github("abodein/timeOmics_BioC")
 library(timeOmics)
 ```
 
-## Useful packages to run this vignette
+## Useful package to run this vignette
 
 ```{r, message=F}
-library(mixOmics)
 library(tidyverse)
-library(lmms)
 ```
 
 # Required data
 
-Each omics technology produces abundance tables with samples in rows and features in columns (genes, proteins, species, ...).
+Each omics technology produces count or abundance tables with samples in rows and features in columns (genes, proteins, species, ...).
 In multi-Omics, each *block* has the same rows and a variable number of columns depending on the technology and number of identified features.
 
 We assume each *block* *(omics)* is a matrix/data.frame with samples in **rows** (similar in each *block*) and features in **columns** (variable number of column).
 
 For this example, we will use a part of simulated data based on the above-mentioned article and generated as follow:
 
-Twenty reference time profiles were generated on 9 equally spaced time points and assigned to 4 clusters (5 profiles each). These ground truth profiles were then used to simulate new profiles.
-For each of the reference profiles, 5 new profiles (corresponding to 5 individuals $(A,B,C,D,E)$) were sampled to reflect some inter-individual variability as follows: Let x be the observation vector for a reference profile r, r = 1 … 20, for each time point t (t = 1, …, 9), 5 measurements were randomly simulated from a Gaussian distribution with parameters µ = xt,r and $\sigma^2$, where $\sigma = {0, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 1.5, 2, 3}$ to vary the level of noise. The profiles from the 5 individuals were then modelled with `lmms`.
+Twenty reference time profiles, were generated on 9 *equally spaced*\* time points and assigned to 4 clusters (5 profiles each). These ground truth profiles were then used to simulate new profiles.
+The profiles from the 5 individuals were then modelled with `lmms` [@straube2015linear]. 
+Please check [@bodein2019generic] for more details about the simulated data.
 
+To illustrate the filtering step implemented later, we add an extra noisy profile resulting in a matrix of (9x5) x (20+1).
 
+*It is not mandatory to have equally spaced time points in your data.*
 
 ```{r}
 data("timeOmics.simdata")
@@ -90,19 +114,25 @@ head(sim.data[,1:6])
 
 # Data preprocessing
 
-Every analysis starts with a pre-processing step. 
+Every analysis starts with a pre-processing step that includes normalization and data cleaning.
 In longitudinal multi-omics analysis we have a 2-step pre-processing procedure.
 
 ## Platform-specific
 
-Platform-specific pre-processing is the type of standardization normally used without time component.
-It may differ depending on the type of technology
-*(log, scale, rle, low count removal, ...)*.
-That is why we let the user apply his favorite method of standardization.
+Platform-specific pre-processing is the type of normalization normally used without time component.
+It may differ depending on the type of technology.
+
+The user can apply normalization steps *(log, scale, rle, ...)* and filtering steps *(low count removal, ...)*.
+
+It is also possible to handle microbiome data with Centered Log Ratio transformation as described [here](http://mixomics.org/mixmc/pre-processing/)
+
+That is why we let the user apply their favorite method of normalization
+
 
 ## Time-specific
 
 In a longitudinal context, one can be interested only in features that vary over time and filter out molecules that would have a negligible impact on the system.
+TODO: negligeable
 
 To do so, we can first naively set a threshold on the variation coefficient and keep those features that exceed the threshold.
 
@@ -122,9 +152,9 @@ data.filtered <- remove.low.cv(sim.data, 0.5)
 
 The next step is the modelling of each feature (molecule) as a function of time.
 
-We rely on a *Linear Mixed Model Splines* framework (package `lmms`) to model the features expression as a function of time by taking into account all inter-individual variability.
+We rely on a *Linear Mixed Model Splines* framework (package `lmms`) to model the features expression as a function of time by taking into account inter-individual variability.
 
-`lmms` framework tests 4 different models and assigns one of the following models to each feature:
+`lmms` fits 4 different types of models described and indexed as below and assigns the best fit for each of the feature.
 
 * 0 = linear model, 
 * 1 = linear mixed effect model spline (LMMS) with defined basis, 
@@ -133,7 +163,7 @@ We rely on a *Linear Mixed Model Splines* framework (package `lmms`) to model th
 
 The package also has an interesting feature for filtering profiles which are not differentially expressed over time, in a more robust way (see `lmms::lmmsDE`).
 
-At the end, `lmms` summarize each feature into a unique time profile.
+`lmms` summarize each feature into a unique time profile.
 
 ## `lmms` example
 
@@ -142,7 +172,10 @@ At the end, `lmms` summarize each feature into a unique time profile.
 For more information about `lmms` modelling parameters, please check `?lmms::lmmSpline`
 
 ```{r, message=FALSE}
-time <- rownames(data.filtered) %>% str_remove("._") %>% as.numeric()
+# numeric vector containing the sample time point information
+time <- timeOmics.simdata$time
+head(time)
+
 lmms.output <- lmms::lmmSpline(data = data.filtered, time = time,
                         sampleID = rownames(data.filtered), deri = FALSE,
                         basis = "p-spline", numCores = 4, timePredict = 1:9, 
@@ -172,8 +205,9 @@ ggplot(data.gathered, aes(x = time, y = value, color = feature)) + geom_line() +
 Straight line modelling can occur when the inter-individual variation is too high.
 To remove the noisy profiles, we have implemented a 2-phase test procedure.
 
-* *Breusch-Pagan test*, which tests the homoscedasticity of the residues.
-* *Cutoff on MSE* (mean squared error), to reduce dispersion of the residues around the line.
+* *Breusch-Pagan test*, which tests the homoscedasticity of the residuals.
+* *Cutoff on MSE* (mean squared error), to remove feature for which the residuals are too dispersed arround the fitted line.
+This threshold is determined automatically. The MSE for a linear model must not exceed the MSE of more complex models.
 
 ```{r}
 filter.res <- lmms.filter.lines(data = modelled.data, 
@@ -182,6 +216,8 @@ profile.filtered <- filter.res$filtered
 ```
 
 # Single-Omic longitudinal clustering
+
+To achieve clustering with multivariate ordination methods, we rely on the `mixOmics` package [@rohart2017mixomics].
 
 ## Principal Component Analysis
 
@@ -208,16 +244,17 @@ The number of components that maximizes the silhouette coefficient will provide 
 
 ```{r}
 # run pca
-pca.res <- pca(X = profile.filtered, ncomp = 5, scale=FALSE)
+pca.res <- pca(X = profile.filtered, ncomp = 5, scale=FALSE, center=FALSE)
 
 # tuning ncomp
-pca.ncomp <- getNcomp(pca.res, max.ncomp = 5, X = profile.filtered, scale = FALSE, center=FALSE)
+pca.ncomp <- getNcomp(pca.res, max.ncomp = 5, X = profile.filtered, 
+                      scale = FALSE, center=FALSE)
 
 pca.ncomp$choice.ncomp
 plot(pca.ncomp)
 ```
 
-In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = pca.ncomp$choice.ncomp`(`r 2*ncomp` clusters).
+In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = pca.ncomp$choice.ncomp` (4 clusters).
 
 ```{r}
 # final model
@@ -225,7 +262,7 @@ pca.res <- pca(X = profile.filtered, ncomp = 2, scale = FALSE, center=FALSE)
 ```
 
 All information about the cluster is displayed below (`getCluster`). 
-For each feature (molecule), one can see the selected component where the contribution is maximum, the direction of the contribution and the attributed cluster.
+Once run, the procedure will indicate the assignement of each molecule to either the `positive` or `negative` cluster of a given component based on the sign of loading vector (contribution).
 
 ```{r}
 # extract cluster
@@ -237,10 +274,13 @@ head(pca.cluster)
 
 Clustered profiles can be displayed with `plotLong`. 
 
+The user can set the parameters `scale` and `center` to scale/center all time profiles.
+
 (*See also `mixOmics::plotVar(pca.res)` for variable representation*)
 
 ```{r}
-plotLong(pca.res, scale = FALSE, center = FALSE, title = "PCA longitudinal clustering")
+plotLong(pca.res, scale = FALSE, center = FALSE, 
+         title = "PCA longitudinal clustering")
 ```
 
 
@@ -248,18 +288,17 @@ plotLong(pca.res, scale = FALSE, center = FALSE, title = "PCA longitudinal clust
 
 The previous clustering used all features. 
 *sparse* PCA is an optional step to define a cluster signature per cluster. 
-It extracts key components on each component to develop a signature.
+It extracts key features on each component to determine a signature.
 
-*(see also \code{\link[mixOmics]{spca}} for more details about sPCA and available options)*
+*(see also `?mixOmics::spca` for more details about sPCA and available options)*
 
 ### `keepX` optimization
 
-To find the right number of features to keep per component (`keepX`) and thus per cluster, the silhouette coefficient is assessed for a list of selected features on each component.
+To find the right number of features to keep per component (`keepX`) and thus per cluster, the silhouette coefficient is assessed for a list of selected features (`test.keepX`) on each component.
 
-Evolution of silhouette coefficient of each cluster (component and contribution) is observed to 
-detect a significant decrease in the silhouette for each component.
+We plot below the silhouette coefficient corresponding to each sub-cluster (positive or negative contibution) with respect to the number of features selected. A large decrease indicates that the clusters are not homogeneous and therefore the new added features should not be included in the final model.
 
-We do not recommend using a parameter that is too small since it will tend to pull the silhouette coefficient upwards and bias the interpretation regarding the number of features to be selected.
+This method tends to select the smallest possible signature, so if the user wishes to set a minimum number of features per component, this parameter will have to be adjusted accordingly.
 
 
 ```{r}
@@ -281,7 +320,9 @@ plotLong(spca.res)
 
 # multi-Omics longitudinal clustering 
 
-The clustering strategy with more than one block of data is the same as longitudinal clustering with PCA and is based on the projection of variables on a reduced common space.
+TODO:biological question
+
+The clustering strategy with more than one block of data is the same as longitudinal clustering with PCA and is based on integrative methods using Projection on Latent Structures (PLS).
 
 With 2 blocks, it is then necessary to use PLS.
 With more than 2 blocks, the user has to use a multi-block PLS.
@@ -308,8 +349,7 @@ pls.ncomp$choice.ncomp
 plot(pls.ncomp)
 ```
 
-In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = pls.ncomp$choice.ncomp` (`r 2*ncomp` clusters).
-
+In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = pls.ncomp$choice.ncomp` (4 clusters).
 
 ```{r}
 # final model
@@ -325,8 +365,8 @@ plotLong(pls.res, title = "PLS longitudinal clustering", legend = TRUE)
 
 As with *PCA*, it is possible to use the *sparse* PLS to get a signature of the clusters.
 
-`tuneCluster.spls` choose the correct number of feature to keep on block X `keepX` as well as 
-the correct number of feature to keep on block Y `keepY` among a list provided by the user.
+`tuneCluster.spls` choose the correct number of feature to keep on block X `test.keepX` as well as 
+the correct number of feature to keep on block Y `test.keepY` among a list provided by the user and are tested for each of the components.
 
 *(see also `?mixOmics::spls` for more details about `spls` and available options)*
 
@@ -351,6 +391,7 @@ plotLong(spls.res, title = "sPLS clustering")
 
 ## Multi-block (s)PLS longitudinal clustering
 
+
 With more than **2 blocks** of data, it is necessary to use *multi-block PLS* to identify cluster of similar profile from **3 and more blocks** of data.
 
 This methods accepts a list of data.frame as `X` (same corresponding rows) and a Y data.frame.
@@ -369,7 +410,7 @@ block.ncomp$choice.ncomp
 plot(block.ncomp)
 ```
 
-In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = block.ncomp$choice.ncomp` (`r 2*ncomp` clusters).
+In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = block.ncomp$choice.ncomp` (2 clusters).
 
 ```{r}
 # final model
@@ -385,8 +426,8 @@ plotLong(block.pls.res)
 
 As with *PCA* and *PLS*, it is possible to use the *sparse* multi-block PLS to get a signature of the clusters.
 
-`tuneCluster.block.spls` choose the correct number of feature to keep on each block of X `keepX` as well as 
-the correct number of feature to keep on block Y `keepY` among a list provided by the user.
+`tuneCluster.block.spls` choose the correct number of feature to keep on each block of X `test.keepX` as well as 
+the correct number of feature to keep on block Y `test.keepY` among a list provided by the user.
 
 *(see also `?mixOmics::block.spls` for more details about block sPLS and available options)*
 
@@ -400,6 +441,7 @@ tune.block.res <- tuneCluster.block.spls(X= X, Y= Y,
                                          test.keepY= test.keepY, 
                                          scale=FALSE, 
                                          mode = "canonical", ncomp = 1)
+# ncomp = 1 given by the getNcomp() function
 
 # selected features in each component on block X
 tune.block.res$choice.keepX
@@ -422,9 +464,9 @@ plotLong(block.pls.res)
 # Post-hoc evaluation
 
 Interpretation based on correlations between profiles must be made with caution as it is highly likely to be
-spurious. Proportional distances has been proposed as an alternative to measure association.
+spurious. Proportional distances has been proposed as an alternative to measure association a posteriori on the identified signature.
 
-In the following graphs, we represent all the proportionality distance $\varphi_s$ within clusters and the distance of features inside the clusters with entire background set.
+In the following graphs, we represent all the proportionality distance within clusters and the distance of features inside the clusters with entire background set.
 
 We also use a Wilcoxon U-test to compare the within cluster median compared to the entire background set.
 
@@ -443,3 +485,12 @@ plot(res)
 
 In addition to the Wilcoxon test, proportionality distance dispersion within and with entire background set is represented by cluster in the above graph.
 
+Here, for cluster `1`, the proportionality distance is calculated between pairs of feature from the same cluster `1` (inside). 
+Then the distance is calculated between each feature of cluster `1` and every feature of cluster `-1` (outside).
+
+The same is applied on features from cluster `-1`.
+
+So we see that the intra-cluster distance is lower than the distances with the entire background set. 
+Which is confirmed by the Wilcoxon test and this ensures a good clustering.
+
+# References
