@@ -2,7 +2,7 @@
 % Please edit documentation in R/getSilhouette.R
 \name{getSilhouette}
 \alias{getSilhouette}
-\title{getSilhouette}
+\title{Get Silhouette Coefficient from (s)PCA, (s)PLS or block.(s)PLS clusters}
 \usage{
 getSilhouette(object)
 }

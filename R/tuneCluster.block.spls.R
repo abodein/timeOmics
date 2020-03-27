@@ -1,4 +1,4 @@
-#' tuneCluster.block.spls
+#' Feature Selection Optimization for block (s)PLS method 
 #'
 #' This function identify the number of feautures to keep per component and thus by cluster in \code{mixOmics::block.spls} by optimizing the silhouette coefficient, which assesses the quality of clustering.
 #' 

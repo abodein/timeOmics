@@ -2,7 +2,7 @@
 % Please edit documentation in R/tuneCluster.block.spls.R
 \name{tuneCluster.block.spls}
 \alias{tuneCluster.block.spls}
-\title{tuneCluster.block.spls}
+\title{Feature Selection Optimization for block (s)PLS method}
 \usage{
 tuneCluster.block.spls(X, Y = NULL, indY = NULL, ncomp = 2,
   test.list.keepX = NULL, test.keepY = NULL, ...)

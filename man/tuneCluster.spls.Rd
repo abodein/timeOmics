@@ -2,7 +2,7 @@
 % Please edit documentation in R/tuneCluster.spls.R
 \name{tuneCluster.spls}
 \alias{tuneCluster.spls}
-\title{tuneCluster.spls}
+\title{Feature Selection Optimization for sPLS method}
 \usage{
 tuneCluster.spls(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
   test.keepY = rep(ncol(Y), ncomp), ...)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/tuneCluster.spca.R
 \name{tuneCluster.spca}
 \alias{tuneCluster.spca}
-\title{tuneCluster.spca}
+\title{Feature Selection Optimization for sPCA method}
 \usage{
 tuneCluster.spca(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...)
 }

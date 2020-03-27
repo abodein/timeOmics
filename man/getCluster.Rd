@@ -2,7 +2,7 @@
 % Please edit documentation in R/getCluster.R
 \name{getCluster}
 \alias{getCluster}
-\title{getCluster}
+\title{Get variable cluster from (s)PCA, (s)PLS or block.(s)PLS}
 \usage{
 getCluster(X)
 }

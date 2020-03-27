@@ -1,4 +1,4 @@
-#' getSilhouette
+#' Get Silhouette Coefficient from (s)PCA, (s)PLS or block.(s)PLS clusters
 #'
 #' \code{getSilhouette} is a generic function that compute silhouette coefficient
 #' for an object of the type \code{pca}, \code{spca}, \code{pls}, \code{spls},

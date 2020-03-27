@@ -1,4 +1,4 @@
-#' plotLong
+#' Plot Longitudinal Profiles by Cluster
 #'
 #' This function provides a expression profile representation over time and by cluster.
 #'
@@ -66,7 +66,7 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
     #-- object
     allowed_object = c("pca", "spca", "mixo_pls", "mixo_spls", "block.pls", "block.spls")
     if(!any(class(object) %in% allowed_object)){
-        stop("invalid object")
+        stop("invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)")
     }
     
     #-- plot : if plot is not correct, plot = FALSE

@@ -1,4 +1,4 @@
-#' tuneCluster.spca
+#' Feature Selection Optimization for sPCA method 
 #'
 #' This function identify the number of feautures to keep per component and thus by cluster in \code{mixOmics::spca} 
 #' by optimizing the silhouette coefficient, which assesses the quality of clustering.

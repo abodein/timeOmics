@@ -57,7 +57,7 @@ getNcomp <- function(object, max.ncomp = NULL, X, Y = NULL, indY = NULL, ...){
     #-- object
     allowed_object = c("pca", "mixo_pls", "block.pls")
     if(!any(class(object) %in% allowed_object)){
-        stop("invalid object")
+        stop("invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)")
     }
     
 

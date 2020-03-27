@@ -1,4 +1,4 @@
-#' getCluster
+#' Get variable cluster from (s)PCA, (s)PLS or block.(s)PLS
 #'
 #' This function returns the cluster associated to each feature from a mixOmics object.
 #'
@@ -233,7 +233,13 @@ getCluster.block.spls <- function(X){
     return(loadings.max)
 }
 
-
+#' Get Max Contrib from loading matrix
+#' 
+#' @param X loading matrix from mixOmics
+#' @return a matrix
+#' 
+#' @keywords internal
+#' @noRd 
 #' @importFrom purrr set_names
 #' @importFrom magrittr %>%
 getMaxContrib <- function(X){

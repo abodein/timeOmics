@@ -10,6 +10,10 @@
 #'   \item{rawdata}{data.frame, reference profiles}
 #'   \item{sim}{data.frame, sampled profiles from reference data}
 #'   \item{modelled}{data.frame, modelled data}
+#'   \item{lmms.output}{full lmms object output}
+#'   \item{time}{numerci vector, time for each sample of rawdata}
+#'   \item{Y}{another modelled data.frame for multiblock integration}
+#'   \item{Z}{another modelled data.frame for multiblock integration}
 #'  }
 #' 
 "timeOmics.simdata"

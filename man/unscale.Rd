@@ -2,7 +2,7 @@
 % Please edit documentation in R/unscale.R
 \name{unscale}
 \alias{unscale}
-\title{unscale}
+\title{Unscales a scaled data.frame}
 \usage{
 unscale(x)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/lmms.filter.lines.R
 \name{lmms.filter.lines}
 \alias{lmms.filter.lines}
-\title{lmms.filter.lines}
+\title{Filter Linear Profiles from Linear Mixed Model output}
 \usage{
 lmms.filter.lines(data, lmms.obj, time, homoskedasticity = TRUE,
   MSE.filter = TRUE, homoskedasticity.cutoff = 0.05)

@@ -1,4 +1,4 @@
-#' lmms.filter.lines
+#' Filter Linear Profiles from Linear Mixed Model output
 #' 
 #' This function filters linear models with highly heterogeneous variability within residues.
 #' From an "lmms" output, 2 parameters are tested:

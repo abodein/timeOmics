@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotLong.R
 \name{plotLong}
 \alias{plotLong}
-\title{plotLong}
+\title{Plot Longitudinal Profiles by Cluster}
 \usage{
 plotLong(object, time = NULL, plot = TRUE, center = TRUE,
   scale = TRUE, title = "Time-course Expression", X.label = NULL,
