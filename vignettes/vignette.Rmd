@@ -56,8 +56,6 @@ For more details please check:
 
 ### Lastest Bioconductor Release
 
-**when available**
-
 ```r
 ## install BiocManager if not installed
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -91,7 +89,7 @@ library(tidyverse)
 Each omics technology produces count or abundance tables with samples in rows and features in columns (genes, proteins, species, ...).
 In multi-Omics, each *block* has the same rows and a variable number of columns depending on the technology and number of identified features.
 
-We assume each *block* *(omics)* is a matrix/data.frame with samples in **rows** (similar in each *block*) and features in **columns** (variable number of column).
+We assume each *block* *(omics)* is a matrix/data.frame with samples in **rows** (similar in each *block*) and features in **columns** (variable number of column). Normalization steps applied to each block will be covered in the next section.
 
 For this example, we will use a part of simulated data based on the above-mentioned article and generated as follow:
 
@@ -101,7 +99,7 @@ Please check [@bodein2019generic] for more details about the simulated data.
 
 To illustrate the filtering step implemented later, we add an extra noisy profile resulting in a matrix of (9x5) x (20+1).
 
-*It is not mandatory to have equally spaced time points in your data.*
+\* *It is not mandatory to have equally spaced time points in your data.*
 
 ```{r}
 data("timeOmics.simdata")
@@ -124,15 +122,14 @@ It may differ depending on the type of technology.
 
 The user can apply normalization steps *(log, scale, rle, ...)* and filtering steps *(low count removal, ...)*.
 
-It is also possible to handle microbiome data with Centered Log Ratio transformation as described [here](http://mixomics.org/mixmc/pre-processing/)
+It is also possible to handle microbiome data with Centered Log Ratio transformation as described [here](http://mixomics.org/mixmc/pre-processing/).
 
-That is why we let the user apply their favorite method of normalization
+That is why we let the user apply their favorite method of normalization.
 
 
 ## Time-specific
 
-In a longitudinal context, one can be interested only in features that vary over time and filter out molecules that would have a negligible impact on the system.
-TODO: negligeable
+In a longitudinal context, one can be interested only in features that vary over time and filter out molecules with a low variation coefficient.
 
 To do so, we can first naively set a threshold on the variation coefficient and keep those features that exceed the threshold.
 
@@ -161,9 +158,9 @@ We rely on a *Linear Mixed Model Splines* framework (package `lmms`) to model th
 * 2 = LMMS taking subject-specific random intercepts, 
 * 3 = LMMS with subject-specific intercept and slope.
 
-The package also has an interesting feature for filtering profiles which are not differentially expressed over time, in a more robust way (see `lmms::lmmsDE`).
+The package also has an interesting feature for filtering profiles which are not differentially expressed over time, with statistical testing (see `lmms::lmmsDE`).
 
-`lmms` summarize each feature into a unique time profile.
+Once run, `lmms` summarizes each feature into a unique time profile.
 
 ## `lmms` example
 
@@ -183,6 +180,8 @@ lmms.output <- lmms::lmmSpline(data = data.filtered, time = time,
 modelled.data <- t(slot(lmms.output, 'predSpline'))
 ```
 
+The `lmms` object provides a list of models for each feature. 
+It also includes the new predicted splines *(modelled data)* in the `predSpline` slot.
 The produced table contains features in columns and now, **times in rows**.
 
 Let's plot the modelled profiles.
@@ -227,20 +226,26 @@ PCA is an unsupervised reduction dimension technique which uses uncorrelated
 intrumental variable (i.e. principal components) to summarize as much information 
 (*variance*) as possible from the data.
 
+In PCA, each component is associated to a loading vector of length P (number of features/profiles).
+For a given set of component, we can extract a set of strongly correlated profiles by 
+considering features with the top absolute coefficients in the loading vectors.
+
+Those profiles are linearly combined to define each component, and thus, explain similar information on a given component. 
+Different clusters are therefore obtained on each component of the PCA. 
+Each cluster is then further separated into two sets of profiles which we denote as “positive” or “negative” based on the sign of the coefficients in the loading vectors 
+Sign indicates how the features can be assign into 2 clusters.
+
+At the end of this procedure, each component create 2 clusters and each feature is assigned to a cluster according to the maximum contribution on a component and the sign of that contribution.
+
 *(see also `?mixOmics::pca` for more details about PCA and available options)*
 
 
 ### Longitudinal clustering
 
-Clusters of similar expression profiles are grouped as follow:
-
-In PCA, components are generated using variables. Each variable can either contribute positively or negatively to the creation of the components.
-Each variable (feature) will be associated with a component (the one that most represents it).
-Finally, each component can create 2 clusters and each feature is assigned to a cluster according to the maximum contribution on a component and the sign of that contribution.
-
 To optimize the number of clusters, the number of PCA components needs to be optimized (`getNcomp`).
 The quality of clustering is assessed using the silhouette coefficient.
 The number of components that maximizes the silhouette coefficient will provide the best clustering.
+
 
 ```{r}
 # run pca
@@ -288,7 +293,7 @@ plotLong(pca.res, scale = FALSE, center = FALSE,
 
 The previous clustering used all features. 
 *sparse* PCA is an optional step to define a cluster signature per cluster. 
-It extracts key features on each component to determine a signature.
+It selects the features with the highest loading scores for each component in order to determine a signature.
 
 *(see also `?mixOmics::spca` for more details about sPCA and available options)*
 
@@ -313,14 +318,18 @@ In the above graph, evolution of silhouette coefficient per component and per co
 
 ```{r}
 # final model
-spca.res <- spca(X = profile.filtered, ncomp = 2, keepX = tune.spca.res$choice.keepX, scale = FALSE)
+spca.res <- spca(X = profile.filtered, ncomp = 2, 
+                 keepX = tune.spca.res$choice.keepX, scale = FALSE)
 plotLong(spca.res)
 ```
 
 
 # multi-Omics longitudinal clustering 
 
-TODO:biological question
+In this type of scenario, the user has 2 or more blocks of omics data from the same experiment 
+(i. e. gene expression and metabolite concentration) and he is interested in discovering 
+which genes and metabolites have a common expression profile.
+This may reveal dynamic biological mechanisms.
 
 The clustering strategy with more than one block of data is the same as longitudinal clustering with PCA and is based on integrative methods using Projection on Latent Structures (PLS).
 
@@ -391,7 +400,6 @@ plotLong(spls.res, title = "sPLS clustering")
 
 ## Multi-block (s)PLS longitudinal clustering
 
-
 With more than **2 blocks** of data, it is necessary to use *multi-block PLS* to identify cluster of similar profile from **3 and more blocks** of data.
 
 This methods accepts a list of data.frame as `X` (same corresponding rows) and a Y data.frame.
@@ -404,8 +412,10 @@ This methods accepts a list of data.frame as `X` (same corresponding rows) and a
 X <- list("X" = profile.filtered, "Z" = timeOmics.simdata$Z)
 Y <- as.matrix(timeOmics.simdata$Y)
 
-block.pls.res <- block.pls(X=X, Y=Y, ncomp = 5, scale = FALSE, mode = "canonical")
-block.ncomp <- getNcomp(block.pls.res,X=X, Y=Y, scale = FALSE, mode = "canonical")
+block.pls.res <- block.pls(X=X, Y=Y, ncomp = 5, 
+                           scale = FALSE, mode = "canonical")
+block.ncomp <- getNcomp(block.pls.res,X=X, Y=Y, 
+                        scale = FALSE, mode = "canonical")
 block.ncomp$choice.ncomp
 plot(block.ncomp)
 ```
