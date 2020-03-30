@@ -1,0 +1,11 @@
+citHeader("To cite timeOmics in publications, please use:")
+
+citEntry(entry="article",
+	title={"A generic multivariate framework for the integration of microbiome longitudinal studies with other data types"},
+	author={"Bodein, Antoine and Chapleur, Olivier and Droit, Arnaud and Le Cao, Kim-Anh"},
+	journal={"Frontiers in Genetics"},
+	volume={"10"},
+	year={"2019"},
+	publisher={"Frontiers Media SA"},
+	textVersion={"Bodein A, Chapleur O, Droit A and Le Cao K-A (2019) A Generic Multivariate Framework for the Integration of Microbiome Longitudinal Studies With Other Data Types. Front. Genet. 10:963. doi: 10.3389/fgene.2019.00963"}
+)

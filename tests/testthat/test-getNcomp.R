@@ -8,7 +8,7 @@ demo$block.pls = suppressWarnings(mixOmics::block.pls(X=list(X=demo$X, Y=demo$Y,
 
 test_that("getNcomp failed on invalid input - object", {
     # test for "object"
-    lapply(list("",1,demo$X, NA), function(i) expect_error(getNcomp(i), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)"))
+    lapply(list("",1,demo$X, NA), function(i) expect_error(getNcomp(i), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)", fixed = TRUE))
 })
 
 test_that("getNcomp failed on invalid input - max.ncomp", {

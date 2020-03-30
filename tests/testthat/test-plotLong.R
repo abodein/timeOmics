@@ -9,11 +9,11 @@ demo$block.pls2 <- suppressWarnings(mixOmics::block.pls(X=list(X=demo$X,
 
 pdf(NULL)
 test_that("plotLong failed on invalid - object", {
-    expect_error(plotLong(""), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)")
-    expect_error(plotLong(3), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)")
-    expect_error(plotLong(matrix()), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)")    
-    expect_error(plotLong(list()), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)")
-    expect_error(plotLong(data.frame()), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)")
+    expect_error(plotLong(""), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)", fixed = TRUE)
+    expect_error(plotLong(3), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)", fixed = TRUE)
+    expect_error(plotLong(matrix()), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)", fixed = TRUE)    
+    expect_error(plotLong(list()), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)", fixed = TRUE)
+    expect_error(plotLong(data.frame()), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)", fixed = TRUE)
 })
 
 test_that("plotLong failed on invalid - time", {
