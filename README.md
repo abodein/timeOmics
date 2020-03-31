@@ -11,7 +11,7 @@
 
 The main steps of ***timeOmics*** are:
 
-a pre-processing step (**B.**) Normalize and filter low-expressed features, except those not varying in time,
+* a pre-processing step (**B.**) Normalize and filter low-expressed features, except those not varying over time,
 * a modelling step (**C.**)  Capture inter-individual variability in biological/technical replicates and accommodate heterogeneous experimental designs,
 * a clustering step (**D.**) Group features with the same expression profile over time. Feature selection step can also be used to identify a signature per cluster,
 * a post-hoc validation step (**E.**) Ensure clustering quality.

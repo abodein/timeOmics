@@ -6,10 +6,10 @@ author:
   email: "antoine.bodein.1@ulaval.ca"
 - name: "Olivier Chapleur"
   affiliation: "Hydrosystems and Biopresses Research Unit, Irstea, Antony, France"
-- name: "Arnaud Droit"
-  affiliation: "CHU de Québec Research Center, Université Laval, Molecular Medicine department, Québec, QC, Canada"
 - name: "Kim-Anh Lê Cao"
   affiliation: "Melbourne Integrative Genomics, School of Mathematics and Statistics, University of Melbourne, Melbourne, VIC, Australia"
+- name: "Arnaud Droit"
+  affiliation: "CHU de Québec Research Center, Université Laval, Molecular Medicine department, Québec, QC, Canada"
 package: timeOmics  
 output: 
   BiocStyle::html_document
@@ -259,7 +259,7 @@ pca.ncomp$choice.ncomp
 plot(pca.ncomp)
 ```
 
-In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = pca.ncomp$choice.ncomp` (4 clusters).
+In this plot, we can observe that the highest silhouette coefficient is achieved when `ncomp = 2` (4 clusters).
 
 ```{r}
 # final model
@@ -358,7 +358,7 @@ pls.ncomp$choice.ncomp
 plot(pls.ncomp)
 ```
 
-In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = pls.ncomp$choice.ncomp` (4 clusters).
+In this plot, we can observe that the highest silhouette coefficient is achieved when `ncomp = 2` (4 clusters).
 
 ```{r}
 # final model
@@ -420,7 +420,7 @@ block.ncomp$choice.ncomp
 plot(block.ncomp)
 ```
 
-In this plot, we can observe that the highest silhouette coefficient is achieved when `r ncomp = block.ncomp$choice.ncomp` (2 clusters).
+In this plot, we can observe that the highest silhouette coefficient is achieved when `ncomp = 1` (2 clusters).
 
 ```{r}
 # final model
