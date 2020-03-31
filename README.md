@@ -18,6 +18,9 @@ The main steps of ***timeOmics*** are:
 
 ***timeOmics*** can be applied on both single-Omic or multi-Omics experimental design.
 
+*<font color="green"> If you came to this page thanks to our article and you wish to access its example scripts please follow this
+<a href="https://github.com/abodein/timeOmics_frontiers"> link </a>.</font>*
+
 ## Installation
 
 ### Latest `GitHub` Version
