@@ -32,7 +32,7 @@ biocViews: Clustering,FeatureExtraction,TimeCourse,DimensionReduction,Software,
     Sequencing, Microarray, Metabolomics, Metagenomics, Proteomics,
       Classification, Regression, ImmunoOncology, GenePrediction,
       MultipleComparison
-Depends: mixOmics
+Depends: mixOmics, R (>= 4.0)
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
 Suggests: BiocStyle, knitr, rmarkdown, testthat, snow, tidyverse, lmms
