@@ -32,8 +32,8 @@ biocViews: Clustering,FeatureExtraction,TimeCourse,DimensionReduction,Software,
     Sequencing, Microarray, Metabolomics, Metagenomics, Proteomics,
       Classification, Regression, ImmunoOncology, GenePrediction,
       MultipleComparison
-Depends: mixOmics, R (>= 3.6.0)
+Depends: mixOmics, lmms
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
-Suggests: BiocStyle, knitr, rmarkdown, testthat, snow, tidyverse, lmms
+Suggests: BiocStyle, knitr, rmarkdown, testthat, snow, tidyverse
 BugReports: https://github.com/abodein/timeOmics/issues
