@@ -24,7 +24,7 @@ Imports:
     purrr,
     magrittr,
     ggplot2,
-    stringr,
+    stringr, 
     ggrepel,
     propr,
     lmtest
@@ -35,5 +35,5 @@ biocViews: Clustering,FeatureExtraction,TimeCourse,DimensionReduction,Software,
 Depends: mixOmics, R (>= 4.0)
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
-Suggests: BiocStyle, knitr, rmarkdown, testthat, snow, tidyverse, lmms
+Suggests: BiocStyle, knitr, rmarkdown, testthat, snow, tidyverse, lmms, igraph, gplots
 BugReports: https://github.com/abodein/timeOmics/issues
