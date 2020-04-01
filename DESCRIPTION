@@ -1,19 +1,19 @@
 Package: timeOmics
 Title: Time-Course Multi-Omics data integration
-Version: 0.99.2
+Version: 0.99.3
 Authors@R: 
     person(given = "Antoine",
            family = "Bodein",
            role = c("aut", "cre"),
            email = "antoine.bodein.1@ulaval.ca")
 Description: timeOmics is a generic data-driven framework to integrate 
-multi-Omics longitudinal data measured on the same biological samples and select 
-key temporal features with strong associations within the same sample group.
-The main steps of timeOmics are: 
-  1. Plaform and time-specific normalization and filtering steps; 
-  2. Modelling each biological into one time expression profile;
-  3. Clustering features with the same expression profile over time;
-  4. Post-hoc validation step.
+  multi-Omics longitudinal data measured on the same biological samples and select 
+  key temporal features with strong associations within the same sample group.
+  The main steps of timeOmics are: 
+    1. Plaform and time-specific normalization and filtering steps;
+    2. Modelling each biological into one time expression profile;
+    3. Clustering features with the same expression profile over time;
+    4. Post-hoc validation step.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
