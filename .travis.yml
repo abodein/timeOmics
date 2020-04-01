@@ -5,7 +5,6 @@ cache: packages
 os:
   - linux
   - osx
-  - windows
 
 r_check_args:
 
