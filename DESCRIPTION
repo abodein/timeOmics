@@ -1,12 +1,20 @@
 Package: timeOmics
-Title: What the Package Does (One Line, Title Case)
+Title: Time-Course Multi-Omics data integration
 Version: 0.99.1
-Authors@R:
+Authors@R: 
     person(given = "Antoine",
            family = "Bodein",
            role = c("aut", "cre"),
            email = "antoine.bodein.1@ulaval.ca")
-Description: What the package does (one paragraph).
+Description: timeOmics is a generic data-driven framework to integrate 
+multi-Omics longitudinal data measured on the same biological samples and select 
+key temporal features with strong associations within the same sample group.
+The main steps of timeOmics are: 
+  1. Normalization and filtering steps; 
+  2. modelling to have one time profile per biological feature;
+  3. clustering to group features with the same expression profile over time;
+  4. post-hoc validation step.
+
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -29,3 +37,4 @@ Depends: mixOmics, R (>= 3.6.0)
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
 Suggests: BiocStyle, knitr, rmarkdown, testthat, snow, tidyverse, lmms
+BugReports: https://github.com/abodein/timeOmics/issues
