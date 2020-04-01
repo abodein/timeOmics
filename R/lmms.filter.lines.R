@@ -20,7 +20,7 @@
 #' \item{filtered}{the filtered data.frame}
 #' 
 #' @seealso 
-#' \code{\link[lmms]{lmmSpline}}, \code{\link[lmtest]{bptest}}
+#' \code{\link[lmms:lmmSpline]{lmms::lmmSpline()}}, \code{\link[lmtest]{bptest}}
 #' 
 #' @examples 
 #' # data and lmms output

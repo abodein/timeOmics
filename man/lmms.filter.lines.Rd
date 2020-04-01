@@ -47,5 +47,5 @@ filter.res <- lmms.filter.lines(data = data, lmms.obj = lmms.output, time = time
 
 }
 \seealso{
-\code{\link[lmms]{lmmSpline}}, \code{\link[lmtest]{bptest}}
+\code{\link[lmms:lmmSpline]{lmms::lmmSpline()}}, \code{\link[lmtest]{bptest}}
 }
