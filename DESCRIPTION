@@ -14,7 +14,6 @@ The main steps of timeOmics are:
   2. Modelling each biological into one time expression profile;
   3. Clustering features with the same expression profile over time;
   4. Post-hoc validation step.
-
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
