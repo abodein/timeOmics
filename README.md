@@ -1,6 +1,6 @@
 
-[![Build Status](https://travis-ci.com/abodein/timeOmics_BioC.svg?branch=master)](https://travis-ci.com/abodein/timeOmics_BioC)
-[![codecov](https://codecov.io/gh/abodein/timeOmics_BioC/branch/master/graph/badge.svg)](https://codecov.io/gh/abodein/timeOmics_BioC)
+[![Build Status](https://travis-ci.com/abodein/timeOmics_BioC.svg?branch=master)](https://travis-ci.com/abodein/timeOmics)
+[![codecov](https://codecov.io/gh/abodein/timeOmics_BioC/branch/master/graph/badge.svg)](https://codecov.io/gh/abodein/timeOmics)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # timeOmics
