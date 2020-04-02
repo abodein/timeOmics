@@ -1,6 +1,6 @@
 Package: timeOmics
 Title: Time-Course Multi-Omics data integration
-Version: 0.99.9
+Version: 0.99.10
 Authors@R: 
     person(given = "Antoine",
            family = "Bodein",

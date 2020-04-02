@@ -1,3 +1,6 @@
+library(tidyverse)
+library(lmms)
+
 # RAW DATA
 c1 <- c(0, 0.5,1,1.1,1.2,1.8,2.5,5,9)
 c3 <-  c(-2,4, 8, 6,4.5,4,3.9, 3, 1)
@@ -140,4 +143,5 @@ colnames(modelled.Z) <- paste0("Z_", seq_along(colnames(modelled.Z)))
 
 timeOmics.simdata[["Z"]] <- modelled.Z
 
-save(timeOmics.simdata, file = "./data/timeOmics.simdata.RData")
+usethis::use_data(timeOmics.simdata, overwrite = TRUE)
+#save(timeOmics.simdata, file = "./data/timeOmics.simdata.RData")
