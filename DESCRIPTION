@@ -1,6 +1,6 @@
 Package: timeOmics
 Title: Time-Course Multi-Omics data integration
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: 
     person(given = "Antoine",
            family = "Bodein",
@@ -32,8 +32,8 @@ biocViews: Clustering,FeatureExtraction,TimeCourse,DimensionReduction,Software,
     Sequencing, Microarray, Metabolomics, Metagenomics, Proteomics,
       Classification, Regression, ImmunoOncology, GenePrediction,
       MultipleComparison
-Depends: mixOmics, R (>= 4.0)
+Depends: mixOmics, lmms
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
-Suggests: BiocStyle, knitr, rmarkdown, testthat, snow, tidyverse, lmms, igraph, gplots
+Suggests: BiocStyle, knitr, rmarkdown, testthat, snow, tidyverse, igraph, gplots
 BugReports: https://github.com/abodein/timeOmics/issues
