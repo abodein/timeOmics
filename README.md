@@ -32,7 +32,7 @@ Install the devtools package in R, then load it and install the latest stable ve
 if (!requireNamespace("devtools", quietly = TRUE))
     install.packages("devtools")
 ## install timeOmics
-devtools::install_github("abodein/timeOmics_BioC")
+devtools::install_github("abodein/timeOmics")
 ```
 
 ## Citing

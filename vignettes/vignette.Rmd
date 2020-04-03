@@ -69,7 +69,7 @@ BiocManager::install('timeOmics')
 install.packages("devtools")
 # then load
 library(devtools)
-install_github("abodein/timeOmics_BioC")
+install_github("abodein/timeOmics")
 ```
 
 ## Load the package

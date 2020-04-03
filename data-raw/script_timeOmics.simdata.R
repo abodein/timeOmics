@@ -143,5 +143,5 @@ colnames(modelled.Z) <- paste0("Z_", seq_along(colnames(modelled.Z)))
 
 timeOmics.simdata[["Z"]] <- modelled.Z
 
-usethis::use_data(timeOmics.simdata, overwrite = TRUE)
-#save(timeOmics.simdata, file = "./data/timeOmics.simdata.RData")
+usethis::use_data(timeOmics.simdata, overwrite = TRUE, compress = "xz")
+#save(timeOmics.simdata, file = "./data/timeOmics.simdata.rda", compress = "gzip", ascii = FALSE)
