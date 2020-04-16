@@ -85,13 +85,15 @@ lmms.filter.lines <- function(data,
     
     #-- Run filter
     #--------------------------------------------
-    predSpline <- slot(lmms.obj,'predSpline') %>% t %>% as.data.frame()
+    predSpline <- slot(lmms.obj,'predSpline') %>% 
+        t %>% 
+        as.data.frame()
     modelsUsed <- slot(lmms.obj,'modelsUsed')
     
-    result <- colnames(predSpline) %>% as.data.frame() %>%
+    result <- colnames(predSpline) %>%
+        as.data.frame() %>%
         purrr::set_names(c("feature")) %>%
-        dplyr::mutate(modelsUsed = modelsUsed, 
-                      feature = as.character(feature))
+        dplyr::mutate(modelsUsed = modelsUsed, feature = as.character(feature))
     
     # homoskedasticity : Breusch-Pagan test
     # ---------------------
@@ -102,11 +104,14 @@ lmms.filter.lines <- function(data,
         models0 <- slot(lmms.obj, "models")[modelsUsed == 0]
         
         BP.res <- lapply(models0, lmtest::bptest) %>% 
-            lapply(function(x) as.numeric(x$p.value)) %>% unlist() %>%
-            as.data.frame() %>% set_names("BP.test") %>%
+            lapply(function(x) as.numeric(x$p.value)) %>% 
+            unlist() %>%
+            as.data.frame() %>% 
+            set_names("BP.test") %>%
             dplyr::mutate(feature = colnames(predSpline)[modelsUsed == 0])
         
-        result <- result %>% dplyr::left_join(BP.res, by = c("feature", "feature")) %>% 
+        result <- result %>% 
+            dplyr::left_join(BP.res, by = c("feature", "feature")) %>% 
             dplyr::mutate(BP.test = ifelse(is.na(BP.test), 1, BP.test)) %>% 
             # replace (model != 0) by  a p value of 1, must be homoskedastic if not, no spline
             dplyr::mutate(BP.test = (BP.test >=  homoskedasticity.cutoff)) # T/F
@@ -115,7 +120,11 @@ lmms.filter.lines <- function(data,
     # applied filter based on max MSE for model != 0
     if (MSE.filter) {
         MSE.res <- get_MSE(data = data, predSpline = predSpline, time = time, modelsUsed = modelsUsed)
-        MSE.cutoff <- MSE.res %>% dplyr::filter(modelsUsed != 0) %>% pull(MSE) %>% max
+        MSE.cutoff <- MSE.res %>% 
+            dplyr::filter(modelsUsed != 0) %>% 
+            pull(MSE) %>% 
+            max
+        
         result <- MSE.res %>% 
             dplyr::mutate(MSE.filter = (MSE <= MSE.cutoff)) %>% # TRUE
             dplyr::select(feature, MSE.filter) %>% 
@@ -146,10 +155,14 @@ lmms.filter.lines <- function(data,
 #' @importFrom tidyr pivot_longer
 get_MSE <- function(data, predSpline, time, modelsUsed){
     
-    X1 <- data %>% as.data.frame() %>% dplyr::mutate(time = time) %>%
+    X1 <- data %>% 
+        as.data.frame() %>% 
+        dplyr::mutate(time = time) %>%
         tidyr::pivot_longer(names_to = "feature", values_to = "Y_i", -time)
     
-    X2 <- predSpline %>% t %>% as.data.frame() %>%
+    X2 <- predSpline %>% 
+        t %>% 
+        as.data.frame() %>%
         tibble::rownames_to_column("feature") %>%
         dplyr::mutate(modelsUsed = modelsUsed) %>%
         tidyr::pivot_longer(names_to = "time", values_to = "Y_hat", -c(feature, modelsUsed)) %>%

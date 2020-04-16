@@ -40,37 +40,36 @@ getCluster <- function(X) UseMethod("getCluster")
 #' \item{block.pls}{a mixOmics block.pls result}
 #' \item{block.spls}{a mixOmics block.spls result}
 #' 
-#' @examples  
-#' demo <- get_demo_cluster()
+#' @examples
+#' # Random data could lead to "The SGCCA algorithm did not converge" warning which is not important for a demo
+#' demo <- suppressWarnings(get_demo_cluster())
 #' @export
 get_demo_cluster<- function(){
-    X <- matrix(sample(1:1000), nrow = 10)
-    rownames(X) <- 1:nrow(X)
-    colnames(X) <- paste0("X_",1:ncol(X))
+    X <- matrix(sample(1:1000), nrow = 10,
+                dimnames = list(1:10, paste0("X_",1:100)))
 
-    Y <- matrix(sample(1:100), nrow = 10)
-    rownames(Y) <- 1:nrow(Y)
-    colnames(Y) <- paste0("Y_",1:ncol(Y))
+    Y <- matrix(sample(1:100), nrow = 10, 
+                dimnames = list(1:10, paste0("Y_",1:10)))
 
-    Z <- matrix(sample(1:500), nrow = 10)
-    rownames(Z) <- 1:nrow(Z)
-    colnames(Z) <- paste0("Z_",1:ncol(Z))
-
+    Z <- matrix(sample(1:500), nrow = 10, 
+                dimnames = list(1:10, Y = paste0("Z_",1:50)))
+    
     list.res = list()
     list.res$X <- X
     list.res$Y <- Y
     list.res$Z <- Z
-    list.res$pca = suppressMessages(suppressWarnings(mixOmics::pca(X = X, ncomp = 5)))
-    list.res$spca = suppressMessages(suppressWarnings(mixOmics::spca(X = X, ncomp = 5, keepX = c(5, 15, 4,5,6))))
+    list.res$pca <- mixOmics::pca(X = X, ncomp = 5)
+    list.res$spca <- mixOmics::spca(X = X, ncomp = 5, keepX = c(5, 15, 4,5,6))
 
-    list.res$pls = suppressMessages(suppressWarnings(mixOmics::pls(X = X, Y = Y, ncomp = 5, mode = "canonical")))
-    list.res$spls = suppressMessages(suppressWarnings(mixOmics::spls(X = X, Y = Y, ncomp = 5, mode = "canonical",
-                                keepX = c(5,6,4,5,6), keepY = c(5,1,4,5,6))))
+    list.res$pls <- mixOmics::pls(X = X, Y = Y, ncomp = 5, mode = "canonical")
+    list.res$spls <- mixOmics::spls(X = X, Y = Y, ncomp = 5, mode = "canonical",
+                                keepX = c(5,6,4,5,6), keepY = c(5,1,4,5,6))
 
-    list.res$block.pls = suppressMessages(suppressWarnings(mixOmics::block.pls(X = list("X" = X, "Y" = Y, "Z" = Z), indY = 1,
-                                             ncomp = 5, mode = "canonical")))
-    list.res$block.spls = suppressMessages(suppressWarnings(mixOmics::block.spls(X = list("X" = X, "Y" = Y, "Z" = Z), indY = 1, ncomp = 3,
-                                             mode = "canonical", keepX = list("X" = c(5,6,4), "Y" = c(5,5,5), "Z" = c(4,2,4)))))
+    list.res$block.pls <- mixOmics::block.pls(X = list("X" = X, "Y" = Y, "Z" = Z), indY = 1,
+                                             ncomp = 5, mode = "canonical")
+
+    list.res$block.spls <- mixOmics::block.spls(X = list("X" = X, "Y" = Y, "Z" = Z), indY = 1, ncomp = 3,
+                                             mode = "canonical", keepX = list("X" = c(5,6,4), "Y" = c(5,5,5), "Z" = c(4,2,4)))
     return(invisible(list.res))
 }
 
@@ -84,8 +83,10 @@ getCluster.pca <- function(X){
     # colnames = PC1, PC2...
     loadings.max <- getMaxContrib(X$loadings$X)
 
-    loadings.max <- loadings.max %>% rownames_to_column("molecule") %>%
-        mutate(cluster = stringr::str_remove(comp, "^PC") %>% as.numeric()) %>%
+    loadings.max <- loadings.max %>% 
+        rownames_to_column("molecule") %>%
+        mutate(cluster = stringr::str_remove(comp, "^PC") %>% 
+                   as.numeric()) %>%
         mutate(block = "X") %>%
         .mutate_cluster()
     Valid.getCluster(loadings.max)
@@ -102,8 +103,10 @@ getCluster.spca <- function(X){
     selected.features.loadings <- X$loadings$X[rowSums(X$loadings$X) != 0,,drop=FALSE]
     loadings.max <- getMaxContrib(selected.features.loadings)
 
-    loadings.max <- loadings.max %>% rownames_to_column("molecule") %>%
-        mutate(cluster = stringr::str_remove(comp, "^PC") %>% as.numeric()) %>%
+    loadings.max <- loadings.max %>% 
+        rownames_to_column("molecule") %>%
+        mutate(cluster = stringr::str_remove(comp, "^PC") %>% 
+                   as.numeric()) %>%
         mutate(block = "X") %>%
         .mutate_cluster()
     Valid.getCluster(loadings.max)
@@ -120,16 +123,20 @@ getCluster.mixo_pls <- function(X){
     # block X
     loadings.max.X <- getMaxContrib(X$loadings$X)
 
-    loadings.max.X <- loadings.max.X %>% rownames_to_column("molecule") %>%
-        mutate(cluster = stringr::str_remove(comp, "^comp") %>% as.numeric()) %>%
+    loadings.max.X <- loadings.max.X %>% 
+        rownames_to_column("molecule") %>%
+        mutate(cluster = stringr::str_remove(comp, "^comp") %>% 
+                   as.numeric()) %>%
         mutate(block = "X")
 
 
     # block Y
     loadings.max.Y <- getMaxContrib(X$loadings$Y)
 
-    loadings.max.Y <- loadings.max.Y %>% rownames_to_column("molecule") %>%
-        mutate(cluster = stringr::str_remove(comp, "^comp") %>% as.numeric()) %>%
+    loadings.max.Y <- loadings.max.Y %>% 
+        rownames_to_column("molecule") %>%
+        mutate(cluster = stringr::str_remove(comp, "^comp") %>% 
+                   as.numeric()) %>%
         mutate(block = "Y")
 
     loadings.max <- rbind(loadings.max.X, loadings.max.Y) %>%
@@ -153,16 +160,20 @@ getCluster.mixo_spls <- function(X){
     X.selected.features.loadings <- X$loadings$X[rowSums(X$loadings$X) != 0,,drop=FALSE]
     loadings.max.X <- getMaxContrib(X.selected.features.loadings)
 
-    loadings.max.X <- loadings.max.X %>% rownames_to_column("molecule") %>%
-        mutate(cluster = stringr::str_remove(comp, "^comp") %>% as.numeric()) %>%
+    loadings.max.X <- loadings.max.X %>%
+        rownames_to_column("molecule") %>%
+        mutate(cluster = stringr::str_remove(comp, "^comp") %>%
+                   as.numeric()) %>%
         mutate(block = "X")
 
     # block Y
     Y.selected.features.loadings <- X$loadings$Y[rowSums(X$loadings$Y) != 0,]
     loadings.max.Y <- getMaxContrib(Y.selected.features.loadings)
 
-    loadings.max.Y <- loadings.max.Y %>% rownames_to_column("molecule") %>%
-        mutate(cluster = stringr::str_remove(comp, "^comp") %>% as.numeric()) %>%
+    loadings.max.Y <- loadings.max.Y %>%
+        rownames_to_column("molecule") %>%
+        mutate(cluster = stringr::str_remove(comp, "^comp") %>%
+                   as.numeric()) %>%
         mutate(block = "Y")
 
     loadings.max <- rbind(loadings.max.X, loadings.max.Y)  %>%
@@ -192,8 +203,10 @@ getCluster.block.pls <- function(X){
     loadings <- do.call("rbind", X$loadings)
     loadings.max <- getMaxContrib(loadings)
 
-    loadings.max <- loadings.max %>% rownames_to_column("molecule") %>%
-        mutate(cluster = stringr::str_remove(comp, "^comp") %>% as.numeric()) %>%
+    loadings.max <- loadings.max %>%
+        rownames_to_column("molecule") %>%
+        mutate(cluster = stringr::str_remove(comp, "^comp") %>%
+                   as.numeric()) %>%
         left_join(block.info, by = c("molecule", "molecule")) %>%
         .mutate_cluster()
 
@@ -215,7 +228,8 @@ getCluster.block.spls <- function(X){
                                   as.data.frame %>%
                                   set_names("molecule") %>%
                                   mutate("block" = y))
-    block.info <- do.call("rbind", block.info) %>% as.data.frame() %>%
+    block.info <- do.call("rbind", block.info) %>%
+        as.data.frame() %>%
         mutate(block = factor(block, levels = names(X$loadings))) %>%
         mutate(molecule = as.character(molecule))
 
@@ -224,8 +238,10 @@ getCluster.block.spls <- function(X){
     X.selected.features.loadings <- loadings[rowSums(loadings) != 0,, drop=FALSE]
     loadings.max <- getMaxContrib(X.selected.features.loadings)
 
-    loadings.max <- loadings.max %>% rownames_to_column("molecule") %>%
-        mutate(cluster = stringr::str_remove(comp, "^comp") %>% as.numeric()) %>%
+    loadings.max <- loadings.max %>%
+        rownames_to_column("molecule") %>%
+        mutate(cluster = stringr::str_remove(comp, "^comp") %>%
+                   as.numeric()) %>%
         left_join(block.info, by = c("molecule", "molecule")) %>%
         .mutate_cluster()
 
@@ -245,10 +261,12 @@ getCluster.block.spls <- function(X){
 getMaxContrib <- function(X){
     # loadings matrix, features in rows, comp in columns
     contrib.max <- apply(X = X, FUN = function(x) { x[which.max( abs(x) )][1]}, MARGIN = 1) %>%
-        as.data.frame() %>% purrr::set_names("contrib.max")
+        as.data.frame() %>%
+        purrr::set_names("contrib.max")
 
     cluster.info <- apply(X = X, FUN = function(x) { colnames(X)[which.max( abs(x) )[1]]}, MARGIN = 1) %>%
-        as.data.frame() %>% purrr::set_names("comp")
+        as.data.frame() %>%
+        purrr::set_names("comp")
 
     stopifnot(rownames(contrib.max) == rownames(cluster.info))
     return(cbind(cluster.info, contrib.max))
@@ -261,15 +279,21 @@ getMaxContrib <- function(X){
 #' @importFrom dplyr mutate case_when pull
 #' @importFrom magrittr %>%
 .mutate_cluster <- function(loadings.max){
-    X <- loadings.max %>% mutate(cluster = cluster * sign(contrib.max)) %>%
+    X <- loadings.max %>%
+        mutate(cluster = cluster * sign(contrib.max)) %>%
     mutate(contribution = case_when(sign(contrib.max) == 1 ~ "positive",
                                     sign(contrib.max) == -1 ~ "negative",
                                     sign(contrib.max) == 0 ~ "NULL"))
 
-    cluster.order <-  X %>% pull(cluster) %>% abs %>% unique %>% sort %>%
+    cluster.order <-  X %>%
+        pull(cluster) %>%
+        abs %>%
+        unique %>% 
+        sort %>%
         rep(each=2) %>% `*`(c(1,-1))
 
-    X <- X %>% mutate(cluster = factor(cluster, levels = cluster.order))
+    X <- X %>%
+        mutate(cluster = factor(cluster, levels = cluster.order))
     return(X)
 }
 

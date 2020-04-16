@@ -239,8 +239,8 @@ tune.silhouette.get_slopes <- function(object){
     # cumpute SD by comp and direction
     SD <- slopes %>% 
         dplyr::group_by(comp, direction) %>% 
-        dplyr::summarise(sd.pos = sd.new(slope.pos, na.rm = TRUE),
-                         sd.neg = sd.new(slope.neg, na.rm = TRUE),
+        dplyr::summarise(sd.pos = sd_new(slope.pos, na.rm = TRUE),
+                         sd.neg = sd_new(slope.neg, na.rm = TRUE),
                          mean.pos = mean(slope.pos, na.rm = TRUE),
                          mean.neg = mean(slope.neg, na.rm = TRUE), N=dplyr::n())
     

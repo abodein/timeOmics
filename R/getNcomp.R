@@ -17,7 +17,6 @@
 #' 
 #' @param ... Other arguments to be passed to methods (pca, pls, block.pls)
 #' 
-#'
 #' @return
 #' \code{getNcomp} returns a list with class "ncomp.tune.silhouette" containing the following components:
 #'

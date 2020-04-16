@@ -162,7 +162,7 @@ validate.indY <- function(indY, X){
     return(indY)
 }
 
-sd.new <- function(x, ...){
+sd_new <- function(x, ...){
     if(length(x) == 1){
         return(0)
     }else{
