@@ -1,6 +1,6 @@
 context("getSilhouette")
 
-demo = get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 
 test_that("getSilhouette failed on invalid input", {
     expect_error(getSilhouette("a"), "no applicable method for")

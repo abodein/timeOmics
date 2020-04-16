@@ -1,6 +1,6 @@
 context("tuneCluster.spls")
 
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 X <- demo$X
 Y <- demo$Y
 res <- spls(X, Y, ncomp = 10)

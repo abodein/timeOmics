@@ -22,7 +22,7 @@ This method extract the componant contribution depending on the object,
 perform the clustering step, and compute the silhouette coefficient.
 }
 \examples{
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 getSilhouette(object = demo$pca)
 getSilhouette(object = demo$spca)
 getSilhouette(object = demo$pls)

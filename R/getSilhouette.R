@@ -14,7 +14,7 @@
 #' silhouette coefficient
 #' 
 #' @examples
-#' demo <- get_demo_cluster()
+#' demo <- suppressWarnings(get_demo_cluster())
 #' getSilhouette(object = demo$pca)
 #' getSilhouette(object = demo$spca)
 #' getSilhouette(object = demo$pls)
@@ -46,7 +46,8 @@ getSilhouette.spca <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
 
-    X <- object$X %>% as.data.frame() %>%
+    X <- object$X %>% 
+        as.data.frame() %>%
         dplyr::select(cluster$molecule)
     silhouette.res <- wrapper.silhouette(X = X, cluster = cluster$cluster)
     return(silhouette.res$average)
@@ -59,8 +60,10 @@ getSilhouette.mixo_pls <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
 
-    X <- object$X %>% as.data.frame()
-    Y <- object$Y %>% as.data.frame()
+    X <- object$X %>%
+        as.data.frame()
+    Y <- object$Y %>%
+        as.data.frame()
     data <- cbind(X,Y)
     silhouette.res <- wrapper.silhouette(X = data, cluster = cluster$cluster)
     return(silhouette.res$average)
@@ -73,8 +76,10 @@ getSilhouette.mixo_spls <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
 
-    X <- object$X %>% as.data.frame()
-    Y <- object$Y %>% as.data.frame()
+    X <- object$X %>%
+        as.data.frame()
+    Y <- object$Y %>%
+        as.data.frame()
     data <- cbind(X,Y) %>%
         dplyr::select(cluster$molecule)
 
@@ -89,7 +94,8 @@ getSilhouette.block.pls <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
 
-    X <- do.call("cbind", object$X) %>% as.data.frame
+    X <- do.call("cbind", object$X) %>%
+        as.data.frame
 
     silhouette.res <- wrapper.silhouette(X = X, cluster = cluster$cluster)
     return(silhouette.res$average)
@@ -103,7 +109,8 @@ getSilhouette.block.spls <- function(object){
     cluster <- getCluster(object) %>%
         dplyr::select("molecule", "cluster")
 
-    X <- do.call("cbind", object$X) %>% as.data.frame %>%
+    X <- do.call("cbind", object$X) %>%
+        as.data.frame %>%
         dplyr::select(cluster$molecule)
 
     silhouette.res <- wrapper.silhouette(X = X, cluster = cluster$cluster)

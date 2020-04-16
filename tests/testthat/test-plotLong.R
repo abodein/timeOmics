@@ -1,6 +1,6 @@
 context("plotLong")
 
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 demo$block.pls2 <- suppressWarnings(mixOmics::block.pls(X=list(X=demo$X, 
                                                                Z=demo$Z), 
                                                         Y=demo$Y, ncomp = 5, 

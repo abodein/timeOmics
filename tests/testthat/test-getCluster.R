@@ -11,7 +11,7 @@ test_that("getCluster faild on invalid input", {
     expect_error(getCluster(matrix(1:9, ncol = 3)))
 })
 
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 
 
 test_that("getCluster works and return a valid output", {

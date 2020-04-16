@@ -36,7 +36,7 @@ A z-score is assigned to each slope.
 We then identify the most significant slope which indicates a drop in the silhouette coefficient and thus a deterioration of the clustering.
 }
 \examples{
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 X <- demo$X
 
 # tuning

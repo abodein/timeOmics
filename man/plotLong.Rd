@@ -41,7 +41,7 @@ a data.frame (gathered form) containing the following columns:
 This function provides a expression profile representation over time and by cluster.
 }
 \examples{
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 X <- demo$X
 Y <- demo$Y
 Z <- demo$Z

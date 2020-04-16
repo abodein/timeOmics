@@ -1,6 +1,6 @@
 context("proportionality")
 
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 demo$block.pls = suppressWarnings(mixOmics::block.pls(X=list(X=demo$X, Z=demo$Z), Y=demo$Y, ncomp = 5, mode = "canonical"))
 
 test_that("proportionality faild on invalid input", {

@@ -34,7 +34,7 @@
 #' \code{\link[mixOmics]{block.spls}}, \code{\link[timeOmics]{getCluster}}, \code{\link[timeOmics]{plotLong}}
 #'
 #' @examples
-#' demo <- get_demo_cluster()
+#' demo <- suppressWarnings(get_demo_cluster())
 #' X <- list(X = demo$X, Z = demo$Z)
 #' Y <- demo$Y
 #' test.list.keepX <- list("X" = c(5,10,15,20), "Z" = c(2,4,6,8))
@@ -96,9 +96,11 @@ tuneCluster.block.spls <- function(X, Y = NULL,  indY = NULL, ncomp = 2,
 
     #-- 0. set output object
     result <- matrix(ncol = 3 + length(X),nrow = nrow(list.keepX.keepY)*ncomp) %>%
-        as.data.frame() %>% purrr::set_names(c("comp", names(X), "pos", "neg"))
+        as.data.frame() %>%
+        purrr::set_names(c("comp", names(X), "pos", "neg"))
     if(!is.null(Y)){
-        result <- result %>% mutate("Y" = NA)
+        result <- result %>%
+            mutate("Y" = NA)
     }
     result.index <- 1
 
@@ -151,10 +153,12 @@ tuneCluster.block.spls <- function(X, Y = NULL,  indY = NULL, ncomp = 2,
             #--6. store
             result[result.index, "comp"] <- comp
             pos.res <-  sil$average.cluster  %>% 
-                dplyr::filter(cluster == comp) %>% dplyr::pull(silhouette.coef)
+                dplyr::filter(cluster == comp) %>%
+                dplyr::pull(silhouette.coef)
             result[result.index, "pos"] <- ifelse(length(pos.res) == 0, NA, pos.res)
             neg.res <-  sil$average.cluster  %>%
-                dplyr::filter(cluster == -comp) %>% dplyr::pull(silhouette.coef)
+                dplyr::filter(cluster == -comp) %>%
+                dplyr::pull(silhouette.coef)
             result[result.index, "neg"] <- ifelse(length(neg.res) == 0, NA, neg.res)
             result.index <- result.index + 1
         }
@@ -225,7 +229,8 @@ tune.silhouette.get_slopes <- function(object){
               "destination.neg" = NEG[[.x]][neighbourhood$destination],
               "comp" = as.numeric(.x))})
     
-    slopes <- slopes %>% dplyr::filter(origin!=destination) %>%
+    slopes <- slopes %>%
+        dplyr::filter(origin!=destination) %>%
         dplyr::mutate("slope.pos" = tune.silhouette.get_slopes_coef(x1 = lapply(stringr::str_split(.$origin, "_"), as.numeric),
                                                              x2 = lapply(stringr::str_split(.$destination, "_"), as.numeric),
                                                              y1 = .$origin.pos,
@@ -245,7 +250,8 @@ tune.silhouette.get_slopes <- function(object){
                          mean.neg = mean(slope.neg, na.rm = TRUE), N=dplyr::n())
     
     # add Pval for signif slopes
-    slopes <- slopes %>% dplyr::left_join(SD, by = c("direction", "comp")) %>%
+    slopes <- slopes %>%
+        dplyr::left_join(SD, by = c("direction", "comp")) %>%
         # pos
         dplyr::mutate(Z_score.pos = ifelse(.$sd.pos == 0,0,(.$slope.pos - .$mean.pos)/.$sd.pos)) %>%
         dplyr::mutate(Pval.pos = ifelse(Z_score.pos >= 0,1-pnorm(Z_score.pos), pnorm(Z_score.pos))) %>%
@@ -315,14 +321,17 @@ tune.silhouette.distance_from_origin <- function(x1){
 #' @importFrom magrittr %>%
 tune.silhouette.get_choice_keepX <- function(tune.block.spls){
     # from slopes, keep useful columns and remove NAs.
-    slopes <- tune.block.spls$slopes %>% na.omit()
+    slopes <- tune.block.spls$slopes %>%
+        na.omit()
     tmp <- slopes %>%
         dplyr::select(c(tune.block.spls$block, comp, direction, Pval.pos, Pval.neg, distance_from_origin)) %>%
         tidyr::gather(Pval.dir, Pval.value, -c(tune.block.spls$block, comp, direction, distance_from_origin)) 
     
     # for each comp, arrange by Pvalue and distance from origin and get first result    
     MIN <- split(tmp, f=tmp$comp) %>% 
-        lapply(function(x) x %>% dplyr::arrange(Pval.value, distance_from_origin) %>% .[1,] %>%
+        lapply(function(x) x %>%
+                   dplyr::arrange(Pval.value, distance_from_origin) %>%
+                   .[1,] %>%
                    dplyr::select(tune.block.spls$block))
     
     return(MIN)

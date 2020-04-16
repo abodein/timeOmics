@@ -14,7 +14,7 @@
 #' \code{\link[mixOmics]{selectVar}}
 #' 
 #' @examples
-#' demo <- get_demo_cluster()
+#' demo <- suppressWarnings(get_demo_cluster())
 #' pca.cluster <- getCluster(demo$pca)
 #' spca.cluster <- getCluster(demo$spca)
 #' pls.cluster <- getCluster(demo$pls)

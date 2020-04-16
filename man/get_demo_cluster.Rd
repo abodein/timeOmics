@@ -22,6 +22,6 @@ a list containg:
 Generates random data to be used in examples.
 }
 \examples{
- 
-demo <- get_demo_cluster()
+# Random data could lead to "The SGCCA algorithm did not converge" warning which is not important for a demo
+demo <- suppressWarnings(get_demo_cluster())
 }

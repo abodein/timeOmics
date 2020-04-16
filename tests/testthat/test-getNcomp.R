@@ -1,6 +1,6 @@
 context("getNcomp")
 
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 demo$pca <- mixOmics::pca(X = demo$X, ncomp = 5)
 demo$pls <- mixOmics::pls(X = demo$X, Y=demo$Y, ncomp =5, mode = "canonical")
 demo$block.pls = suppressWarnings(mixOmics::block.pls(X=list(X=demo$X, Y=demo$Y, Z=demo$Z), indY=1, ncomp = 5, mode = "canonical"))
@@ -8,7 +8,7 @@ demo$block.pls = suppressWarnings(mixOmics::block.pls(X=list(X=demo$X, Y=demo$Y,
 
 test_that("getNcomp failed on invalid input - object", {
     # test for "object"
-    lapply(list("",1,demo$X, NA), function(i) expect_error(getNcomp(i), "invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)", fixed = TRUE))
+    lapply(list("",1,demo$X, NA), function(i) expect_error(getNcomp(i), "invalid object, should be one of c(pca, mixo_pls, block.pls)", fixed = TRUE))
 })
 
 test_that("getNcomp failed on invalid input - max.ncomp", {

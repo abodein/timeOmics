@@ -19,7 +19,7 @@ This function returns the cluster associated to each feature from a mixOmics obj
 For each feature, the cluster is assigned according to the maximum contribution on a component and the sign of that contribution.
 }
 \examples{
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 pca.cluster <- getCluster(demo$pca)
 spca.cluster <- getCluster(demo$spca)
 pls.cluster <- getCluster(demo$pls)

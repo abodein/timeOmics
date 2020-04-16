@@ -26,7 +26,7 @@
 #' \code{\link[timeOmics]{getCluster}}
 #'
 #' @examples
-#' demo <- get_demo_cluster()
+#' demo <- suppressWarnings(get_demo_cluster())
 #' X <- demo$X
 #' Y <- demo$Y
 #' Z <- demo$Z
@@ -107,7 +107,8 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
             stop("'time' should be a numeric vector")
         }
         # scale/unscale if desired
-        data <- unscale(object$X) %>% as.data.frame() %>%
+        data <- unscale(object$X) %>%
+            as.data.frame() %>%
             dplyr::select(intersect(cluster$molecule, colnames(.))) %>%
             scale(scale, center)
         
@@ -117,10 +118,13 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
         if(!is.null(time) && (!is.almostInteger.vector(time) || (length(time) != nrow(object$X)))){
             stop("'time' should be a numeric vector")
         }
-        data.X <- unscale(object$X) %>% scale(scale, center)
-        data.Y <- unscale(object$Y) %>% scale(scale, center)
+        data.X <- unscale(object$X) %>%
+            scale(scale, center)
+        data.Y <- unscale(object$Y) %>%
+            scale(scale, center)
         
-        data <- cbind(data.X, data.Y) %>% as.data.frame() %>%
+        data <- cbind(data.X, data.Y) %>%
+            as.data.frame() %>%
             dplyr::select(intersect(cluster$molecule, colnames(.)))
         
         
@@ -130,7 +134,8 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
             stop("'time' should be a numeric vector")
         }
         
-        data <- lapply(object$X, function(i){unscale(i) %>% scale(scale, center)}) %>% 
+        data <- lapply(object$X, function(i){unscale(i) %>%
+                scale(scale, center)}) %>% 
             do.call(what = "cbind")
 
         data <- as.data.frame(data) %>% 
@@ -141,7 +146,8 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
     if(!is.null(time)){
         rownames(data) <- time   
     }
-    data.gather <- data %>% as.data.frame() %>% 
+    data.gather <- data %>%
+        as.data.frame() %>% 
         tibble::rownames_to_column("time") %>%
         dplyr::mutate(time = as.numeric(.$time)) %>%
         tidyr::pivot_longer(names_to = "molecule", values_to = "value", -time) %>%

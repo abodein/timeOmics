@@ -34,7 +34,7 @@ Longitudinal clustering is performed and average silhouette coefficient is compu
 }
 \examples{
 # random input data
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 
 # pca
 pca.res <- mixOmics::pca(X=demo$X, ncomp = 5)

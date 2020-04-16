@@ -21,7 +21,7 @@ a clustering result (\code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{blo
 and it performs a u-test to compare the median within a cluster to the median of the entire background set.
 }
 \examples{
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 
 # pca
 X <- demo$pca

@@ -33,7 +33,7 @@
 #' \code{\link[mixOmics]{spls}}, \code{\link[timeOmics]{getCluster}}, \code{\link[timeOmics]{plotLong}}
 #'
 #' @examples
-#' demo <- get_demo_cluster()
+#' demo <- suppressWarnings(get_demo_cluster())
 #' X <- demo$X
 #' Y <- demo$Y
 #' 
@@ -125,10 +125,12 @@ tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
             # result[result.index, "neg"] <- sil$average.cluster  %>%
             #     dplyr::filter(cluster == -comp) %>% pull(silhouette.coef)
             pos.res <-  sil$average.cluster  %>% 
-                dplyr::filter(cluster == comp) %>% dplyr::pull(silhouette.coef)
+                dplyr::filter(cluster == comp) %>%
+                dplyr::pull(silhouette.coef)
             result[result.index, "pos"] <- ifelse(length(pos.res) == 0, NA, pos.res)
             neg.res <-  sil$average.cluster  %>%
-                dplyr::filter(cluster == -comp) %>% dplyr::pull(silhouette.coef)
+                dplyr::filter(cluster == -comp) %>%
+                dplyr::pull(silhouette.coef)
             result[result.index, "neg"] <- ifelse(length(neg.res) == 0, NA, neg.res)
         }
     }

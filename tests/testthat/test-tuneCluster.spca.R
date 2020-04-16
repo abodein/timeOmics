@@ -1,6 +1,6 @@
 context("tuneCluster.spca")
 
-demo <- get_demo_cluster()
+demo <- suppressWarnings(get_demo_cluster())
 X <- demo$X
 tune.spca.res <- tuneCluster.spca(X = X, ncomp = 2, test.keepX = c(2:9))
 # plot(tune.spca.res)

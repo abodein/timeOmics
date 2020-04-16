@@ -26,7 +26,7 @@
 #'
 #' 
 #' @examples
-#' demo <- get_demo_cluster()
+#' demo <- suppressWarnings(get_demo_cluster())
 #' X <- demo$X
 #' 
 #' # tuning
@@ -97,10 +97,12 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
             result[result.index, "X"] <- kX[comp]
             
             pos.res <-  sil$average.cluster  %>% 
-                dplyr::filter(cluster == comp) %>% dplyr::pull(silhouette.coef)
+                dplyr::filter(cluster == comp) %>%
+                dplyr::pull(silhouette.coef)
             result[result.index, "pos"] <- ifelse(length(pos.res) == 0, NA, pos.res)
             neg.res <-  sil$average.cluster  %>%
-                dplyr::filter(cluster == -comp) %>% dplyr::pull(silhouette.coef)
+                dplyr::filter(cluster == -comp) %>%
+                dplyr::pull(silhouette.coef)
             result[result.index, "neg"] <- ifelse(length(neg.res) == 0, NA, neg.res)
         }
     }
@@ -148,7 +150,8 @@ plot.spca.tune.silhouette <- function(x, ...){
         dplyr::group_by(comp, X) %>%
         dplyr::top_n(n = 1, wt = value)
     
-    choice.vline <- choice %>% dplyr::select(c("comp", "X"))
+    choice.vline <- choice %>%
+        dplyr::select(c("comp", "X"))
     
     ggplot.df <- ggplot(tmp, aes(x=X, y =value, col = comp)) + 
         geom_line(aes(lty = contrib)) + facet_wrap(~comp) +

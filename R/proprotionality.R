@@ -21,7 +21,7 @@
 #' Quinn, T. P., Richardson, M. F., Lovell, D., Crowley, T. M. (2017). propr: an r-package for identifying proportionally abundant features using compositional data analysis. Sci. Rep. 7, 16252. doi: 10.1038/s41598-017-16520-0
 #' 
 #' @examples 
-#' demo <- get_demo_cluster()
+#' demo <- suppressWarnings(get_demo_cluster())
 #' 
 #' # pca
 #' X <- demo$pca
@@ -49,7 +49,8 @@ proportionality <- function(X){
     stopifnot(is(X, c("pca", "spca", "mixo_pls", "mixo_spls", "block.pls", "block.spls")))
     
     # 1. get cluster
-    cluster.info <- getCluster(X) %>% dplyr::select(molecule, cluster)
+    cluster.info <- getCluster(X) %>%
+        dplyr::select(molecule, cluster)
     
     # 2. extract data and add cluster
     
@@ -59,12 +60,16 @@ proportionality <- function(X){
         data <- unscale(X$X) %>% `+`(abs(min(.))) 
     } else if(is(X, c("mixo_pls", "mixo_spls"))){
         # unscale X, unscale Y, cat
-        data.X <- unscale(X$X) %>% `+`(abs(min(.)))
-        data.Y <- unscale(X$Y) %>% `+`(abs(min(.)))
+        data.X <- unscale(X$X) %>%
+            `+`(abs(min(.)))
+        data.Y <- unscale(X$Y) %>%
+            `+`(abs(min(.)))
         data <- cbind(data.X, data.Y)
     } else if(is(X, c("block.pls", "block.spls"))){
         # if(is.null(X$Y)){  ## no need: Y is passed to X
-        data <- lapply(X$X, function(x) x %>% unscale %>% `+`(abs(min(.)))) %>%
+        data <- lapply(X$X, function(x) x %>%
+                           unscale %>%
+                           `+`(abs(min(.)))) %>%
             do.call(what="cbind")
         # } else {
         #     data.X <- lapply(X$X, function(x) x %>% unscale %>% `+`(abs(min(.)))) %>%
@@ -77,7 +82,8 @@ proportionality <- function(X){
     # 3. compute phi_s
     data.propr <- suppressMessages(as.data.frame(propr::propr(data, metric = "phs")@matrix))
     # gather, add cluster info, compute basic stats
-    data.propr.gather <- data.propr %>% tibble::rownames_to_column("feature1") %>%
+    data.propr.gather <- data.propr %>%
+        tibble::rownames_to_column("feature1") %>%
         tidyr::pivot_longer(-feature1, names_to = "feature2", values_to = 'value') %>%
         dplyr::filter(feature1 %in% cluster.info$molecule) %>%
         dplyr::left_join(cluster.info, by = c("feature1"="molecule")) %>%
@@ -88,7 +94,8 @@ proportionality <- function(X){
         dplyr::mutate(insideout = ifelse(cluster1 == cluster2, "inside", "outside"))
         
     # compute stat (median, u-test pval, adj.pval)
-    res.stat <- stat_median(data.propr.gather) %>% na.omit()
+    res.stat <- stat_median(data.propr.gather) %>%
+        na.omit()
     
     res <- list()
     res[["propr.distance"]] <- data.propr
@@ -103,10 +110,12 @@ proportionality <- function(X){
 #' @importFrom magrittr %>%
 stat_median <- function(res.phs.X){
     i = 1
-    res.pval <- matrix(ncol = 4, nrow = 4) %>% as.data.frame() %>%
+    res.pval <- matrix(ncol = 4, nrow = 4) %>%
+        as.data.frame() %>%
         purrr::set_names("cluster", "median_inside", "median_outside", "Pvalue")
     for(clu in unique(res.phs.X$cluster1)){
-        inside <- res.phs.X %>% filter(cluster1 == clu) %>% 
+        inside <- res.phs.X %>%
+            filter(cluster1 == clu) %>% 
             dplyr::filter(cluster2==clu) %>% 
             dplyr::pull(value)
         outside <- res.phs.X %>% 
