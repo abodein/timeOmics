@@ -29,7 +29,7 @@
 #'
 #' @examples
 #' # random input data
-#' demo <- get_demo_cluster()
+#' demo <- suppressWarnings(get_demo_cluster())
 #'
 #' # pca
 #' pca.res <- mixOmics::pca(X=demo$X, ncomp = 5)
@@ -56,7 +56,7 @@ getNcomp <- function(object, max.ncomp = NULL, X, Y = NULL, indY = NULL, ...){
     #-- object
     allowed_object = c("pca", "mixo_pls", "block.pls")
     if(!any(class(object) %in% allowed_object)){
-        stop("invalid object, should be one of c(pca, spca, mixo_pls, mixo_spls, block.pls, block.spls)")
+        stop("invalid object, should be one of c(pca, mixo_pls, block.pls)")
     }
     
 
@@ -76,106 +76,122 @@ getNcomp <- function(object, max.ncomp = NULL, X, Y = NULL, indY = NULL, ...){
         max.ncomp <- unique(object$ncomp)
     }
 
-    silhouette.res <- vector(length = max.ncomp)
-
-    #-- run
-    if(is(object, "pca")){
-        #-- check X
-        X <- validate.matrix.X(X)
-        
-        #-- dmatrix
-        dmatrix <- dmatrix.spearman.dissimilarity(X)
-        
-        #-- iterative ncomp silhouette coef.
-        for(comp in 1:max.ncomp){
-            #-- mixo pca
-            mixo.res <- mixOmics::pca(X = X, ncomp = comp, ...)
-            
-            #-- cluster
-            cluster.res <- getCluster(X = mixo.res)
-            # same names, same cluster
-            stopifnot(all(cluster.res$molecule == colnames(dmatrix))) 
-            
-            #-- silhouette
-            sil <- silhouette(dmatrix, cluster.res$cluster)
-            
-            #-- store
-            silhouette.res[comp] <- sil$average
-        }
-        
-    # pls
-    } else if(is(object, "mixo_pls")){
-        #-- check X
-        X <- validate.matrix.X(X)
-        
-        #-- check Y
-        Y <- validate.matrix.Y(Y)
-        
-        #-- dmatrix
-        dmatrix <- dmatrix.spearman.dissimilarity(cbind(X,Y))
-        
-        #-- iterative ncomp silhouette coef.
-        for(comp in 1:max.ncomp){
-            #-- mixo pls
-            mixo.res <- mixOmics::pls(X = X, Y=Y, ncomp = comp, ...)
-            
-            #-- cluster
-            cluster.res <- getCluster(X = mixo.res)
-            # same names, same cluster
-            stopifnot(all(cluster.res$molecule == colnames(dmatrix))) 
-            
-            #-- silhouette
-            sil <- silhouette(dmatrix, cluster.res$cluster)
-            
-            #-- store
-            silhouette.res[comp] <- sil$average
-        } 
-    }else if(is(object, "block.pls")){
-        #-- check X
-        X <- validate.list.matrix.X(X)
-
-        data <- do.call("cbind", X)
-            
-        #-- Y
-        if(!is.null(Y)){
-            Y <- validate.matrix.Y(Y)
-            dmatrix <- dmatrix.spearman.dissimilarity(cbind(data,Y))
-            indY <- NULL
-        } else {
-            indY <- validate.indY(indY = indY, X=X)
-            dmatrix <- dmatrix.spearman.dissimilarity(data)
-        }
-
-        #-- iterative ncomp silhouette coef.
-        for(comp in 1:max.ncomp){
-            #-- mixo block.pls
-            if(is.null(indY)){
-                mixo.res <- mixOmics::block.pls(X = X, ncomp = comp, Y = Y, ...)
-            }else{
-                mixo.res <- mixOmics::block.pls(X = X, ncomp = comp, indY = indY, ...)
-            }
-
-            #-- cluster
-            cluster.res <- getCluster(X = mixo.res)
-            # same names, same cluster
-            stopifnot(all(cluster.res$molecule == colnames(dmatrix))) 
-            
-            #-- silhouette
-            sil <- silhouette(dmatrix, cluster.res$cluster)
-            
-            #-- store
-            silhouette.res[comp] <- sil$average
-        }
-    }
+    #-- run  #pca / pls / block.pls
+    ncomp.opt.res <- ncomp.silhouette(object, X, Y, max.ncomp, indY, ...)
     
     to_return <- list()
     to_return[["ncomp"]] <- c(0,1:max.ncomp)
-    to_return[["silhouette"]] <- c(0,silhouette.res)
-    to_return[["dmatrix"]] <- dmatrix
+    to_return[["silhouette"]] <- c(0,ncomp.opt.res$silhouette.res)
+    to_return[["dmatrix"]] <- ncomp.opt.res$dmatrix
     to_return[["choice.ncomp"]] <- to_return[["ncomp"]][which.max(to_return[["silhouette"]])]
 
     class(to_return) <- "ncomp.tune.silhouette"
     return(invisible(to_return))
+}
+
+ncomp.silhouette <- function(object, X = X, max.ncomp = max.ncomp, ...){
+    UseMethod("ncomp.silhouette")
+}
+
+#' @import mixOmics
+ncomp.silhouette.pca <- function(object, X, Y, max.ncomp, indY, ...){
+    #-- check X
+    X <- validate.matrix.X(X)
+    
+    #-- dmatrix
+    dmatrix <- dmatrix.spearman.dissimilarity(X)
+    
+    silhouette.res <- vector(length = max.ncomp)
+    #-- iterative ncomp silhouette coef.
+    for(comp in 1:max.ncomp){
+        #-- mixo pca
+        mixo.res <- mixOmics::pca(X = X, ncomp = comp, ...)
+        
+        #-- cluster
+        cluster.res <- getCluster(X = mixo.res)
+        # same names, same cluster
+        stopifnot(all(cluster.res$molecule == colnames(dmatrix))) 
+        
+        #-- silhouette
+        sil <- silhouette(dmatrix, cluster.res$cluster)
+        
+        #-- store
+        silhouette.res[comp] <- sil$average
+    }
+    
+    return(list(silhouette.res = silhouette.res, dmatrix = dmatrix))
+}
+
+#' @import mixOmics
+ncomp.silhouette.mixo_pls <- function(object, X, Y, max.ncomp, indY, ...){
+    #-- check X
+    X <- validate.matrix.X(X)
+    
+    #-- check Y
+    Y <- validate.matrix.Y(Y)
+    
+    #-- dmatrix
+    dmatrix <- dmatrix.spearman.dissimilarity(cbind(X,Y))
+    
+    silhouette.res <- vector(length = max.ncomp)
+    #-- iterative ncomp silhouette coef.
+    for(comp in 1:max.ncomp){
+        #-- mixo pls
+        mixo.res <- mixOmics::pls(X = X, Y=Y, ncomp = comp, ...)
+        
+        #-- cluster
+        cluster.res <- getCluster(X = mixo.res)
+        # same names, same cluster
+        stopifnot(all(cluster.res$molecule == colnames(dmatrix))) 
+        
+        #-- silhouette
+        sil <- silhouette(dmatrix, cluster.res$cluster)
+        
+        #-- store
+        silhouette.res[comp] <- sil$average
+    }
+    return(list(silhouette.res = silhouette.res, dmatrix = dmatrix))
+}
+
+#' @import mixOmics
+ncomp.silhouette.block.pls <- function(object, X, Y, max.ncomp, indY, ...){
+    #-- check X
+    X <- validate.list.matrix.X(X)
+    
+    data <- do.call("cbind", X)
+    
+    #-- Y
+    if(!is.null(Y)){
+        Y <- validate.matrix.Y(Y)
+        dmatrix <- dmatrix.spearman.dissimilarity(cbind(data,Y))
+        indY <- NULL
+    } else {
+        indY <- validate.indY(indY = indY, X=X)
+        dmatrix <- dmatrix.spearman.dissimilarity(data)
+    }
+    
+    silhouette.res <- vector(length = max.ncomp)
+    #-- iterative ncomp silhouette coef.
+    for(comp in 1:max.ncomp){
+        #-- mixo block.pls
+        if(is.null(indY)){
+            mixo.res <- mixOmics::block.pls(X = X, ncomp = comp, Y = Y, ...)
+        }else{
+            mixo.res <- mixOmics::block.pls(X = X, ncomp = comp, indY = indY, ...)
+        }
+        
+        #-- cluster
+        cluster.res <- getCluster(X = mixo.res)
+        # same names, same cluster
+        stopifnot(all(cluster.res$molecule == colnames(dmatrix))) 
+        
+        #-- silhouette
+        sil <- silhouette(dmatrix, cluster.res$cluster)
+        
+        #-- store
+        silhouette.res[comp] <- sil$average
+    }
+    return(list(silhouette.res = silhouette.res, dmatrix = dmatrix))
 }
 
 #' @export
