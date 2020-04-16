@@ -49,13 +49,13 @@ tuneCluster.spca <- function(X, ncomp = 2, test.keepX = rep(ncol(X), ncomp), ...
     #--------------------------------------------------------------------------#
 
     #-- X
-    X <- validate.matrix.X(X)
+    X <- validate_matrix_X(X)
 
     #-- ncomp
-    ncomp <- validate.ncomp(ncomp, list(X))
+    ncomp <- validate_ncomp(ncomp, list(X))
     
     #-- test.keepX
-    test.keepX <- validate.test.keepX(test.keepX = test.keepX, X = X)
+    test.keepX <- validate_test_keepX(test.keepX = test.keepX, X = X)
     min.test.keepX <- rep(min(test.keepX), ncomp)
 
 

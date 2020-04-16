@@ -65,23 +65,23 @@ tuneCluster.block.spls <- function(X, Y = NULL,  indY = NULL, ncomp = 2,
     #--------------------------------------------------------------------------#
 
     #-- X
-    X <- validate.list.matrix.X(X)
+    X <- validate_list_matrix_X(X)
 
     #-- Y
     if(!is.null(Y)){
-        Y <- validate.matrix.Y(Y)
+        Y <- validate_matrix_Y(Y)
     } else {
-        indY <- validate.indY(indY, X)
+        indY <- validate_indY(indY, X)
     }
 
     #-- ncomp
-    ncomp <- validate.ncomp(ncomp = ncomp, X =X)
+    ncomp <- validate_ncomp(ncomp = ncomp, X =X)
 
     #-- keepX
-    test.list.keepX <- validate.test.list.keepX(test.keepX = test.list.keepX, X = X, ncomp = ncomp)
+    test.list.keepX <- validate_test_list_keepX(test.keepX = test.list.keepX, X = X, ncomp = ncomp)
 
     #-- keepY
-    test.keepY <- validate.test.keepY(test.keepY = test.keepY, Y = Y)
+    test.keepY <- validate_test_keepY(test.keepY = test.keepY, Y = Y)
 
     list.keepX.keepY <- test.list.keepX
     if(!is.null(Y)) {

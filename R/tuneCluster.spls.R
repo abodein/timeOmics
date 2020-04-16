@@ -62,17 +62,17 @@ tuneCluster.spls <- function(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
     #--------------------------------------------------------------------------#
 
     #-- X
-    X <- validate.matrix.X(X)
-    Y <- validate.matrix.Y(Y)
+    X <- validate_matrix_X(X)
+    Y <- validate_matrix_Y(Y)
 
     #-- ncomp
-    ncomp <- validate.ncomp(ncomp, list(X,Y))
+    ncomp <- validate_ncomp(ncomp, list(X,Y))
 
     #-- test.keepX
-    test.keepX <- validate.test.keepX(test.keepX = test.keepX, X = X)
+    test.keepX <- validate_test_keepX(test.keepX = test.keepX, X = X)
 
     #-- test.keepY
-    test.keepY <- validate.test.keepY(test.keepY = test.keepY, Y = Y)
+    test.keepY <- validate_test_keepY(test.keepY = test.keepY, Y = Y)
 
     list.keepX.keepY <- list("keepX" = test.keepX, "keepY" = test.keepY) %>%
         expand.grid(stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)

@@ -1,4 +1,4 @@
-is.almostInteger <- function(X){
+is_almostInteger <- function(X){
     if(!is.numeric(X) & !is.vector(X)) return(FALSE)
     if(length(X) != 1) return(FALSE)
     if(!is.finite(X)) return(FALSE)
@@ -7,25 +7,25 @@ is.almostInteger <- function(X){
     return(FALSE)
 }
 
-is.almostInteger.vector <- function(X){
+is_almostInteger_vector <- function(X){
     if(!is.vector(X) || is.list(X)){
         return(FALSE)
     }
     # if(!is.numeric(X) & !is.vector(X)) return(FALSE)
-    #return(all(sapply(X, is.almostInteger)))
-    return(all(vapply(X, is.almostInteger, logical(1))))
+    #return(all(sapply(X, is_almostInteger)))
+    return(all(vapply(X, is_almostInteger, logical(1))))
 }
 
-is.almostInteger.list <- function(X){
+is_almostInteger_list <- function(X){
     if(!is.list(X)) return(FALSE)
     # if(!is.numeric(X) & !is.vector(X)) return(FALSE)
-    # return(all(sapply(X, is.almostInteger)))
-    return(all(vapply(X, is.almostInteger, logical(1))))
+    # return(all(sapply(X, is_almostInteger)))
+    return(all(vapply(X, is_almostInteger, logical(1))))
 }
 
 
 
-check.matrix <- function(X){
+check_matrix <- function(X){
     # add rownames and colnames if absent, cast into matrix
     if(!(is.matrix(X) || is.data.frame(X))) return(FALSE)
 
@@ -42,9 +42,9 @@ check.matrix <- function(X){
 }
 
 
-validate.matrix.X <- function(X){
+validate_matrix_X <- function(X){
     # X should be a numeric matrix
-    X <- check.matrix(X)
+    X <- check_matrix(X)
     if(!is.numeric(X)){
         stop("X must be a numeric matrix/data.frame")
     }
@@ -52,9 +52,9 @@ validate.matrix.X <- function(X){
     return(X)
 }
 
-validate.matrix.Y <- function(Y){
+validate_matrix_Y <- function(Y){
     # X should be a numeric matrix
-    Y <- check.matrix(Y)
+    Y <- check_matrix(Y)
     if(!is.numeric(Y)){
         stop("Y must be a numeric matrix/data.frame")
     }
@@ -62,15 +62,15 @@ validate.matrix.Y <- function(Y){
     return(Y)
 }
 
-validate.list.matrix.X <- function(X){
+validate_list_matrix_X <- function(X){
     if(!is.list(X)){
         stop("X must be a list of matrix/data.frame")
     }
-    X <- lapply(X, validate.matrix.X)
+    X <- lapply(X, validate_matrix_X)
     return(X)
 }
 
-validate.ncomp <- function(ncomp, X){
+validate_ncomp <- function(ncomp, X){
     # ncomp should be a positive non-null integer
     # lower than ncol(X)
     nrow_X <- ifelse(is.list(X), nrow(X[[1]]), nrow(X))
@@ -78,7 +78,7 @@ validate.ncomp <- function(ncomp, X){
     if(is.list(X)){
         ncomp.max <- min(ncomp.max, ncol(X))
     }
-    if(!is.almostInteger(ncomp)){
+    if(!is_almostInteger(ncomp)){
         stop(paste0("'ncomp' should be an integer between 1 and ", ncomp.max))
     }
     if(ncomp > ncomp.max || ncomp==0){
@@ -88,14 +88,14 @@ validate.ncomp <- function(ncomp, X){
     return(ncomp)
 }
 
-validate.test.keepX <- function(test.keepX, X){
+validate_test_keepX <- function(test.keepX, X){
     # test.keepX should be a vecter of positive integer of size > 1
     # every value of test.keepX should be lower than ncol(X)
     # ncomp and X have already been validate
     if(is.null(test.keepX)){
         test.keepX <- ncol(X)
     }
-    if(!is.almostInteger.vector(test.keepX)){
+    if(!is_almostInteger_vector(test.keepX)){
         stop("'test.keepX' should be numeric")
     }
     if(any(test.keepX>ncol(X))){
@@ -104,7 +104,7 @@ validate.test.keepX <- function(test.keepX, X){
     return(sort(unique(test.keepX)))
 }
 
-validate.test.keepY <- function(test.keepY, Y){
+validate_test_keepY <- function(test.keepY, Y){
     # test.keepX should be a vecter of positive integer of size > 1
     # every value of test.keepX should be lower than ncol(X)
     # ncomp and X have already been validate
@@ -114,7 +114,7 @@ validate.test.keepY <- function(test.keepY, Y){
         if(is.null(test.keepY)){
             test.keepY <- ncol(Y)
         }
-        if(!is.almostInteger.vector(test.keepY)){
+        if(!is_almostInteger_vector(test.keepY)){
             stop("'test.keepY' should be numeric")
         }
         if(any(test.keepY>ncol(Y))){
@@ -124,7 +124,7 @@ validate.test.keepY <- function(test.keepY, Y){
     return(sort(unique(test.keepY)))
 }
 
-validate.test.list.keepX <- function(test.keepX, ncomp, X){
+validate_test_list_keepX <- function(test.keepX, ncomp, X){
     # for block spls
     # same length of X (list)
     # if (is.null(test.keepX)) {
@@ -136,7 +136,7 @@ validate.test.list.keepX <- function(test.keepX, ncomp, X){
     if(is.null(test.keepX)){
         stop(paste0("'test.list.keepX' must be a list of numeric of size ", length(X), "."))
     }
-    if(is.almostInteger.list(test.keepX)){
+    if(is_almostInteger_list(test.keepX)){
         stop(paste0("'test.list.keepX' must be a list of numeric of size ", length(X), "."))
     }
     if(!(all(names(test.keepX) %in% names(X)) && all(names(X) %in% names(test.keepX)))){
@@ -151,12 +151,12 @@ validate.test.list.keepX <- function(test.keepX, ncomp, X){
     return(test.keepX)
 }
 
-validate.indY <- function(indY, X){
+validate_indY <- function(indY, X){
     # X already checked
     if(is.null(indY)){
         stop(paste0("'indY' must be a numeric value lower or equal to ", length(X), ", the number of blocks in X."))
     }
-    if(!is.almostInteger(indY) | !(indY %in% c(1:length(X))) ){
+    if(!is_almostInteger(indY) | !(indY %in% c(1:length(X))) ){
         stop(paste0("'indY' must be a numeric value lower or equal to ", length(X), ", the number of blocks in X."))
     }
     return(indY)
@@ -170,7 +170,7 @@ sd_new <- function(x, ...){
     }
 }
 
-return.true.false <- function(x, default){
+return_true_false <- function(x, default){
     if(is.logical(x)){
         if(is.finite(x)){
             return(x)

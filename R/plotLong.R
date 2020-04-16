@@ -103,7 +103,7 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
     
     if(is(object, "pca") || is(object, "spca")){
         #-- check time
-        if(!is.null(time) && (!is.almostInteger.vector(time) || (length(time) != nrow(object$X)))){
+        if(!is.null(time) && (!is_almostInteger_vector(time) || (length(time) != nrow(object$X)))){
             stop("'time' should be a numeric vector")
         }
         # scale/unscale if desired
@@ -115,7 +115,7 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
         
     } else if(is(object, "mixo_pls") || is(object, "mixo_spls")){
         #-- check time
-        if(!is.null(time) && (!is.almostInteger.vector(time) || (length(time) != nrow(object$X)))){
+        if(!is.null(time) && (!is_almostInteger_vector(time) || (length(time) != nrow(object$X)))){
             stop("'time' should be a numeric vector")
         }
         data.X <- unscale(object$X) %>%
@@ -130,7 +130,7 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
         
     } else if(is(object, "block.pls") || is(object, "block.spls")){
         #-- check time
-        if(!is.null(time) &&(!is.almostInteger.vector(time) || (length(time) != nrow(object$X[[1]])))){
+        if(!is.null(time) &&(!is_almostInteger_vector(time) || (length(time) != nrow(object$X[[1]])))){
             stop("'time' should be a numeric vector")
         }
         

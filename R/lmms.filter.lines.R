@@ -47,7 +47,7 @@ lmms.filter.lines <- function(data,
 {
     #-- Check parameters
     #------------------------------------
-    data <- validate.matrix.X(data)
+    data <- validate_matrix_X(data)
     
     #-- lmms.obj
     if(!is(lmms.obj, "lmmspline")) stop("'lmms.obj' should be a 'lmms' object.")
@@ -70,10 +70,10 @@ lmms.filter.lines <- function(data,
     }
     
     #-- homoskedasticity  TRUE/FALSE
-    homoskedasticity = return.true.false(x = homoskedasticity, default = TRUE)
+    homoskedasticity = return_true_false(x = homoskedasticity, default = TRUE)
     
     #-- MSE.filter
-    MSE.filter = return.true.false(x = MSE.filter, default = TRUE)
+    MSE.filter = return_true_false(x = MSE.filter, default = TRUE)
     
     #-- homoskedasticity.cutoff
     if(!purrr::is_scalar_vector(homoskedasticity.cutoff) || !is.finite(homoskedasticity.cutoff) || !is.numeric(homoskedasticity.cutoff)){

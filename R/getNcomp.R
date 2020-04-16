@@ -61,7 +61,7 @@ getNcomp <- function(object, max.ncomp = NULL, X, Y = NULL, indY = NULL, ...){
     
 
     #-- max.ncomp
-    if(is.almostInteger(max.ncomp)){
+    if(is_almostInteger(max.ncomp)){
         if (max.ncomp < 1)
             stop("'max.ncomp' should be greater than 1")
 
@@ -96,7 +96,7 @@ ncomp.silhouette <- function(object, X = X, max.ncomp = max.ncomp, ...){
 #' @import mixOmics
 ncomp.silhouette.pca <- function(object, X, Y, max.ncomp, indY, ...){
     #-- check X
-    X <- validate.matrix.X(X)
+    X <- validate_matrix_X(X)
     
     #-- dmatrix
     dmatrix <- dmatrix.spearman.dissimilarity(X)
@@ -125,10 +125,10 @@ ncomp.silhouette.pca <- function(object, X, Y, max.ncomp, indY, ...){
 #' @import mixOmics
 ncomp.silhouette.mixo_pls <- function(object, X, Y, max.ncomp, indY, ...){
     #-- check X
-    X <- validate.matrix.X(X)
+    X <- validate_matrix_X(X)
     
     #-- check Y
-    Y <- validate.matrix.Y(Y)
+    Y <- validate_matrix_Y(Y)
     
     #-- dmatrix
     dmatrix <- dmatrix.spearman.dissimilarity(cbind(X,Y))
@@ -156,17 +156,17 @@ ncomp.silhouette.mixo_pls <- function(object, X, Y, max.ncomp, indY, ...){
 #' @import mixOmics
 ncomp.silhouette.block.pls <- function(object, X, Y, max.ncomp, indY, ...){
     #-- check X
-    X <- validate.list.matrix.X(X)
+    X <- validate_list_matrix_X(X)
     
     data <- do.call("cbind", X)
     
     #-- Y
     if(!is.null(Y)){
-        Y <- validate.matrix.Y(Y)
+        Y <- validate_matrix_Y(Y)
         dmatrix <- dmatrix.spearman.dissimilarity(cbind(data,Y))
         indY <- NULL
     } else {
-        indY <- validate.indY(indY = indY, X=X)
+        indY <- validate_indY(indY = indY, X=X)
         dmatrix <- dmatrix.spearman.dissimilarity(data)
     }
     
