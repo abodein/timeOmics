@@ -8,7 +8,7 @@ r_check_args:
 # Tell Travis that we're using bioconductor packages.
 # Could also use bioc-release  
 r: bioc-devel
-# warnings_are_errors: false
+warnings_are_errors: false
 
 # Tell Travis to run BiocCheck.
 bioc_check: true
