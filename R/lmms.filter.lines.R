@@ -111,7 +111,7 @@ lmms.filter.lines <- function(data,
             dplyr::mutate(feature = colnames(predSpline)[modelsUsed == 0])
         
         result <- result %>% 
-            dplyr::left_join(BP.res, by = c("feature", "feature")) %>% 
+            dplyr::left_join(BP.res, by = c("feature"= "feature")) %>% 
             dplyr::mutate(BP.test = ifelse(is.na(BP.test), 1, BP.test)) %>% 
             # replace (model != 0) by  a p value of 1, must be homoskedastic if not, no spline
             dplyr::mutate(BP.test = (BP.test >=  homoskedasticity.cutoff)) # T/F
