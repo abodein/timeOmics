@@ -207,7 +207,7 @@ getCluster.block.pls <- function(X){
         rownames_to_column("molecule") %>%
         mutate(cluster = stringr::str_remove(comp, "^comp") %>%
                    as.numeric()) %>%
-        left_join(block.info, by = c("molecule", "molecule")) %>%
+        left_join(block.info, by = c("molecule"= "molecule")) %>%
         .mutate_cluster()
 
     Valid.getCluster(loadings.max)
@@ -242,7 +242,7 @@ getCluster.block.spls <- function(X){
         rownames_to_column("molecule") %>%
         mutate(cluster = stringr::str_remove(comp, "^comp") %>%
                    as.numeric()) %>%
-        left_join(block.info, by = c("molecule", "molecule")) %>%
+        left_join(block.info, by = c("molecule"= "molecule")) %>%
         .mutate_cluster()
 
     Valid.getCluster(loadings.max)
