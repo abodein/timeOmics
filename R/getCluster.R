@@ -167,7 +167,7 @@ getCluster.mixo_spls <- function(X){
         mutate(block = "X")
 
     # block Y
-    Y.selected.features.loadings <- X$loadings$Y[rowSums(X$loadings$Y) != 0,]
+    Y.selected.features.loadings <- X$loadings$Y[rowSums(X$loadings$Y) != 0,,drop = FALSE]
     loadings.max.Y <- getMaxContrib(Y.selected.features.loadings)
 
     loadings.max.Y <- loadings.max.Y %>%
