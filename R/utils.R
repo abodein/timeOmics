@@ -181,3 +181,12 @@ return_true_false <- function(x, default){
         return(default)
     }
 }
+
+check_legend.block.name <- function(legend.block.name, cluster){
+    stopifnot(is(legend.block.name, "character"))
+    stopifnot(is(legend.block.name, "vector"))
+    
+    # cluster <- getCluster(...)
+    size_block <- unique(cluster$block)
+    stopifnot(length(legend.block.name) == length(size_block))
+}

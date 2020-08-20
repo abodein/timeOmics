@@ -10,8 +10,9 @@
 #' @param title character indicating the title plot.
 #' @param X.label x axis titles.
 #' @param Y.label y axis titles.
-#' @param legend a logical, to display or not the legend
-#' @param legend.title if \code{legend} is provided, title of the legend
+#' @param legend a logical, to display or not the legend.
+#' @param legend.title if \code{legend} is provided, title of the legend.
+#' @param legend.block.name a character vector corresponding to the size of the number of blocks in the mixOmics object. 
 #' 
 #'
 #' @return
@@ -59,7 +60,8 @@
 #' @importFrom tidyr pivot_longer
 #' @export
 plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TRUE, 
-                     title="Time-course Expression", X.label=NULL, Y.label=NULL, legend=FALSE, legend.title=NULL)
+                     title="Time-course Expression", X.label=NULL, Y.label=NULL, 
+                     legend=FALSE, legend.title=NULL, legend.block.name = NULL)
 {
     
     # Check parameters
@@ -101,6 +103,16 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
     # cluster info
     cluster <- getCluster(object)
     
+    #-- legend.block.name
+    if(!is.null(legend.block.name)){
+        check_legend.block.name(legend.block.name, cluster)
+        new.block.name.tmp <- list(new.block = legend.block.name, block = unique(cluster$block)) %>%
+            as.data.frame
+        cluster <- cluster %>% left_join(new.block.name.tmp, by = c("block"="block")) %>%
+            mutate(old.block = block, block = new.block) %>% 
+            dplyr::select(-new.block)
+    }
+    
     if(is(object, "pca") || is(object, "spca")){
         #-- check time
         if(!is.null(time) && (!is_almostInteger_vector(time) || (length(time) != nrow(object$X)))){
@@ -126,7 +138,6 @@ plotLong <- function(object, time = NULL, plot = TRUE, center = TRUE, scale = TR
         data <- cbind(data.X, data.Y) %>%
             as.data.frame() %>%
             dplyr::select(intersect(cluster$molecule, colnames(.)))
-        
         
     } else if(is(object, "block.pls") || is(object, "block.spls")){
         #-- check time

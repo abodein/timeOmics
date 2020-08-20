@@ -48,6 +48,20 @@ test_that("plotLong failed on invalid - time", {
     expect_error(plotLong(object = demo$block.pls, time = 1:11), "'time' should be a numeric vector")
 })
 
+test_that("plotLong failed on invalid - legend.block.name", {
+    expect_error(plotLong(object = demo$pca, legend.block.name = list()))
+    expect_error(plotLong(object = demo$pca, legend.block.name = matrix()))
+    expect_error(plotLong(object = demo$pca, legend.block.name = c(1,2)))
+    expect_error(plotLong(object = demo$pca, legend.block.name = c("a", "b")))
+  
+    expect_error(plotLong(object = demo$pls, legend.block.name = c(1,2)))
+    expect_error(plotLong(object = demo$pls, legend.block.name = c("a")))  
+    
+    expect_error(plotLong(object = demo$block.pls, legend.block.name = c(1,2)))
+    expect_error(plotLong(object = demo$block.pls, legend.block.name = c("a")))
+})
+
+
 test_that("plotLong works", {
     expect_is(plotLong(object = demo$pca), "data.frame")
     expect_is(plotLong(object = demo$spca), "data.frame")
@@ -114,6 +128,11 @@ test_that("plotLong works", {
     expect_is(plotLong(object = demo$pca, legend=TRUE, legend.title=1), "data.frame")
     expect_is(plotLong(object = demo$pca, legend=TRUE, legend.title=list()), "data.frame")
     expect_is(plotLong(object = demo$pca, legend=TRUE, legend.title=data.frame()), "data.frame")
+    
+    # legend.block.name
+    expect_is(plotLong(object = demo$pca, legend.block.name = "pca.X"), "data.frame")
+    expect_is(plotLong(object = demo$pls, legend.block.name = c("pls.X", "pls.Y")), "data.frame")
+    expect_is(plotLong(object = demo$block.pls, legend.block.name = c("pls.X", "pls.Y", "pls.Z")), "data.frame")
     
 })
 dev.off()
