@@ -95,6 +95,3 @@ Verbyla, A. P., Cullis, B. R., & Kenward, M. G. (1999). \emph{The analysis of de
 
 Straube J., Gorse A.-D., Huang B.E., Le Cao K.-A. (2015).  \emph{A linear mixed model spline framework for analyzing time course 'omics' data} PLOSONE, 10(8), e0134540.
 }
-\seealso{
-\code{\link{summary.lmmspline}}, \code{\link{plot.lmmspline}}, \code{\link{predict.lmmspline}}, \code{\link{deriv.lmmspline}}
-}
