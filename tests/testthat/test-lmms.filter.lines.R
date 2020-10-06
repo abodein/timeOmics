@@ -6,10 +6,10 @@ data <- timeOmics.simdata$sim
 lmms.output <- timeOmics.simdata$lmms.output
 time <- timeOmics.simdata$time
 
-ok <- lmms::lmmSpline(data = data[,c(2,3)], time = time, sampleID = rownames(data), keepModels = TRUE)
+ok <- lmmSpline(data = data[,c(2,3)], time = time, sampleID = rownames(data), keepModels = TRUE)
 
-lmms.bad1 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data))
-lmms.bad2 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data), timePredict = c(1:3), keepModels = TRUE)
+lmms.bad1 <- lmmSpline(data = data, time = time, sampleID = rownames(data))
+lmms.bad2 <- lmmSpline(data = data, time = time, sampleID = rownames(data), timePredict = c(1:3), keepModels = TRUE)
 
 test_that("lmms.filter.lines failed on invalid input - data",{
     expect_error(lmms.filter.lines(data = ""), "X must be a numeric matrix/data.frame")

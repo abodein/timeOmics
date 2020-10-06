@@ -168,15 +168,19 @@ Once run, `lmms` summarizes each feature into a unique time profile.
 
 For more information about `lmms` modelling parameters, please check `?lmms::lmmSpline`
 
+*** Package `lmms` was removed from the CRAN repository (Archived on 2020-09-11).
+https://cran.r-project.org/web/packages/lmms/index.html
+Only `lmmSpline` function have been integrated in timeOmics ***
+
 ```{r, message=FALSE}
 # numeric vector containing the sample time point information
 time <- timeOmics.simdata$time
 head(time)
 
-lmms.output <- lmms::lmmSpline(data = data.filtered, time = time,
-                        sampleID = rownames(data.filtered), deri = FALSE,
-                        basis = "p-spline", numCores = 4, timePredict = 1:9, 
-                        keepModels = TRUE)
+lmms.output <- lmmSpline(data = data.filtered, time = time,
+                         sampleID = rownames(data.filtered), deri = FALSE,
+                         basis = "p-spline", numCores = 4, timePredict = 1:9,
+                         keepModels = TRUE)
 modelled.data <- t(slot(lmms.output, 'predSpline'))
 ```
 

@@ -4,9 +4,19 @@
 \alias{plotLong}
 \title{Plot Longitudinal Profiles by Cluster}
 \usage{
-plotLong(object, time = NULL, plot = TRUE, center = TRUE,
-  scale = TRUE, title = "Time-course Expression", X.label = NULL,
-  Y.label = NULL, legend = FALSE, legend.title = NULL)
+plotLong(
+  object,
+  time = NULL,
+  plot = TRUE,
+  center = TRUE,
+  scale = TRUE,
+  title = "Time-course Expression",
+  X.label = NULL,
+  Y.label = NULL,
+  legend = FALSE,
+  legend.title = NULL,
+  legend.block.name = NULL
+)
 }
 \arguments{
 \item{object}{a mixOmics result of class (s)pca, (s)pls, block.(s)pls.}
@@ -25,9 +35,11 @@ plotLong(object, time = NULL, plot = TRUE, center = TRUE,
 
 \item{Y.label}{y axis titles.}
 
-\item{legend}{a logical, to display or not the legend}
+\item{legend}{a logical, to display or not the legend.}
 
-\item{legend.title}{if \code{legend} is provided, title of the legend}
+\item{legend.title}{if \code{legend} is provided, title of the legend.}
+
+\item{legend.block.name}{a character vector corresponding to the size of the number of blocks in the mixOmics object.}
 }
 \value{
 a data.frame (gathered form) containing the following columns:

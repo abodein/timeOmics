@@ -4,7 +4,8 @@
 \name{timeOmics.simdata}
 \alias{timeOmics.simdata}
 \title{Time-Course Simulated data}
-\format{a list of data.frame
+\format{
+a list of data.frame
 \describe{
   \item{rawdata}{data.frame, reference profiles}
   \item{sim}{data.frame, sampled profiles from reference data}
@@ -13,7 +14,8 @@
   \item{time}{numerci vector, time for each sample of rawdata}
   \item{Y}{another modelled data.frame for multiblock integration}
   \item{Z}{another modelled data.frame for multiblock integration}
- }}
+ }
+}
 \usage{
 timeOmics.simdata
 }

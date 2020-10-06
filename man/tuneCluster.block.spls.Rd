@@ -4,8 +4,15 @@
 \alias{tuneCluster.block.spls}
 \title{Feature Selection Optimization for block (s)PLS method}
 \usage{
-tuneCluster.block.spls(X, Y = NULL, indY = NULL, ncomp = 2,
-  test.list.keepX = NULL, test.keepY = NULL, ...)
+tuneCluster.block.spls(
+  X,
+  Y = NULL,
+  indY = NULL,
+  ncomp = 2,
+  test.list.keepX = NULL,
+  test.keepY = NULL,
+  ...
+)
 }
 \arguments{
 \item{X}{list of numeric matrix (or data.frame) with features in columns and samples in rows (with samples order matching in all data sets).}

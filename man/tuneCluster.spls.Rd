@@ -4,8 +4,14 @@
 \alias{tuneCluster.spls}
 \title{Feature Selection Optimization for sPLS method}
 \usage{
-tuneCluster.spls(X, Y, ncomp = 2, test.keepX = rep(ncol(X), ncomp),
-  test.keepY = rep(ncol(Y), ncomp), ...)
+tuneCluster.spls(
+  X,
+  Y,
+  ncomp = 2,
+  test.keepX = rep(ncol(X), ncomp),
+  test.keepY = rep(ncol(Y), ncomp),
+  ...
+)
 }
 \arguments{
 \item{X}{numeric matrix (or data.frame) with features in columns and samples in rows}

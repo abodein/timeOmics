@@ -4,8 +4,14 @@
 \alias{lmms.filter.lines}
 \title{Filter Linear Profiles from Linear Mixed Model output}
 \usage{
-lmms.filter.lines(data, lmms.obj, time, homoskedasticity = TRUE,
-  MSE.filter = TRUE, homoskedasticity.cutoff = 0.05)
+lmms.filter.lines(
+  data,
+  lmms.obj,
+  time,
+  homoskedasticity = TRUE,
+  MSE.filter = TRUE,
+  homoskedasticity.cutoff = 0.05
+)
 }
 \arguments{
 \item{data}{a data.frame used in the \code{lmms::lmmSpline} command}
