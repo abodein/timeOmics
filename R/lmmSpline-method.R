@@ -409,3 +409,37 @@ other.reshape <- function(Rep, Time, Data){
     melt.lme.data2$Time <- factor(gsub("^X", "", as.character(melt.lme.data2$Time)))
     return(as.data.frame(melt.lme.data2))
 }
+
+
+
+#' \code{lmms} class a S4 superclass to extend \code{lmmspline}  and \code{lmmsde} class.
+#'
+#' \code{lmms} class is a superclass for classes \code{lmmspline}  and \code{lmmsde}. These classes inherit common slots.
+#'
+#' @slot basis  An object of class \code{character} describing the basis used for modelling.
+#' @slot knots An object of class \code{numeric}, describing the boundaries of the splines. If not defined or if basis='cubic' knots are automatically estimated using Ruppert 2002 or are the design points when using 'cubic'. 
+#' @slot errorMolecules Vector of class \code{character}, describing the molecules that could not be modelled.
+#'
+#' @name lmms-class
+#' @rdname lmms-class
+#' @exportClass lmms
+
+
+setClass('lmms',slots=c(basis="character", knots="numeric",errorMolecules="character"))
+
+#' \code{lmmspline} class a S4 class that extends \code{lmms} class.
+#'
+#' \code{lmmspline} class inherits from class \code{lmms} and extends it with three further slots: \code{predSpline}, \code{modelsUsed}, \code{models}. The class is returned when applying \code{\link{lmmSpline}} method.
+#'
+#' @slot predSpline A \code{data.frame} returning the fitted values for the time points of interest.
+#' @slot models  A \code{list} of class \code{\link{lm}} or  \code{\link{lme}} containing the models for every molecule
+#' @slot modelsUsed A \code{list} of class \code{lm} or \code{lme}, containing the models used to model the particular feature of interest. 
+#' @slot derivative A \code{logical} value indicating if the derivative was calculated.
+#' 
+#'
+#' @name lmmspline-class
+#' @rdname lmmspline-class
+#' @exportClass lmmspline
+
+setClass("lmmspline",slots= c(predSpline="data.frame", modelsUsed="numeric",models="list",derivative='logical'),contains='lmms')
+
