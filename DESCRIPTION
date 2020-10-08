@@ -28,12 +28,7 @@ Imports:
     ggrepel,
     propr,
     lmtest,
-    parallel,
-    gdata,
-    lmeSplines,
-    methods,
-    nlme,
-    reshape2
+    lmms
 biocViews: Clustering,FeatureExtraction,TimeCourse,DimensionReduction,Software,
     Sequencing, Microarray, Metabolomics, Metagenomics, Proteomics,
       Classification, Regression, ImmunoOncology, GenePrediction,
