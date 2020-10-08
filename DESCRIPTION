@@ -42,4 +42,5 @@ Depends: mixOmics, R (>= 4.0)
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 Suggests: BiocStyle, knitr, rmarkdown, testthat, snow, tidyverse, igraph, gplots
+Remotes: cran/lmms
 BugReports: https://github.com/abodein/timeOmics/issues

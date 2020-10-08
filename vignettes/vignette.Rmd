@@ -82,6 +82,8 @@ library(timeOmics)
 
 ```{r, message=F}
 library(tidyverse)
+#devtools::install_github("cran/lmms")
+library(lmms)
 ```
 
 # Required data
@@ -177,7 +179,7 @@ Only `lmmSpline` function have been integrated in timeOmics ***
 time <- timeOmics.simdata$time
 head(time)
 
-lmms.output <- lmmSpline(data = data.filtered, time = time,
+lmms.output <- lmms::lmmSpline(data = data.filtered, time = time,
                          sampleID = rownames(data.filtered), deri = FALSE,
                          basis = "p-spline", numCores = 4, timePredict = 1:9,
                          keepModels = TRUE)

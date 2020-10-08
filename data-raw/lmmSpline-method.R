@@ -213,6 +213,9 @@ lmmSpline <- function(data, time, sampleID, timePredict, deri, basis, knots,keep
     
     
     new.data <- parLapply(cl,1:nMolecules,fun = function(i){
+    # new.data <- list()
+    # for(i in 1:nMolecules){
+
         expr <- data[,i]
         
         dataM <- as.data.frame(other.reshape(Rep=sampleID,Time=time,Data=unlist(expr)))
@@ -356,8 +359,10 @@ lmmSpline <- function(data, time, sampleID, timePredict, deri, basis, knots,keep
             keepModels <- list()
         
         return(list(pred.spl=pred.spline,fit=fits,models=models,error=error,knots=knots))
+        #new.data[[i]] <- list(pred.spl=pred.spline,fit=fits,models=models,error=error,knots=knots)
         
     })
+    #}
     stopCluster(cl)
     knots <- sort(unique(as.vector((sapply(new.data,'[[','knots')))))
     pred.spl <- matrix(sapply(new.data,'[[','pred.spl'),nrow=nMolecules,byrow=T)
