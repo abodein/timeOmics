@@ -1,5 +1,4 @@
 library(tidyverse)
-library(lmms)
 
 # RAW DATA
 c1 <- c(0, 0.5,1,1.1,1.2,1.8,2.5,5,9)
@@ -73,7 +72,7 @@ sim.data <- tmp %>% dplyr::select(-c(value)) %>%
 # modelled data
 time <- rownames(sim.data) %>% str_split("_") %>% map_chr(~.x[2]) %>% as.numeric()
 sampleID <- rownames(sim.data)
-lmms.out <- lmms::lmmSpline(data = sim.data, time = time, sampleID = sampleID, keepModels = TRUE)
+lmms.out <- lmmSpline(data = sim.data, time = time, sampleID = sampleID, keepModels = TRUE)
 
 modelled.data <-  as.data.frame(t(lmms.out@predSpline))
 
