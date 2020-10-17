@@ -39,4 +39,7 @@ lmms.bad2 <- new("lmmspline",
                      errorMolecules = tmp_lmms.bad2@errorMolecules)
 
 lmms.test.data <- list(ok = ok, lmms.bad1 = lmms.bad1, lmms.bad2 = lmms.bad2)
-save(lmms.test.data, file = "~/Downloads/lmms.test.data.rda")
+#save(lmms.test.data, file = "~/Downloads/lmms.test.data.rda")
+
+usethis::use_data(lmms.test.data, overwrite = TRUE, internal = TRUE)
+

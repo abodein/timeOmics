@@ -2,7 +2,7 @@ context('lmms.filter.lines')
 
  # data and lmms output
 data(timeOmics.simdata)
-data(lmms.test.data)
+#data(lmms.test.data)
 ok <- lmms.test.data$ok
 lmms.bad1 <- lmms.test.data$lmms.bad1
 lmms.bad2 <- lmms.test.data$lmms.bad2
