@@ -82,8 +82,6 @@ library(timeOmics)
 
 ```{r, message=F}
 library(tidyverse)
-#devtools::install_github("cran/lmms")
-library(lmms)
 ```
 
 # Required data
@@ -171,14 +169,24 @@ Once run, `lmms` summarizes each feature into a unique time profile.
 For more information about `lmms` modelling parameters, please check `?lmms::lmmSpline`
 
 *** Package `lmms` was removed from the CRAN repository (Archived on 2020-09-11).
-https://cran.r-project.org/web/packages/lmms/index.html
-Only `lmmSpline` function have been integrated in timeOmics ***
+https://cran.r-project.org/web/packages/lmms/index.html ***
+
+`lmms` package is still available and can be installed as follow:
+
+```r
+devtools::install_github("cran/lmms")
+library(lmms)
+```
+
 
 ```{r, message=FALSE}
 # numeric vector containing the sample time point information
 time <- timeOmics.simdata$time
 head(time)
+```
 
+```{r,eval=FALSE}
+# example of lmms
 lmms.output <- lmms::lmmSpline(data = data.filtered, time = time,
                          sampleID = rownames(data.filtered), deri = FALSE,
                          basis = "p-spline", numCores = 4, timePredict = 1:9,
@@ -186,11 +194,16 @@ lmms.output <- lmms::lmmSpline(data = data.filtered, time = time,
 modelled.data <- t(slot(lmms.output, 'predSpline'))
 ```
 
+```{r, warning=FALSE, message=FALSE}
+lmms.output <- timeOmics.simdata$lmms.output
+modelled.data <- timeOmics.simdata$modelled
+```
+
 The `lmms` object provides a list of models for each feature. 
 It also includes the new predicted splines *(modelled data)* in the `predSpline` slot.
 The produced table contains features in columns and now, **times in rows**.
 
-Let's plot the modelled profiles.
+Let's plot the modeled profiles.
 
 ```{r}
 # gather data
@@ -215,7 +228,7 @@ To remove the noisy profiles, we have implemented a 2-phase test procedure.
 This threshold is determined automatically. The MSE for a linear model must not exceed the MSE of more complex models.
 
 ```{r}
-filter.res <- lmms.filter.lines(data = modelled.data, 
+filter.res <- lmms.filter.lines(data = data.filtered, 
                                 lmms.obj = lmms.output, time = time)
 profile.filtered <- filter.res$filtered
 ```

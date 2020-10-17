@@ -44,7 +44,8 @@ names(data) <- c("c1.0", "c1.1", "c1.2", "c1.3", "c1.4",
                  "c3.0", "c3.1", "c3.2", "c3.3", "c3.4",
                  "c4.0", "c4.1", "c4.2", "c4.3", "c4.4",
                  "c0")
-raw.data <- as.data.frame(data)
+raw.data <- as.data.frame(data)setwd("~")
+load("~/Downloads/lmms.out2.rda")
 data.gather <- raw.data %>% rownames_to_column("time") %>%
     mutate(time = as.numeric(time)) %>%
     gather(sample, value, -time)
@@ -75,13 +76,31 @@ time <- rownames(sim.data) %>% str_split("_") %>% map_chr(~.x[2]) %>% as.numeric
 sampleID <- rownames(sim.data)
 lmms.out <- lmmSpline(data = sim.data, time = time, sampleID = sampleID, keepModels = TRUE)
 
-modelled.data <-  as.data.frame(t(lmms.out@predSpline))
+# build new s4
+#setClass('lmms',slots=c(basis="character", knots="numeric",errorMolecules="character"))
+setClass("lmmspline",slots= c(predSpline="data.frame", modelsUsed="numeric",models="list",derivative='logical', basis="character", knots="numeric",errorMolecules="character"))
+
+lmms.out2 <- new("lmmspline", 
+                 predSpline = lmms.out@predSpline,
+                 modelsUsed = lmms.out@modelsUsed,
+                 models = lmms.out@models,
+                 derivative = lmms.out@derivative, 
+                 basis = lmms.out@basis, 
+                 knots = lmms.out@knots, 
+                 errorMolecules = lmms.out@errorMolecules )
+
+save(lmms.out2, file = "~/Downloads/lmms.out2.rda")
+
+modelled.data <-  as.data.frame(t(lmms.out2@predSpline))
+
+detach("package:lmms", unload=TRUE)
 
 timeOmics.simdata <- list(rawdata = raw.data, sim = sim.data,
                           modelled = modelled.data[,-c0], 
-                          lmms.output = lmms.out,
+                          lmms.output = lmms.out2,
                           time = time)
 
+library(lmms)
 # Y same as data but increase noise
 sd <- 0.5
 N_Ind <- 4
@@ -105,7 +124,7 @@ Y <- tmp %>% dplyr::select(-c(value)) %>%
 
 time.Y <- rownames(Y) %>% str_split("_") %>% map_chr(~.x[2]) %>% as.numeric()
 sampleID.Y <- rownames(Y)
-lmms.Y <- lmms::lmmSpline(data = Y, time = time.Y, sampleID = sampleID.Y, keepModels = TRUE, 
+lmms.Y <- lmmSpline(data = Y, time = time.Y, sampleID = sampleID.Y, keepModels = TRUE, 
                           timePredict = 1:9)
 modelled.Y <- lmms.Y@predSpline %>% t %>% as.data.frame()
 colnames(modelled.Y) <- paste0("Y_", seq_along(colnames(modelled.Y)))

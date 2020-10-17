@@ -1,15 +1,19 @@
 context('lmms.filter.lines')
 
  # data and lmms output
-library(lmms)
 data(timeOmics.simdata)
+data(lmms.test.data)
+ok <- lmms.test.data$ok
+lmms.bad1 <- lmms.test.data$lmms.bad1
+lmms.bad2 <- lmms.test.data$lmms.bad2
+
 data <- timeOmics.simdata$sim
 lmms.output <- timeOmics.simdata$lmms.output
 time <- timeOmics.simdata$time
 
-ok <- lmms::lmmSpline(data = data[,c(2,3)], time = time, sampleID = rownames(data), keepModels = TRUE)
-lmms.bad1 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data))
-lmms.bad2 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data), timePredict = c(1:3), keepModels = TRUE)
+# ok <- lmms::lmmSpline(data = data[,c(2,3)], time = time, sampleID = rownames(data), keepModels = TRUE)
+# lmms.bad1 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data))
+# lmms.bad2 <- lmms::lmmSpline(data = data, time = time, sampleID = rownames(data), timePredict = c(1:3), keepModels = TRUE)
 
 # ok <- lmmSpline(data = data[,c(2,3)], time = time, sampleID = rownames(data), keepModels = TRUE)
 # lmms.bad1 <- lmmSpline(data = data, time = time, sampleID = rownames(data))
