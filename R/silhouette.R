@@ -49,7 +49,9 @@ silhouette <- function(dmatrix,  # distance matrix
             average.dist[i,j] <- mean(dmatrix[i, index.tmp])
         }
         A <- average.dist[i, cluster[i]] # a : inside
-        B <- min(average.dist[i,-c(cluster[i])])  # b
+        #B <- min(average.dist[i,-c(cluster[i])])  # b
+        # fix R 4.1
+        B <- min(average.dist[i,-which(cluster[i] %in% cluster.levels)])  # b
         result[i] <- silhoutte.formula(A = A, B = B)
     }
 
