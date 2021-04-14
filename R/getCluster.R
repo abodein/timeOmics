@@ -3,6 +3,8 @@
 #' This function returns the cluster associated to each feature from a mixOmics object.
 #'
 #' @param X an object of the class: \code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls} or \code{block.spls}
+#' @param user.cluster a vector to filter the result and return only the features of the specified clusters
+#' @param user.block a vector to filter the result and return the features of the specified blocks.
 #'
 #' @return
 #' A data.frame containing the name of feature, its assigned cluster and other information such as selected component, contribution, sign, ...
@@ -23,7 +25,7 @@
 #' block.spls.cluster <- getCluster(demo$block.spls)
 #'
 #' @export
-getCluster <- function(X) UseMethod("getCluster")
+getCluster <- function(X, ...) UseMethod("getCluster")
 
 #' get_demo_cluster
 #' 
@@ -78,7 +80,8 @@ get_demo_cluster<- function(){
 #' @importFrom stringr str_remove
 #' @importFrom magrittr %>%
 #' @export
-getCluster.pca <- function(X){
+getCluster.pca <- function(X, user.block = NULL, user.cluster = NULL){
+
     #print("getCluster.pca")
     # colnames = PC1, PC2...
     loadings.max <- getMaxContrib(X$loadings$X)
@@ -90,6 +93,7 @@ getCluster.pca <- function(X){
         mutate(block = "X") %>%
         .mutate_cluster()
     Valid.getCluster(loadings.max)
+    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
     return(loadings.max)
 }
 
@@ -110,6 +114,8 @@ getCluster.spca <- function(X){
         mutate(block = "X") %>%
         .mutate_cluster()
     Valid.getCluster(loadings.max)
+    
+    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
     return(loadings.max)
 }
 
@@ -143,6 +149,8 @@ getCluster.mixo_pls <- function(X){
         .mutate_cluster()
 
     Valid.getCluster(loadings.max)
+    
+    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
     return(loadings.max)
 }
 
@@ -180,6 +188,8 @@ getCluster.mixo_spls <- function(X){
         .mutate_cluster()
 
     Valid.getCluster(loadings.max)
+    
+    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
     return(loadings.max)
 }
 
@@ -211,6 +221,8 @@ getCluster.block.pls <- function(X){
         .mutate_cluster()
 
     Valid.getCluster(loadings.max)
+    
+    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
     return(loadings.max)
 }
 
@@ -246,6 +258,8 @@ getCluster.block.spls <- function(X){
         .mutate_cluster()
 
     Valid.getCluster(loadings.max)
+    
+    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
     return(loadings.max)
 }
 
@@ -304,4 +318,18 @@ Valid.getCluster <- function(X){
     # all comp present? sometimes not true
     # idem for number of cluster
     # also a molecule can be found in different cluster
+}
+
+
+
+filter.getCluster <- function(X, user.block = NULL, user.cluster = NULL){
+    # X <- getCluster(pca); pca.cluster
+    
+    if(!is.null(user.block)){
+        X.filter <- dplyr::filter(X, block %in% user.block)
+    }
+    if(!is.null(user.cluster)){
+        X <- dplyr::filter(X, cluster %in% user.cluster)
+    }
+    return(X.filter)
 }
