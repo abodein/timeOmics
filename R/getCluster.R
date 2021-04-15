@@ -72,6 +72,7 @@ get_demo_cluster<- function(){
 
     list.res$block.spls <- mixOmics::block.spls(X = list("X" = X, "Y" = Y, "Z" = Z), indY = 1, ncomp = 3,
                                              mode = "canonical", keepX = list("X" = c(5,6,4), "Y" = c(5,5,5), "Z" = c(4,2,4)))
+    list.res$UpDown <- getUpDownCluster(X = X)
     return(invisible(list.res))
 }
 
@@ -325,11 +326,12 @@ Valid.getCluster <- function(X){
 filter.getCluster <- function(X, user.block = NULL, user.cluster = NULL){
     # X <- getCluster(pca); pca.cluster
     
+    X.filter <- X
     if(!is.null(user.block)){
-        X.filter <- dplyr::filter(X, block %in% user.block)
+        X.filter <- dplyr::filter(X.filter, block %in% user.block)
     }
     if(!is.null(user.cluster)){
-        X <- dplyr::filter(X, cluster %in% user.cluster)
+        X.filter <- dplyr::filter(X.filter, cluster %in% user.cluster)
     }
     return(X.filter)
 }
