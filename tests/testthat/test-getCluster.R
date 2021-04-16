@@ -15,7 +15,16 @@ demo <- suppressWarnings(get_demo_cluster())
 
 
 test_that("getCluster works and return a valid output", {
-    for(i in c("pca", "spca", "pls", "spls", "block.pls", "block.spls")){
-        expect_is(getCluster(demo[[i]]), "data.frame")
-    }
+    # for(i in c("pca", "spca", "pls", "spls", "block.pls", "block.spls")){
+    #     expect_is(getCluster(demo[[i]]), "cluster.df")
+    #     #expect_is(getCluster(demo$pca), "cluster.df")
+    #}
+    expect_is(getCluster(demo$pca), "cluster.df")
+    expect_is(getCluster(demo$spca), "cluster.df")
+    expect_is(getCluster(demo$pls), "cluster.df")
+    expect_is(getCluster(demo$spls), "cluster.df")
+    expect_is(getCluster(demo$block.pls), "cluster.df")
+    expect_is(getCluster(demo$block.spls), "cluster.df")
+    expect_is(getCluster(demo$UpDown), "cluster.df")
+    
 })

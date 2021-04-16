@@ -4,14 +4,14 @@
 \alias{getCluster}
 \title{Get variable cluster from (s)PCA, (s)PLS or block.(s)PLS}
 \usage{
-getCluster(X, ...)
+getCluster(X, user.block = NULL, user.cluster = NULL)
 }
 \arguments{
 \item{X}{an object of the class: \code{pca}, \code{spca}, \code{pls}, \code{spls}, \code{block.pls} or \code{block.spls}}
 
-\item{user.cluster}{a vector to filter the result and return only the features of the specified clusters}
-
 \item{user.block}{a vector to filter the result and return the features of the specified blocks.}
+
+\item{user.cluster}{a vector to filter the result and return only the features of the specified clusters}
 }
 \value{
 A data.frame containing the name of feature, its assigned cluster and other information such as selected component, contribution, sign, ...

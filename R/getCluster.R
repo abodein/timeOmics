@@ -25,7 +25,7 @@
 #' block.spls.cluster <- getCluster(demo$block.spls)
 #'
 #' @export
-getCluster <- function(X, ...) UseMethod("getCluster")
+getCluster <- function(X, user.block = NULL, user.cluster = NULL) UseMethod("getCluster")
 
 #' get_demo_cluster
 #' 
@@ -95,6 +95,7 @@ getCluster.pca <- function(X, user.block = NULL, user.cluster = NULL){
         .mutate_cluster()
     Valid.getCluster(loadings.max)
     loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
 
@@ -103,7 +104,7 @@ getCluster.pca <- function(X, user.block = NULL, user.cluster = NULL){
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
 #' @importFrom magrittr %>%
-getCluster.spca <- function(X){
+getCluster.spca <- function(X,  user.block = NULL, user.cluster = NULL){
     # print(class(X))
     selected.features.loadings <- X$loadings$X[rowSums(X$loadings$X) != 0,,drop=FALSE]
     loadings.max <- getMaxContrib(selected.features.loadings)
@@ -117,6 +118,7 @@ getCluster.spca <- function(X){
     Valid.getCluster(loadings.max)
     
     loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
 
@@ -125,7 +127,7 @@ getCluster.spca <- function(X){
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
 #' @importFrom magrittr %>%
-getCluster.mixo_pls <- function(X){
+getCluster.mixo_pls <- function(X,  user.block = NULL, user.cluster = NULL){
     # print(class(X))
     # block X
     loadings.max.X <- getMaxContrib(X$loadings$X)
@@ -152,6 +154,7 @@ getCluster.mixo_pls <- function(X){
     Valid.getCluster(loadings.max)
     
     loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
 
@@ -160,7 +163,7 @@ getCluster.mixo_pls <- function(X){
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
 #' @importFrom magrittr %>%
-getCluster.mixo_spls <- function(X){
+getCluster.mixo_spls <- function(X,  user.block = NULL, user.cluster = NULL){
     # note : can not concatenate X and Y
     # because they can have the same features names contrary to block.(s)pls
 
@@ -191,6 +194,7 @@ getCluster.mixo_spls <- function(X){
     Valid.getCluster(loadings.max)
     
     loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
 
@@ -200,7 +204,7 @@ getCluster.mixo_spls <- function(X){
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
 #' @importFrom magrittr %>%
-getCluster.block.pls <- function(X){
+getCluster.block.pls <- function(X,  user.block = NULL, user.cluster = NULL){
     # print(class(X))
     # get block info
     block.info <- purrr::imap(X$loadings, function(x,y) rownames(x) %>%
@@ -224,6 +228,7 @@ getCluster.block.pls <- function(X){
     Valid.getCluster(loadings.max)
     
     loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
 
@@ -233,7 +238,7 @@ getCluster.block.pls <- function(X){
 #' @importFrom tibble rownames_to_column
 #' @importFrom stringr str_remove
 #' @importFrom magrittr %>%
-getCluster.block.spls <- function(X){
+getCluster.block.spls <- function(X,  user.block = NULL, user.cluster = NULL){
 
     # print(class(X))
     # get block info
@@ -261,6 +266,7 @@ getCluster.block.spls <- function(X){
     Valid.getCluster(loadings.max)
     
     loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
 
@@ -334,4 +340,14 @@ filter.getCluster <- function(X, user.block = NULL, user.cluster = NULL){
         X.filter <- dplyr::filter(X.filter, cluster %in% user.cluster)
     }
     return(X.filter)
+}
+
+
+# add getCluster for getCluster (cluser.df) to easily apply filter
+#' @export
+getCluster.cluster.df <- function(X, user.block = NULL, user.cluster = NULL){
+    results <- X
+    results <- filter.getCluster(X = results, user.block = user.block, user.cluster = user.cluster)
+    class(results) <- c("cluster.df", "data.frame")
+    return(results)
 }

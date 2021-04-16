@@ -2,6 +2,8 @@
 #' 
 #' Performs a clustering based on the signs of variation between 2 timepoints.
 #' 
+#' @param X a dataframe or list of dataframe with the same number of rows.
+#' 
 #' @examples
 #' demo <- suppressWarnings(get_demo_cluster())
 #' X <- list(X = demo$X, Y = demo$Y, Z = demo$Z)
@@ -12,10 +14,13 @@
 #' X <- demo$X
 #' res <- getUpDownCluster(X)
 
+#' @importFrom purrr imap_dfr
 #' @export
 getUpDownCluster <- function(X){
 
-    stopifnot(class(X) %in% c("matrix", "data.frame", "list"))
+    #stopifnot(class(X) %in% c("matrix", "data.frame", "list"))
+    stopifnot(is(X, "matrix") || is(X, "data.frame") || is(X, "list"))
+    
     
     
     if(is.matrix(X) || is.data.frame(X)){
@@ -43,6 +48,7 @@ getUpDownCluster <- function(X){
     return(object)
 }
 
+#' @importFrom plyr mapvalues
 .getUpDown <- function(X){
     tmp <- lapply(X, function(x) {
         factor(sign(diff(x)), levels = c(1, -1, 0)) %>%
@@ -62,5 +68,6 @@ getCluster.UpDown <- function(X, user.block = NULL, user.cluster = NULL){
     results <- X$cluster
     
     results <- filter.getCluster(X = results, user.block = user.block, user.cluster = user.cluster)
+    class(results) <- c("cluster.df", "data.frame")
     return(results)
 }

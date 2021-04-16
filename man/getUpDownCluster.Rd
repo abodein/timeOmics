@@ -6,6 +6,9 @@
 \usage{
 getUpDownCluster(X)
 }
+\arguments{
+\item{X}{a dataframe or list of dataframe with the same number of rows.}
+}
 \description{
 Performs a clustering based on the signs of variation between 2 timepoints.
 }
