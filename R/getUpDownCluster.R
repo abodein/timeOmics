@@ -54,10 +54,11 @@ getUpDownCluster <- function(X){
         factor(sign(diff(x)), levels = c(1, -1, 0)) %>%
             plyr::mapvalues( from = c(1, -1, 0), to = c("Up", "Down", "0")) %>%
             as.character() %>%
-            paste0(collapse = "_")}) %>% 
-        as.data.frame() %>% t %>% as.data.frame() %>% rownames_to_column("molecule") %>%
+            paste0(collapse = "_")})
+    tmp <- as.data.frame(tmp, check.names = FALSE) %>% 
+        t %>% as.data.frame(check.names = FALSE) %>% 
+        rownames_to_column("molecule") %>%
         dplyr::rename("cluster"="V1")
-    
     return(tmp)
 }
 
