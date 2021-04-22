@@ -311,7 +311,7 @@ getMaxContrib <- function(X){
         abs %>%
         unique %>% 
         sort %>%
-        rep(each=2) %>% `*`(c(1,-1))
+        rep(each=2) %>% `*`(c(1,-1)) %>% unique
 
     X <- X %>%
         mutate(cluster = factor(cluster, levels = cluster.order))
