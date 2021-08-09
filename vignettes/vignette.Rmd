@@ -294,6 +294,34 @@ pca.cluster <- getCluster(pca.res)
 head(pca.cluster)
 ```
 
+### A word about the multivariate models
+
+Multivariate models provide a set of graphical methods to extract useful information about samples or variables (R functions from mixOmics).
+
+The sample plot, or more accurately here, the timepoint plot projects the samples/timpoints into the reduced space represented by the principal components (or latent structures).
+It displays the similarity (points are closed to each other) or dissimilarities between samples/timepoints.
+
+```{r}
+plotIndiv(pca.res)
+```
+
+Associations between variables can be displayed on a circle correlation.
+The variables are projected on the plane defined two principal components.
+Their projections are inside a circle of radius 1 centered and of unit variance. 
+Strongly associated (or correlated) variables are projected in the same direction from the origin. The greater the distance from the origin the stronger the association.
+
+```{r}
+plotVar(pca.res)
+```
+
+Lastly, the strenght of the variables on a component can be displayed by an horizontal barplot.
+
+```{r}
+plotLoadings(pca.res)
+```
+
+
+
 ### Plot PCA longitudinal clusters
 
 Clustered profiles can be displayed with `plotLong`. 
