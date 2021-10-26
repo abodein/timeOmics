@@ -196,14 +196,23 @@ ncomp.silhouette.block.pls <- function(object, X, Y, max.ncomp, indY, ...){
 
 #' @export
 #' @import ggplot2
-plot.ncomp.tune.silhouette <- function(x, ...){
+plot.ncomp.tune.silhouette <- function(x, title = NULL, ...){
     stopifnot(is(x, "ncomp.tune.silhouette"))
+    
+    # check title
+    if(!is.character(title)){title = NULL}
+
     data <- as.data.frame(list(ncomp = x$ncomp, silhouette = x$silhouette))
     ggplot_df <- ggplot2::ggplot(data, aes(x=ncomp, y = silhouette)) + geom_line() + geom_point() +
         geom_vline(xintercept = x$choice.ncomp, lty=2, col = "grey") +
         theme_bw() +
         xlab("Number of Principal Components") + 
         ylab("Average Silhouette Coefficient")
+    
+    # add title
+    if(is.character(title)){
+        ggplot_df <- ggplot_df + ggtitle(title)
+    }
     print(ggplot_df)
     return(invisible(ggplot_df))
 }
