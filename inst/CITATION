@@ -1,11 +1,17 @@
 citHeader("To cite timeOmics in publications, please use:")
 
 citEntry(entry="article",
-	title={"A generic multivariate framework for the integration of microbiome longitudinal studies with other data types"},
-	author={"Bodein, Antoine and Chapleur, Olivier and Droit, Arnaud and Le Cao, Kim-Anh"},
-	journal={"Frontiers in Genetics"},
-	volume={"10"},
-	year={"2019"},
-	publisher={"Frontiers Media SA"},
-	textVersion={"Bodein A, Chapleur O, Droit A and Le Cao K-A (2019) A Generic Multivariate Framework for the Integration of Microbiome Longitudinal Studies With Other Data Types. Front. Genet. 10:963. doi: 10.3389/fgene.2019.00963"}
+    author = {"Bodein, Antoine and Scott-Boyer, Marie-Pier and Perin, Olivier and Lê Cao, Kim-Anh and Droit, Arnaud"},
+    title = {"timeOmics: an R package for longitudinal multi-omics data integration"},
+    journal = {"Bioinformatics"},
+    volume = {38},
+    number = {2},
+    pages = {577-579},
+    year = {2021},
+    month = {"09"},
+    issn = {"1367-4803"},
+    doi = {"10.1093/bioinformatics/btab664"},
+    url = {"https://doi.org/10.1093/bioinformatics/btab664"},
+    eprint = {"https://academic.oup.com/bioinformatics/article-pdf/38/2/577/42040064/btab664.pdf"},
+    textVersion={"Antoine Bodein, Marie-Pier Scott-Boyer, Olivier Perin, Kim-Anh Lê Cao, Arnaud Droit, timeOmics: an R package for longitudinal multi-omics data integration, Bioinformatics, Volume 38, Issue 2, 15 January 2022, Pages 577–579, https://doi.org/10.1093/bioinformatics/btab664"}
 )
