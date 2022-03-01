@@ -321,14 +321,14 @@ tune.silhouette.distance_from_origin <- function(x1){
 #' @importFrom magrittr %>%
 tune.silhouette.get_choice_keepX <- function(tune.block.spls){
     # from slopes, keep useful columns and remove NAs.
-    slopes <- tune.block.spls$slopes %>%
-        na.omit()
+    slopes <- tune.block.spls$slopes
     tmp <- slopes %>%
         dplyr::select(c(tune.block.spls$block, comp, direction, Pval.pos, Pval.neg, distance_from_origin)) %>%
         tidyr::gather(Pval.dir, Pval.value, -c(tune.block.spls$block, comp, direction, distance_from_origin)) 
     
     # for each comp, arrange by Pvalue and distance from origin and get first result    
     MIN <- split(tmp, f=tmp$comp) %>% 
+        na.omit() %>% 
         lapply(function(x) x %>%
                    dplyr::arrange(Pval.value, distance_from_origin) %>%
                    .[1,] %>%
