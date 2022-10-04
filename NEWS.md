@@ -33,3 +33,6 @@ Changes in version 1.7.2 (2022-03-01)
 + Update citation info
 + fix bug with `tuneCluster.spca()`: empty choice.keepX returned when no features selected on the component (pos or neg).
     Now, if any feature is selected in pos or neg, the function returns the minimum value.
+    
+Changes in version 1.9.1 (2022-10-04)
++ fix is() multiple tested classes replaced by class(...); bioc 3.16

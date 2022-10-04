@@ -46,8 +46,9 @@
 #' 
 #' @export
 proportionality <- function(X){
-    stopifnot(is(X, c("pca", "spca", "mixo_pls", "mixo_spls", "block.pls", "block.spls")))
-    
+    #stopifnot(is(X, c("pca", "spca", "mixo_pls", "mixo_spls", "block.pls", "block.spls")))
+    # modif bioc 3.16
+    stopifnot(any(class(X) %in% c("pca", "spca", "mixo_pls", "mixo_spls", "block.pls", "block.spls")))
     # 1. get cluster
     cluster.info <- getCluster(X) %>%
         dplyr::select(molecule, cluster)
@@ -55,17 +56,17 @@ proportionality <- function(X){
     # 2. extract data and add cluster
     
     # pca / spca
-    if(is(X,c("pca", "spca"))){
+    if(any(class(X) %in% c("pca", "spca"))){
         # unscaling + positive value
         data <- unscale(X$X) %>% `+`(abs(min(.))) 
-    } else if(is(X, c("mixo_pls", "mixo_spls"))){
+    } else if(any(class(X) %in% c("mixo_pls", "mixo_spls"))){
         # unscale X, unscale Y, cat
         data.X <- unscale(X$X) %>%
             `+`(abs(min(.)))
         data.Y <- unscale(X$Y) %>%
             `+`(abs(min(.)))
         data <- cbind(data.X, data.Y)
-    } else if(is(X, c("block.pls", "block.spls"))){
+    } else if(any(class(X) %in% c("block.pls", "block.spls"))){
         # if(is.null(X$Y)){  ## no need: Y is passed to X
         data <- lapply(X$X, function(x) x %>%
                            unscale %>%
