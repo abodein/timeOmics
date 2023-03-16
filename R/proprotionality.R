@@ -81,8 +81,13 @@ proportionality <- function(X){
     }
     
     # 3. compute phi_s
-    data.propr <- suppressMessages(as.data.frame(propr::propr(data, metric = "phs")@matrix))
+    
+    # update 16 march 2023: propr deprecated;
+    # implementation of phi_s only based on Quinn paper
+    # data.propr <- suppressMessages(as.data.frame(propr::propr(data, metric = "phs")@matrix))
+    
     # gather, add cluster info, compute basic stats
+    data.propr <- get_phi_s(data)
     data.propr.gather <- data.propr %>%
         tibble::rownames_to_column("feature1") %>%
         tidyr::pivot_longer(-feature1, names_to = "feature2", values_to = 'value') %>%
@@ -149,3 +154,48 @@ plot.proportionality <- function(x, ...){
         labs(color = "Proportionality distance") +
         scale_color_manual(values = mixOmics::color.mixo(1:2))
 }
+
+#' based on the works of Thom Quinn (https://github.com/tpq/propr)
+get_phi_s <- function(counts){
+    ct <- counts
+    
+    if (any(as.matrix(counts) == 0)) {
+        #message("Alert: Replacing 0s with next smallest value.")
+        zeros <- ct == 0
+        ct[zeros] <- min(ct[!zeros])
+    }
+    #ivar = "clr"
+    #use <- propr::ivar2index(ct, ivar)
+    use <- 1:ncol(counts)
+    
+    
+    logX <- log(ct)
+    logSet <- logX[, use, drop = FALSE]
+    ref <- rowMeans(logSet)
+    lr <- sweep(logX, 1, ref, "-")
+
+    mat <- as.data.frame(to_lr2phs(lr))
+    colnames(mat) <- colnames(lr)
+    rownames(mat) <- colnames(lr)
+    return(mat)
+}
+
+
+to_lr2phs <- function(lr){
+    # Calculate phs = var(a-b)/var(a+b)
+    nfeats <- ncol(lr);
+    mat <- matrix(nrow = nfeats, ncol = nfeats)
+    for(i in 1:nfeats){
+        for(j in 1:nfeats){
+            if(i == j){
+                mat[i,j] <- 0
+            } else {
+                a <- lr[,i]; b <- lr[,j]
+                mat[i,j] <- var(a-b)/var(a+b)
+            }
+        }
+    }
+    # return the same matrix as propr
+    return(mat)
+}
+    

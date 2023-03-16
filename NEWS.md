@@ -36,3 +36,6 @@ Changes in version 1.7.2 (2022-03-01)
     
 Changes in version 1.9.1 (2022-10-04)
 + fix is() multiple tested classes replaced by class(...); bioc 3.16
+
+Changes in version 1.11.1 (2023-03-16)
++ Remove `propr` dependencies (removed from CRAN)
