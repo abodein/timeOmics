@@ -12,8 +12,6 @@
 #'   \item{propr.distance.w.cluster}{distance between pairs with cluster label}
 #'   \item{pvalue}{Wilcoxon U-test p-value comparing the medians within clusters and with the entire background set}
 #' 
-#' @seealso 
-#' \code{\link[propr]{propr}}
 #' 
 #' @references 
 #' Lovell, D., Pawlowsky-Glahn, V., Egozcue, J. J., Marguerat, S., Bähler, J. (2015). Proportionality: a valid alternative to correlation for relative data. PLoS Comput. Biol. 11, e1004075. doi: 10.1371/journal.pcbi.1004075
@@ -42,7 +40,6 @@
 #' @importFrom magrittr %>%
 #' @importFrom tibble rownames_to_column
 #' @importFrom tidyr pivot_longer
-#' @importFrom propr propr
 #' 
 #' @export
 proportionality <- function(X){
