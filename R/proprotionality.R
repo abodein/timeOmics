@@ -152,7 +152,7 @@ plot.proportionality <- function(x, ...){
         scale_color_manual(values = mixOmics::color.mixo(1:2))
 }
 
-#' based on the works of Thom Quinn (https://github.com/tpq/propr)
+# based on the works of Thom Quinn (https://github.com/tpq/propr)
 get_phi_s <- function(counts){
     ct <- counts
     
