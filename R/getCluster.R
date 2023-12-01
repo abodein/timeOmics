@@ -351,3 +351,19 @@ getCluster.cluster.df <- function(X, user.block = NULL, user.cluster = NULL){
     class(results) <- c("cluster.df", "data.frame")
     return(results)
 }
+
+#' summary.getCluster
+#'
+#' @param getClusterObj 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' X <- demo$X[c(1,2,3), ]
+#' res <- getUpDownCluster(X)
+#' res_cluster <- getCluster(res)
+#' summary.getCluster(res_cluster)
+summary.getCluster <- function(getClusterObj){
+    table(getClusterObj[, c("cluster", "block")])
+}
