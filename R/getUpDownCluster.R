@@ -27,7 +27,7 @@ getUpDownCluster <- function(X, diff_thresold = 0){
 
     #stopifnot(class(X) %in% c("matrix", "data.frame", "list"))
     stopifnot(is(X, "matrix") || is(X, "data.frame") || is(X, "list"))
-    checkmate::check_number(threshold)
+    checkmate::check_number(diff_thresold, null.ok = TRUE)
     
     
     if(is.matrix(X) || is.data.frame(X)){
