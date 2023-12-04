@@ -73,7 +73,6 @@ getUpDownCluster <- function(X, diff_thresold = 0){
 }
 
 
-#' @examples 
 #' demo <- suppressWarnings(get_demo_cluster())
 #' x <- diff(demo$X[,1])
 #' diff_thresold <- 15
