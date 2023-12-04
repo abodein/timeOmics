@@ -4,13 +4,17 @@
 \alias{getUpDownCluster}
 \title{Up-Down clustering}
 \usage{
-getUpDownCluster(X)
+getUpDownCluster(X, diff_thresold = 0)
 }
 \arguments{
 \item{X}{a dataframe or list of dataframe with the same number of rows.}
+
+\item{diff_threshold}{a number (optional, default 0), if the difference between 2 values is lower than the threshold, the returned sign will be 0 (no variation).}
 }
 \description{
 Performs a clustering based on the signs of variation between 2 timepoints.
+Optionally, if the difference between 2 timepoints is lower than a given threshold, 
+the returned difference will be 0.
 }
 \examples{
 demo <- suppressWarnings(get_demo_cluster())
@@ -21,4 +25,6 @@ getCluster(res)
 
 X <- demo$X
 res <- getUpDownCluster(X)
+res <- getUpDownCluster(X, diff_thresold = 15)
+res_cluster <- getCluster(res)
 }
