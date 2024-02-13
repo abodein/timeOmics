@@ -1,6 +1,6 @@
 Package: timeOmics
 Title: Time-Course Multi-Omics data integration
-Version: 1.15.5
+Version: 1.15.6
 Authors@R: 
     c(person("Antoine","Bodein", role = c("aut", "cre"), email = "antoine.bodein.1@ulaval.ca"),
       person("Olivier", "Chapleur", role = c("aut")),

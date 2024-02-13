@@ -16,18 +16,18 @@
 #' 
 #' X <- demo$X
 #' res <- getUpDownCluster(X)
-#' res <- getUpDownCluster(X, diff_thresold = 15)
+#' res <- getUpDownCluster(X, diff_threshold = 15)
 #' res_cluster <- getCluster(res)
 
 #' @importFrom purrr imap_dfr
 #' @importFrom checkmate check_number
 #' 
 #' @export
-getUpDownCluster <- function(X, diff_thresold = 0){
+getUpDownCluster <- function(X, diff_threshold = 0){
 
     #stopifnot(class(X) %in% c("matrix", "data.frame", "list"))
     stopifnot(is(X, "matrix") || is(X, "data.frame") || is(X, "list"))
-    checkmate::check_number(diff_thresold, null.ok = TRUE)
+    checkmate::check_number(diff_threshold, null.ok = TRUE)
     
     
     if(is.matrix(X) || is.data.frame(X)){
@@ -36,7 +36,7 @@ getUpDownCluster <- function(X, diff_thresold = 0){
         X <- validate_matrix_X(X)
         X <- as.data.frame(X)
         
-        res <- .getUpDown(X, diff_thresold = diff_thresold) %>% mutate(block = "X")
+        res <- .getUpDown(X, diff_threshold = diff_threshold) %>% mutate(block = "X")
     }
     else if(is.list(X) & length(X)>1){
         
@@ -45,7 +45,7 @@ getUpDownCluster <- function(X, diff_thresold = 0){
         X <- lapply(X, as.data.frame)
         stopifnot(`==`(lapply(X, nrow) %>% unlist %>% unique %>% length(), 1))
         
-        res <- imap_dfr(X, ~{.getUpDown(.x, diff_thresold = diff_thresold) %>% mutate(block = .y)})
+        res <- imap_dfr(X, ~{.getUpDown(.x, diff_threshold = diff_threshold) %>% mutate(block = .y)})
     }
     
     object <- list()
@@ -58,9 +58,9 @@ getUpDownCluster <- function(X, diff_thresold = 0){
 #' @importFrom plyr mapvalues
 #' @importFrom tibble rownames_to_column
 #' @importFrom dplyr rename
-.getUpDown <- function(X, diff_thresold){
+.getUpDown <- function(X, diff_threshold){
     tmp <- lapply(X, function(x) {
-        factor(sign(.apply_fc_threshold(diff(x), diff_thresold = diff_thresold)),
+        factor(sign(.apply_fc_threshold(diff(x), diff_threshold = diff_threshold)),
                levels = c(1, -1, 0)) %>%
             plyr::mapvalues( from = c(1, -1, 0), to = c("Up", "Down", "0")) %>%
             as.character() %>%
@@ -75,11 +75,11 @@ getUpDownCluster <- function(X, diff_thresold = 0){
 
 #' demo <- suppressWarnings(get_demo_cluster())
 #' x <- diff(demo$X[,1])
-#' diff_thresold <- 15
-.apply_fc_threshold <- function(x, diff_thresold){
+#' diff_threshold <- 15
+.apply_fc_threshold <- function(x, diff_threshold){
     # x is numeric from diff function
     # threshold is numeric
-    res <-  ifelse(abs(x) < diff_thresold, 0, x)
+    res <-  ifelse(abs(x) < diff_threshold, 0, x)
     return(res)
 }
 
