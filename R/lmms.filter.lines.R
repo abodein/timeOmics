@@ -145,7 +145,7 @@ lmms.filter.lines <- function(data,
     res <- list()
     res[["filtering.summary"]] <- result
     res[["to.keep"]] <- to.keep
-    res[["filtered"]] <- dplyr::select(predSpline, to.keep)
+    res[["filtered"]] <- dplyr::select(predSpline, all_of(to.keep))
     
     return(res)
 }

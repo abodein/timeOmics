@@ -4,7 +4,7 @@
 \alias{getUpDownCluster}
 \title{Up-Down clustering}
 \usage{
-getUpDownCluster(X, diff_thresold = 0)
+getUpDownCluster(X, diff_threshold = 0)
 }
 \arguments{
 \item{X}{a dataframe or list of dataframe with the same number of rows.}
@@ -25,6 +25,6 @@ getCluster(res)
 
 X <- demo$X
 res <- getUpDownCluster(X)
-res <- getUpDownCluster(X, diff_thresold = 15)
+res <- getUpDownCluster(X, diff_threshold = 15)
 res_cluster <- getCluster(res)
 }
