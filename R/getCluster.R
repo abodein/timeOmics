@@ -360,6 +360,7 @@ getCluster.cluster.df <- function(X, user.block = NULL, user.cluster = NULL){
 #' @export
 #'
 #' @examples
+#' demo <- suppressWarnings(get_demo_cluster())
 #' X <- demo$X[c(1,2,3), ]
 #' res <- getUpDownCluster(X)
 #' res_cluster <- getCluster(res)
