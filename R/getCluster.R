@@ -94,7 +94,7 @@ getCluster.pca <- function(X, user.block = NULL, user.cluster = NULL){
         mutate(block = "X") %>%
         .mutate_cluster()
     Valid.getCluster(loadings.max)
-    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    loadings.max <- filter.cluster.df(.data = loadings.max, user.block = user.block, user.cluster = user.cluster)
     class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
@@ -117,7 +117,7 @@ getCluster.spca <- function(X,  user.block = NULL, user.cluster = NULL){
         .mutate_cluster()
     Valid.getCluster(loadings.max)
     
-    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    loadings.max <- filter.cluster.df(.data = loadings.max, user.block = user.block, user.cluster = user.cluster)
     class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
@@ -153,7 +153,7 @@ getCluster.mixo_pls <- function(X,  user.block = NULL, user.cluster = NULL){
 
     Valid.getCluster(loadings.max)
     
-    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    loadings.max <- filter.cluster.df(.data = loadings.max, user.block = user.block, user.cluster = user.cluster)
     class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
@@ -193,7 +193,7 @@ getCluster.mixo_spls <- function(X,  user.block = NULL, user.cluster = NULL){
 
     Valid.getCluster(loadings.max)
     
-    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    loadings.max <- filter.cluster.df(.data = loadings.max, user.block = user.block, user.cluster = user.cluster)
     class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
@@ -227,7 +227,7 @@ getCluster.block.pls <- function(X,  user.block = NULL, user.cluster = NULL){
 
     Valid.getCluster(loadings.max)
     
-    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    loadings.max <- filter.cluster.df(.data = loadings.max, user.block = user.block, user.cluster = user.cluster)
     class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
@@ -265,7 +265,7 @@ getCluster.block.spls <- function(X,  user.block = NULL, user.cluster = NULL){
 
     Valid.getCluster(loadings.max)
     
-    loadings.max <- filter.getCluster(X = loadings.max, user.block = user.block, user.cluster = user.cluster)
+    loadings.max <- filter.cluster.df(.data = loadings.max, user.block = user.block, user.cluster = user.cluster)
     class(loadings.max) <- c("cluster.df", "data.frame")
     return(loadings.max)
 }
@@ -328,11 +328,12 @@ Valid.getCluster <- function(X){
 }
 
 
-
-filter.getCluster <- function(X, user.block = NULL, user.cluster = NULL){
+#' @importFrom dplyr filter
+#' @export
+filter.cluster.df <- function(.data, user.block = NULL, user.cluster = NULL){
     # X <- getCluster(pca); pca.cluster
     
-    X.filter <- X
+    X.filter <- .data
     if(!is.null(user.block)){
         X.filter <- dplyr::filter(X.filter, block %in% user.block)
     }
@@ -347,26 +348,11 @@ filter.getCluster <- function(X, user.block = NULL, user.cluster = NULL){
 #' @export
 getCluster.cluster.df <- function(X, user.block = NULL, user.cluster = NULL){
     results <- X
-    results <- filter.getCluster(X = results, user.block = user.block, user.cluster = user.cluster)
+    results <- filter.cluster.df(.data = results, user.block = user.block, user.cluster = user.cluster)
     class(results) <- c("cluster.df", "data.frame")
     return(results)
 }
 
-#' summary.getCluster
-#'
-#' @param object a getClusterObj object
-#'
-#' @return results from table
-#' @export
-#'
-#' @examples
-#' demo <- suppressWarnings(get_demo_cluster())
-#' X <- demo$X[c(1,2,3), ]
-#' res <- getUpDownCluster(X)
-#' res_cluster <- getCluster(res)
-#' summary.getCluster(res_cluster)
-summary.cluster.df <- function(object, ...){
-    table(object[, c("cluster", "block")])
-}
+
 
 
